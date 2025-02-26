@@ -4,6 +4,7 @@ import { LoanManagerABI } from '@/contracts/interfaces/LoanManager';
 import { LiquidationManagerABI } from '@/contracts/interfaces/LiquidationManager';
 import { USDTLiquidityPoolABI } from '@/contracts/interfaces/USDTLiquidityPool';
 import { MockUsdtABI } from '../contracts/interfaces/mocUsdt';
+import { DMON_NFT_CONTRACT } from '@/contracts/interfaces/dmonNftAbi';
 
 // export const MONAD_RPC ='https://rpc-devnet.monadinfra.com/rpc/3fe540e310bbb6ef0b9f16cd23073b0a'; // Replace with actual Monad Devnet RPC
 export const MONAD_RPC = 'https://testnet-rpc.monad.xyz'; // Replace with actual Monad Devnet RPC
@@ -38,6 +39,17 @@ export function useContracts() {
     LIQUIDITY_POOL_CONTRACT,
     USDTLiquidityPoolABI.abi
   );
+  const { contract: dmonContract } = useContract(
+    DMON_NFT_CONTRACT.address,
+    DMON_NFT_CONTRACT.abi
+  );
 
-  return { usdt, nftVault, loanManager, liquidationManager, liquidityPool };
+  return {
+    usdt,
+    nftVault,
+    loanManager,
+    liquidationManager,
+    liquidityPool,
+    dmonContract,
+  };
 }

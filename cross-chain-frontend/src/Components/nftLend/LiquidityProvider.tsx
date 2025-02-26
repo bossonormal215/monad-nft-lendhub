@@ -146,9 +146,9 @@ export function LiquidityProvider() {
             await fetchPoolBalance();
         } catch (error: any) {
             console.error('Error:', error);
-            if (error.message.includes('User denied transaction signature.')){
+            if (error.message.includes('User denied transaction signature.')) {
                 setError('User denied transaction signature.')
-            } else if (error.message.includes('Insufficient liquidity')){
+            } else if (error.message.includes('Insufficient liquidity')) {
                 setError('Insufficient liquidity in the pool')
             }
             // setError(error.message || 'Failed to withdraw liquidity');
@@ -196,7 +196,7 @@ export function LiquidityProvider() {
             await fetchPoolBalance();
         } catch (error: any) {
             console.error('Error:', error);
-            if (error.message.includes('user cancel')){
+            if (error.message.includes('user cancel')) {
                 setError('User Cancelled the tx')
                 setStatus('')
             }
@@ -207,82 +207,73 @@ export function LiquidityProvider() {
     };
 
     return (
-        <div className="mt-4 p-4 border rounded-lg bg-gray-800 border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">USDT Liquidity Management</h3>
+        <div className="space-y-6">
+            <div className="bg-[#131A2A] rounded-[20px] p-6">
+                <h3 className="text-xl font-medium text-[#F5F6FC] mb-4">USDT Liquidity Management</h3>
 
-            <div className="mb-4 p-3 bg-gray-700 rounded-lg">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <p className="text-sm text-gray-400">Your USDT Balance</p>
-                        <p className="text-lg font-semibold text-green-400">
+                <div className="space-y-4">
+                    <div className="flex justify-between text-sm">
+                        <span className="text-[#98A1C0]">Your USDT Balance</span>
+                        <span className="text-[#F5F6FC] font-medium">
                             {formatUSDT(usdtBalance)}
-                        </p>
+                        </span>
                     </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-400">Total Pool Liquidity</p>
-                        <p className="text-lg font-semibold text-blue-400">
+
+                    <div className="flex justify-between text-sm">
+                        <span className="text-[#98A1C0]">Total Pool Liquidity</span>
+                        <span className="text-[#F5F6FC] font-medium">
                             {formatUSDT(poolBalance)}
-                        </p>
+                        </span>
                     </div>
-                </div>
-            </div>
 
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Amount of USDT
-                    </label>
-                    <input
-                        type="number"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="w-full p-2 border rounded bg-gray-700 text-green-400 border-gray-600 focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="Enter amount of USDT"
-                        disabled={isLoading}
-                    />
-                </div>
+                    <div className="space-y-2">
+                        <label className="text-sm text-[#98A1C0]">Amount of USDT</label>
+                        <input
+                            type="number"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="w-full px-4 py-3 bg-[#0D111C] border border-[#1C2839] rounded-[20px]
+                                     text-[#F5F6FC] placeholder-[#5D6785] focus:outline-none focus:border-[#98A1C0]
+                                     transition-colors"
+                            placeholder="Enter amount of USDT"
+                            disabled={isLoading}
+                        />
+                    </div>
 
-                {error && (
-                    <p className="text-sm text-red-500">{error}</p>
-                )}
+                    {error && (
+                        <p className="text-sm text-red-500">{error}</p>
+                    )}
 
-                {status && !error && (
-                    <p className="text-sm text-blue-400">{status}</p>
-                )}
+                    {status && !error && (
+                        <p className="text-sm text-blue-400">{status}</p>
+                    )}
 
-                <div className="flex gap-4">
-                    <button
-                        onClick={handleMintUSDT}
-                        disabled={isLoading || !amount}
-                        className={`flex-1 py-2 px-4 rounded ${isLoading || !amount
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : 'bg-purple-500 hover:bg-purple-600'
-                            } text-white font-medium transition-colors`}
-                    >
-                        {isLoading ? 'Processing...' : 'Mint USDT'}
-                    </button>
-
-                    <button
-                        onClick={handleAddLiquidity}
-                        disabled={isLoading || !amount}
-                        className={`flex-1 py-2 px-4 rounded ${isLoading || !amount
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600'
-                            } text-white font-medium transition-colors`}
-                    >
-                        {isLoading ? 'Processing...' : 'Add Liquidity'}
-                    </button>
-
-                    <button
-                        onClick={handleRemoveLiquidity}
-                        disabled={isLoading || !amount}
-                        className={`flex-1 py-2 px-4 rounded ${isLoading || !amount
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : 'bg-red-500 hover:bg-red-600'
-                            } text-white font-medium transition-colors`}
-                    >
-                        {isLoading ? 'Processing...' : 'withdraw '}
-                    </button>
+                    <div className="grid grid-cols-3 gap-3">
+                        <button
+                            onClick={handleMintUSDT}
+                            disabled={isLoading || !amount}
+                            className={`px-4 py-3 bg-[#131A2A] border border-[#1C2839] rounded-[20px]
+                                         text-[#F5F6FC] hover:border-[#98A1C0] transition-colors`}
+                        >
+                            {isLoading ? 'Processing...' : 'Mint USDT'}
+                        </button>
+                        <button
+                            onClick={handleAddLiquidity}
+                            disabled={isLoading || !amount}
+                            className={`px-4 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#6366F1]
+                                         rounded-[20px] text-white font-medium hover:opacity-90 transition-opacity`}
+                        >
+                            {isLoading ? 'Processing...' : 'Add Liquidity'}
+                        </button>
+                        <button
+                            onClick={handleRemoveLiquidity}
+                            disabled={isLoading || !amount}
+                            className={`px-4 py-3 bg-[#131A2A] border border-[#1C2839] rounded-[20px]
+                                         text-[#F5F6FC] hover:border-[#98A1C0] transition-colors`}
+                        >
+                            {isLoading ? 'Processing...' : 'Withdraw'}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

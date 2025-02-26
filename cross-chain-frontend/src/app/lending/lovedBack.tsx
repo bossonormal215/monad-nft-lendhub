@@ -18,9 +18,7 @@ import { LiquidityProvider } from '@/Components/nftLend/LiquidityProvider';
 import { LoanManager } from '@/Components/nftLend/LoanManager';
 import { DMON_NFT_CONTRACT } from '@/contracts/interfaces/dmonNftAbi';
 import Web3Wrapper from "@/Components/Web3Wrapper";
-import { AdminPanel } from '@/Components/nftLend/AdminPanel';
-import { CollateralList } from '@/Components/nftLend/CollateralList';
-import { LoanDetails } from '@/Components/nftLend/LoanDetails';
+
 
 const monadTestNet = {
   chainId: 10143, // Replace with actual monad devnet chain ID
@@ -159,7 +157,7 @@ function MintDMONPage() {
   };
 
   // Admin Functions
-  const handleAddToWhitelist = async (address: string) => {
+  const handleAddToWhitelist = async () => {
     if (!dmonContract || !isAdmin) return;
 
     setIsLoading(true);
@@ -167,22 +165,16 @@ function MintDMONPage() {
     setAdminStatus('Processing...');
 
     try {
-      // Format the address array properly
       const tx = await dmonContract.call(
         "addToWhitelist",
-        [[address]] // Make sure it's a nested array
+        [[whitelistAddress]]
       );
-
       console.log("Whitelist tx:", tx);
-      setAdminStatus(`Added ${address} to whitelist`);
+      setAdminStatus(`Added ${whitelistAddress} to whitelist`);
       setWhitelistAddress(''); // Reset input
     } catch (error: any) {
       console.error("Whitelist error:", error);
-      if (error.message.includes('user rejected')) {
-        setAdminError('Transaction was rejected by user');
-      } else {
-        setAdminError('Failed to add address to whitelist');
-      }
+      setAdminError(error.message || "Failed to add to whitelist");
     } finally {
       setIsLoading(false);
     }
@@ -221,14 +213,59 @@ function MintDMONPage() {
       <div className="max-w-3xl mx-auto">
         {/* Admin Panel */}
         {isAdmin && (
-          <AdminPanel
-            isAdmin={isAdmin}
-            onAddWhitelist={handleAddToWhitelist}
-            onTogglePublicSale={handleTogglePublicSale}
-          />
+          <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-8 space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-white mb-2">Admin Panel</h2>
+              <p className="text-gray-400">Manage NFT Sale</p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Whitelist Management */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Add to Whitelist
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={whitelistAddress}
+                    onChange={(e) => setWhitelistAddress(e.target.value)}
+                    placeholder="Enter address"
+                    className="flex-1 px-3 py-2 bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
+                  />
+                  <button
+                    onClick={handleAddToWhitelist}
+                    disabled={isLoading || !whitelistAddress}
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg text-white font-medium disabled:bg-gray-600"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              {/* Sale Toggle */}
+              <button
+                onClick={handleTogglePublicSale}
+                disabled={isLoading}
+                className={`w-full py-2 px-4 rounded-lg font-medium ${isPublicSale
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-green-500 hover:bg-green-600'
+                  } text-white disabled:bg-gray-600`}
+              >
+                {isLoading ? 'Processing...' :
+                  isPublicSale ? 'Disable Public Sale' : 'Enable Public Sale'}
+              </button>
+
+              {adminError && (
+                <p className="text-red-500 text-sm">{adminError}</p>
+              )}
+              {adminStatus && !adminError && (
+                <p className="text-green-500 text-sm">{adminStatus}</p>
+              )}
+            </div>
+          </div>
         )}
 
-        {/* {NFT MINT SECTION} */}
         <div className="bg-gray-800 rounded-lg shadow-xl p-6 space-y-6">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white mb-2">DMON NFT Mint</h1>
@@ -297,7 +334,6 @@ function MintDMONPage() {
 
 
 function Main() {
-  const address = useAddress();
   const isWrongNetwork = useNetworkMismatch();
   const switchNetwork = useSwitchChain();
   const sdk = useSDK();
@@ -308,10 +344,7 @@ function Main() {
   const [maxLoanAmount, setMaxLoanAmount] = useState<string>('');
   const [userCollaterals, setUserCollaterals] = useState<any[]>([]);
   const [userUsdtBalance, setUserUsdtBalance] = useState<string>('0');
-  const [activeLoan, setActiveLoan] = useState<any>(null);
-  // const [isAdmin, setIsAdmin] = useState(false);
-
-  const adminAddress = '0xED42844Cd35d734fec3B65dF486158C443896b41';
+  const address = useAddress()
 
   useEffect(() => {
     if (isWrongNetwork) {
@@ -321,7 +354,7 @@ function Main() {
   }, [isWrongNetwork, switchNetwork]);
 
   useEffect(() => {
-    if (address && usdt) {
+    if (address && nftVault) {
       fetchUserCollaterals();
     }
   }, [address, nftVault]);
@@ -532,45 +565,61 @@ function Main() {
     }
   };
 
-  /* const handleRepay = async () => {
-    if (!activeLoan || !loanManager || !address) return;
+  const handleRepayLoan = async (loanId: number) => {
+    if (!loanManager || !address) {
+      setStatus("Please connect your wallet");
+      return;
+    }
 
     setIsLoading(true);
+    setStatus("Processing loan repayment...");
+
     try {
       const tx = await loanManager.call(
         "repayLoan",
-        [activeLoan.id]
+        [loanId]
       );
-      await tx.wait();
-      setStatus("Successfully repaid loan");
-      await fetchLoanDetails(activeLoan.id);
+
+      if (typeof tx === 'object' && tx.receipt) {
+        console.log("Repay transaction hash:", tx.receipt.transactionHash);
+      }
+
+      setStatus("Loan successfully repaid! 🎉");
     } catch (error: any) {
-      console.error("Repay error:", error);
-      setStatus("Failed to repay loan");
+      console.error("Repay failed:", error);
+      // setStatus(`Repay failed: ${error.message || "Unknown error"}`);
     } finally {
       setIsLoading(false);
     }
-  }; 
+  };
 
-  const handleLiquidate = async () => {
-    if (!activeLoan || !liquidationManager || !address) return;
+  const handleLiquidate = async (collateralId: number) => {
+    if (!liquidationManager || !address) {
+      setStatus("Please connect your wallet");
+      return;
+    }
 
     setIsLoading(true);
+    setStatus("Processing liquidation...");
+
     try {
       const tx = await liquidationManager.call(
         "liquidate",
-        [activeLoan.id]
+        [collateralId]
       );
-      await tx.wait();
-      setStatus("Successfully liquidated loan");
-      await fetchLoanDetails(activeLoan.id);
+
+      if (typeof tx === 'object' && tx.receipt) {
+        console.log("Liquidation transaction hash:", tx.receipt.transactionHash);
+      }
+
+      setStatus("Collateral successfully liquidated! 🎉");
     } catch (error: any) {
-      console.error("Liquidate error:", error);
-      setStatus("Failed to liquidate loan");
+      console.error("Liquidation failed:", error);
+      setStatus(`Liquidation failed: ${error.message || "Unknown error"}`);
     } finally {
       setIsLoading(false);
     }
-  }; */
+  };
 
   const handleNFTWithdrawn = async (collateralId: number) => {
     // Refresh user's collaterals
@@ -581,58 +630,6 @@ function Main() {
   };
 
 
-  const fetchLoanDetails = async (collateralId: number) => {
-    if (!loanManager || !address) return;
-
-    try {
-      const loanDetails = await loanManager.call(
-        "loans",
-        [collateralId]
-      );
-      setActiveLoan(loanDetails);
-    } catch (error) {
-      console.error("Error fetching loan details:", error);
-    }
-  };
-
-  /*
-
-  // Add the missing admin handlers
-  const handleAddToWhitelist = async (address: string) => {
-    if (!isAdmin || !dmonContract) return;
-
-    setIsLoading(true);
-    try {
-      const tx = await dmonContract.call(
-        "addToWhitelist",
-        [[address]]
-      );
-      setStatus(`Successfully added ${address} to whitelist`);
-    } catch (error: any) {
-      console.error("Whitelist error:", error);
-      setStatus("Failed to add address to whitelist");
-    } finally {
-      setIsLoading(false);
-    }
-  }; 
-
-  const handleTogglePublicSale = async () => {
-    if (!isAdmin || !dmonContract) return;
-
-    setIsLoading(true);
-    try {
-      const isActive = await dmonContract.call("isPresaleActive");
-      const tx = await dmonContract.call(
-        isActive ? "pausePresale" : "startPresale"
-      );
-      setStatus(`Successfully ${isActive ? 'paused' : 'started'} the presale`);
-    } catch (error: any) {
-      console.error("Toggle sale error:", error);
-      setStatus("Failed to toggle sale status");
-    } finally {
-      setIsLoading(false);
-    }
-  }; */
 
   return (
     <div className="min-h-screen bg-[#0D111C] text-white">
@@ -641,92 +638,70 @@ function Main() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold">Monad NFT Lending</h1>
           <ConnectWallet modalTitle="Connect Your Wallet" modalSize="wide" />
+
         </div>
       </header>
 
-      {!address ? (
-        // Show connect wallet message when no wallet is connected
-        <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
-          <div className="text-center space-y-6 max-w-lg">
-            <h2 className="text-3xl font-bold text-[#F5F6FC]">
-              Welcome to Monad NFT Lending
-            </h2>
-            <p className="text-[#98A1C0] text-lg">
-              Connect your wallet to start borrowing against your NFTs or providing liquidity to the platform.
-            </p>
-            <div className="inline-block">
-              <ConnectWallet
-                modalTitle="Connect Your Wallet"
-                modalSize="wide"
-                className="!bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] !text-white
-                                     hover:opacity-90 transition-opacity"
-              />
-            </div>
-            <div className="pt-8 text-sm text-[#98A1C0]">
-              <p>Supported features:</p>
-              <ul className="mt-2 space-y-1">
-                <li>• NFT Collateral Lending</li>
-                <li>• Liquidity Provision</li>
-                <li>• DMON NFT Minting</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      ) : (
-        // Main content when wallet is connected
-        <main className="container mx-auto px-4 py-6 space-y-8">
-          {/* Add Mint Section at the top */}
+      <main className="container mx-auto px-4 py-6 space-y-8">
+        {/* Main Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Liquidity Section */}
           <section className="bg-[#131A2A] rounded-[20px] p-6">
-            <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">DMON NFT Mint</h2>
-            <MintDMONPage />
+            <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">Liquidity Pool</h2>
+            <LiquidityProvider />
           </section>
 
-          {/* Main Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Liquidity Section */}
-            <section className="bg-[#131A2A] rounded-[20px] p-6">
-              <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">Liquidity Pool</h2>
-              <LiquidityProvider />
-            </section>
-
-            {/* NFT Collateral Section */}
-            <section className="bg-[#131A2A] rounded-[20px] p-6">
-              <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">NFT Collateral</h2>
-              <WhitelistedNFTs
-                onNFTDeposit={handleNFTDeposit}
-                isLoading={isLoading}
-              />
-            </section>
-          </div>
-
-          {/* Collateral Grid */}
-          {userCollaterals.length > 0 && (
-            <CollateralList
-              collaterals={userCollaterals}
-              onSelect={(collateral) => {
-                setSelectedCollateralId(collateral.id);
-                fetchLoanDetails(collateral.id);
-              }}
-              onNFTWithdrawn={handleNFTWithdrawn}
-              onBorrow={handleBorrow}
+          {/* NFT Collateral Section */}
+          <section className="bg-[#131A2A] rounded-[20px] p-6">
+            <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">NFT Collateral</h2>
+            <WhitelistedNFTs
+              onNFTDeposit={handleNFTDeposit}
+              isLoading={isLoading}
             />
-          )}
+          </section>
+        </div>
 
-          {/* Status Messages */}
-          {status && (
-            <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg 
-                                  shadow-lg border border-gray-700 animate-fade-in-out"
-              style={{
-                animation: 'fadeInOut 20s ease-in-out'
-              }}
-            >
-              <p className="text-sm text-[#F5F6FC]">{status}</p>
+        {/* Loan Operations */}
+        {userCollaterals.length > 0 && (
+          <section className="bg-gray-800 rounded-lg p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Borrow</h3>
+                <BorrowForm
+                  collateralId={selectedCollateralId}
+                  maxLoanAmount={maxLoanAmount}
+                  onBorrow={handleBorrow}
+                  isLoading={isLoading}
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-4">Loan Management</h3>
+                <LoanManager
+                  collateralId={selectedCollateralId}
+                  maxLoanAmount={maxLoanAmount}
+                  onNFTWithdrawn={handleNFTWithdrawn}
+                />
+              </div>
             </div>
-          )}
-        </main>
-      )}
+          </section>
+        )}
+
+        {/* Status Messages with Animation */}
+        {status && (
+          <div
+            className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+            style={{
+              animation: 'fadeInOut 20s ease-in-out'
+            }}
+          >
+            <p className="text-sm">{status}</p>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
 
 export default App;
+
+

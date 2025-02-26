@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useContract, useAddress } from '@thirdweb-dev/react';

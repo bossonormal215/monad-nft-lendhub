@@ -156,15 +156,15 @@ export function LoanManager({
     }, [loanManager]);
 
     // Add auto-dismiss effect
-  useEffect(() => {
-    if (status || error) {
-      const timer = setTimeout(() => {
-        setStatus('');
-      }, 5000); // 5 seconds
+    useEffect(() => {
+        if (status || error) {
+            const timer = setTimeout(() => {
+                setStatus('');
+            }, 5000); // 5 seconds
 
-      return () => clearTimeout(timer);
-    }
-  }, [status]);
+            return () => clearTimeout(timer);
+        }
+    }, [status]);
 
     const handleRepay = async () => {
         if (!loanManager || !collateralId || !activeLoan || !usdt) return;
@@ -277,7 +277,7 @@ export function LoanManager({
             }
             else {
                 // setError(error.message || "Failed to repay loan");
-                console.log('Error: ',  error.message)
+                console.log('Error: ', error.message)
             }
         } finally {
             setIsLoading(false);
@@ -432,10 +432,9 @@ export function LoanManager({
                         <button
                             onClick={handleLiquidate}
                             disabled={isLoading}
-                            className={`flex-1 py-3 px-6 rounded-lg text-lg font-medium ${isLoading
-                                ? 'bg-gray-600 cursor-not-allowed'
-                                : 'bg-red-500 hover:bg-red-600'
-                                } text-white transition-colors`}
+                            className="px-4 py-2 bg-[#FFC107] hover:bg-[#FFB300] rounded-[20px] 
+                                       text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed
+                                       transition-colors"
                         >
                             Liquidate
                         </button>

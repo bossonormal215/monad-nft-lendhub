@@ -20,29 +20,25 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-
 @keyframes fadeInOut {
   0% {
-    opacity: 0;
-    transform: translateY(20px);
+      opacity: 0;
+      transform: translateY(20px);
   }
-
   5% {
-    opacity: 1;
-    transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
   }
-
   90% {
-    opacity: 1;
-    transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
   }
-
   100% {
-    opacity: 0;
-    transform: translateY(20px);
+      opacity: 0;
+      transform: translateY(20px);
   }
 }
 
 .animate-fade-in-out {
   animation: fadeInOut 20s ease-in-out;
-}
+} 

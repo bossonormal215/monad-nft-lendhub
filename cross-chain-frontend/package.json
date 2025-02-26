@@ -9,15 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@privy-io/react-auth": "^2.4.5",
+    "@thirdweb-dev/chains": "^0.1.120",
+    "@thirdweb-dev/react": "^4.9.4",
     "@wormhole-foundation/sdk": "^1.10.0",
     "ethers": "^5.7.2",
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "thirdweb": "^5.80.0",
-    "@thirdweb-dev/react": "^4.9.4",
-    "@thirdweb-dev/chains": "^0.1.120"
+    "thirdweb": "^5.80.0"
   },
   "devDependencies": {
     "@types/node": "^20",
