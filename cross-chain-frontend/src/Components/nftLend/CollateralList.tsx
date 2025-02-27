@@ -83,17 +83,19 @@ export function CollateralList({
             {/* Dropdown Toggle */}
             <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex items-center justify-between px-4 py-2 bg-[#1C2839] 
+                className="w-full flex items-center justify-between px-3 py-1.5 bg-[#1C2839] 
                          rounded-lg text-[#F5F6FC] hover:bg-[#2C3545] transition-colors mb-4"
             >
-                <span className="font-medium">
+                <span className="text-sm font-medium">
                     {activeTab === 'active' ? 'Active Loans' : 'Available Collaterals'}
                 </span>
-                {isDropdownOpen ? (
-                    <ChevronUpIcon className="w-1 h-1 text-[#98A1C0]" />
-                ) : (
-                    <ChevronDownIcon className="w-1 h-1 text-[#98A1C0]" />
-                )}
+                <span className="flex items-center justify-center w-4 h-4">
+                    {isDropdownOpen ? (
+                        <ChevronUpIcon className="w-2.5 h-2.5 text-[#98A1C0]" />
+                    ) : (
+                        <ChevronDownIcon className="w-2.5 h-2.5 text-[#98A1C0]" />
+                    )}
+                </span>
             </button>
 
             {/* Collateral Lists */}
