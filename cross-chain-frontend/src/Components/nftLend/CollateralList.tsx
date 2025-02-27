@@ -90,9 +90,9 @@ export function CollateralList({
                     {activeTab === 'active' ? 'Active Loans' : 'Available Collaterals'}
                 </span>
                 {isDropdownOpen ? (
-                    <ChevronUpIcon className="w-4 h-4 text-[#98A1C0]" />
+                    <ChevronUpIcon className="w-1 h-1 text-[#98A1C0]" />
                 ) : (
-                    <ChevronDownIcon className="w-4 h-4 text-[#98A1C0]" />
+                    <ChevronDownIcon className="w-1 h-1 text-[#98A1C0]" />
                 )}
             </button>
 
