@@ -321,7 +321,7 @@ function Main() {
   }, [isWrongNetwork, switchNetwork]);
 
   useEffect(() => {
-    if (address && usdt) {
+    if (address && nftVault) {
       fetchUserCollaterals();
     }
   }, [address, nftVault]);

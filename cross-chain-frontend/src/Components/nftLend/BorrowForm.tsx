@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { useContract, useAddress } from '@thirdweb-dev/react';
-import { LOAN_MANAGER_CONTRACT } from '@/thirdweb/thirdwebConfig';
-import { LoanManagerABI } from '@/contracts/interfaces/LoanManager';
+import { useAddress } from '@thirdweb-dev/react';
+import { useContracts } from '@/thirdweb/thirdwebConfig';
 
 interface BorrowFormProps {
     collateralId: number | null;
@@ -16,8 +15,7 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
     const [error, setError] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const address = useAddress();
-    const { contract: loanManager } = useContract(LOAN_MANAGER_CONTRACT, LoanManagerABI.abi);
+    const { loanManager } = useContracts();
 
     // Reset states when collateral changes
     useEffect(() => {
@@ -92,42 +90,32 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
                 maxLoanAmount
             });
 
+            // Issue the loan
             const tx = await loanManager.call(
                 "issueLoan",
                 [collateralId, parsedAmount]
             );
 
-            // Wait for transaction confirmation
-            // await tx.receipt.wait();
-
             console.log("Borrow transaction completed:", tx);
+            setStatus(`Successfully borrowed ${amount} USDT! ��`);
+            setAmount('');
+            setError('');
 
             // Call onBorrow after successful transaction
             await onBorrow(collateralId, amount);
-
-            // Set success message
-            setStatus(`Successfully borrowed ${amount} USDT! 🎉`);
-            setAmount(''); // Reset form
-
-            // Reset error if any
-            setError('');
         } catch (error: any) {
-            // console.error("Borrow failed:", error);
+            console.error("Detailed borrow error:", error);
+
             if (error.message.includes("exceeds max loan amount")) {
                 setError(`Amount exceeds maximum loan amount of ${maxLoanAmount} USDT`);
             } else if (error.message.includes("Loan already exists")) {
                 setError("This NFT already has an active loan");
             } else if (error.message.includes("insufficient liquidity")) {
                 setError("Insufficient liquidity in the pool");
-            }
-            else if (error.message.includes('Collateral not active')) {
+            } else if (error.message.includes('Collateral not active')) {
                 setError('Selected Collateral Is Not Active');
             }
-            else {
-                // setError(error.message || "Failed to borrow");
-                console.log(error.message || "Failed to borrow");
-            }
-            setStatus(''); // Clear status on error
+            setStatus('');
         } finally {
             setIsProcessing(false);
         }
@@ -184,7 +172,7 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
             )}
         </div>
     );
-} 
+}
 
 
 // //////////////////////////////////////////

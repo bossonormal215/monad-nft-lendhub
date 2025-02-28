@@ -67,7 +67,7 @@ export function CollateralList({
                         : 'text-[#98A1C0] hover:text-white'
                         }`}
                 >
-                    Active Loans ({activeCollaterals.length})
+                    Active Collaterals ({activeCollaterals.length})
                 </button>
                 <button
                     onClick={() => setActiveTab('inactive')}
@@ -76,7 +76,7 @@ export function CollateralList({
                         : 'text-[#98A1C0] hover:text-white'
                         }`}
                 >
-                    Available Collaterals ({inactiveCollaterals.length})
+                    InActive Collaterals ({inactiveCollaterals.length})
                 </button>
             </div>
 
@@ -87,7 +87,7 @@ export function CollateralList({
                          rounded-lg text-[#F5F6FC] hover:bg-[#2C3545] transition-colors mb-4"
             >
                 <span className="text-sm font-medium">
-                    {activeTab === 'active' ? 'Active Loans' : 'Available Collaterals'}
+                    {activeTab === 'active' ? 'Active Collaterals' : 'InActive Collaterals'}
                 </span>
                 <span className="flex items-center justify-center w-4 h-4">
                     {isDropdownOpen ? (
@@ -129,12 +129,20 @@ export function CollateralList({
 
                                         {selectedCollateral === collateral.id && (
                                             <div className="mt-4 pt-4 border-t border-[#2C3545]">
+                                            <BorrowForm
+                                                collateralId={collateral.id}
+                                                maxLoanAmount={formatAmount(collateral.maxLoanAmount)}
+                                                isLoading={false}
+                                                onBorrow={onBorrow}
+                                            />
+                                            <div className="mt-4">
                                                 <LoanManager
                                                     collateralId={collateral.id}
                                                     maxLoanAmount={formatAmount(collateral.maxLoanAmount)}
                                                     onNFTWithdrawn={onNFTWithdrawn}
                                                 />
                                             </div>
+                                        </div>
                                         )}
                                     </div>
                                 ))}
@@ -172,18 +180,18 @@ export function CollateralList({
 
                                         {selectedCollateral === collateral.id && (
                                             <div className="mt-4 pt-4 border-t border-[#2C3545]">
-                                                <BorrowForm
+                                                {/* <BorrowForm
                                                     collateralId={collateral.id}
                                                     maxLoanAmount={formatAmount(collateral.maxLoanAmount)}
                                                     isLoading={false}
                                                     onBorrow={onBorrow}
-                                                />
+                                                /> */}
                                                 <div className="mt-4">
-                                                    <LoanManager
+                                                    {/* <LoanManager
                                                         collateralId={collateral.id}
                                                         maxLoanAmount={formatAmount(collateral.maxLoanAmount)}
                                                         onNFTWithdrawn={onNFTWithdrawn}
-                                                    />
+                                                    /> */}
                                                 </div>
                                             </div>
                                         )}
