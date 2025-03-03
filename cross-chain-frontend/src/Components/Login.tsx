@@ -43,9 +43,7 @@ export default function Login() {
         <button
           disabled={disableLogin}
           onClick={login}
-          className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg
-                   hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105
-                   disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
         >
           Login With Privy
         </button>

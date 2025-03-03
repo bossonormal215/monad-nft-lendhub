@@ -228,7 +228,7 @@ function MintDMONPage() {
         {/* {NFT MINT SECTION} */}
         <div className="bg-gray-800 rounded-lg shadow-xl p-6 space-y-6">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white mb-2">DMON NFT Mint</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">MINT DMON NFT</h1>
             <p className="text-gray-400">
               {totalSupply} / {maxSupply} Minted
             </p>
@@ -658,14 +658,6 @@ function Main() {
                 className="!bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] !text-white hover:opacity-90 transition-opacity"
               />
             </div>
-            <div className="pt-8 text-sm text-[#98A1C0]">
-              <p>Supported features:</p>
-              <ul className="mt-2 space-y-1">
-                <li>• NFT Collateral Lending</li>
-                <li>• Liquidity Provision</li>
-                <li>• DMON NFT Minting</li>
-              </ul>
-            </div>
           </div>
         </div>
       ) : (
@@ -673,7 +665,6 @@ function Main() {
         <main className="container mx-auto px-4 py-6 space-y-8">
           {/* Add Mint Section at the top */}
           <section className="bg-[#131A2A] rounded-[20px] p-6">
-            <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">DMON NFT Mint</h2>
             <MintDMONPage />
           </section>
 

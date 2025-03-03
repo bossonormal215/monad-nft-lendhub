@@ -66,10 +66,10 @@ export default function RootLayout({
     <html lang="en">
       {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
       <body className={inter.className}>
-      <main className="min-h-screen bg-gray-900">
-        <Web3Wrapper>
-          {children}
-        </Web3Wrapper>
+        <main className="min-h-screen bg-gray-900">
+          <Web3Wrapper>
+            {children}
+          </Web3Wrapper>
         </main>
       </body>
     </html>

@@ -15,6 +15,8 @@
     "@thirdweb-dev/react": "^4.9.4",
     "@wormhole-foundation/sdk": "^1.10.0",
     "ethers": "^5.7.2",
+    "framer-motion": "^12.4.9",
+    "lucide-react": "^0.477.0",
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

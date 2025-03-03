@@ -42,3 +42,8 @@ body {
 .animate-fade-in-out {
   animation: fadeInOut 20s ease-in-out;
 } 
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+

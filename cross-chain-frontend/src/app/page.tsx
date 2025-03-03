@@ -138,13 +138,16 @@
 import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+  
 
 export default function Home() {
 
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const address = useAddress()
+  const address = useAddress();
+  const [isHovered, setIsHovered] = useState(false);
 
   const disableTipping =  !recipient || !amount;
 
@@ -195,27 +198,46 @@ export default function Home() {
                       Connect your wallet to start borrowing against your NFTs or providing liquidity to the platform.
                     </p>
                     <div className="inline-block">
-                      <ConnectWallet />
+                      <ConnectWallet 
+                     className="!bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] !text-white hover:opacity-90 transition-opacity"
+                     />
                     </div>
-                    <div className="pt-8 text-sm text-[#98A1C0]">
-                      <p>Supported features:</p>
-                      <ul className="mt-2 space-y-1">
-                        <li>• NFT Collateral Lending</li>
-                        <li>• Liquidity Provision</li>
-                        <li>• DMON NFT Minting</li>
-                      </ul>
-                    </div>
+                    
                   </div>
                 </div>
               ) : (
-                <div className="flex space-x-4">
-                  <Link
-                  href='./lending'
-                  className="bg-blue-600- hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition-all"
+                <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
+                <Link href="./lending" className="inline-block">
+                  <button
+                    className="relative group overflow-hidden rounded-full px-8 py-4 font-medium text-white shadow-lg transition-all duration-300 ease-out"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{
+                      background: "linear-gradient(to right, #8B5CF6, #6366F1)",
+                      boxShadow: isHovered
+                        ? "0 10px 25px -3px rgba(99, 102, 241, 0.5)"
+                        : "0 4px 6px -1px rgba(99, 102, 241, 0.3)",
+                    }}
                   >
-                    Explore Lending
-                  </Link> 
-                  </div>
+                    {/* Animated background shine effect */}
+                    <span
+                      className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-out"
+                      style={{
+                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+                      }}
+                    />
+          
+                    {/* Button text with icon */}
+                    <span className="flex items-center justify-center gap-2 transform group-hover:translate-x-1 transition-transform duration-300">
+                      Explore Lending
+                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                    </span>
+          
+                    {/* Subtle border glow */}
+                    <span className="absolute inset-0 rounded-full border border-white/20 group-hover:border-white/40 transition-all duration-300" />
+                  </button>
+                </Link>
+              </div>
               )}
       </div>
     </main>

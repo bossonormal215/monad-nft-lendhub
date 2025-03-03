@@ -29,7 +29,7 @@ const NFTCard = ({ nft, onSelect, selected }: NFTCardProps) => {
                 />
             )}
             <h3 className="font-bold text-lg text-white">{nft.name}</h3>
-            <p className="text-sm text-gray-300">{nft.symbol}</p>
+            {/* <p className="text-sm text-gray-300">{nft.symbol}</p> */}
             {nft.description && (
                 <p className="text-sm text-gray-400 mt-2">{nft.description}</p>
             )}

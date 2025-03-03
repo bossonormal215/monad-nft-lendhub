@@ -421,26 +421,31 @@ export function LoanManager({
                         <p>Total to Repay: {formatBigNumber(activeLoan.totalRepayment)} USDT</p>
                     </div>
                     <div className="flex gap-4">
-                        <button
-                            onClick={handleRepay}
-                            disabled={isLoading}
-                            className={`flex-1 py-3 px-6 rounded-lg text-lg font-medium ${isLoading
-                                ? 'bg-gray-600 cursor-not-allowed'
-                                : 'bg-yellow-500 hover:bg-yellow-600'
-                                } text-white transition-colors`}
-                        >
-                            {isLoading ? 'Processing...' : 'Repay Loan'}
-                        </button>
+                    <button
+              onClick={handleRepay}
+              disabled={isLoading}
+              className={`flex-1 py-3 px-6 rounded-xl text-lg font-medium transition-all duration-300 
+                ${
+                    isLoading
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#FFC107] to-[#FFB300] hover:shadow-lg hover:shadow-yellow-500/20 hover:scale-[1.02]"
+                } text-white`}
+            >
+              {isLoading ? 'Processing...' : 'Repay Loan'}
+            </button>
 
-                        <button
-                            onClick={handleLiquidate}
-                            disabled={isLoading}
-                            className="px-4 py-2 bg-[#FFC107] hover:bg-[#FFB300] rounded-[20px] 
-                                       text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed
-                                       transition-colors"
-                        >
-                            Liquidate
-                        </button>
+            <button
+              onClick={handleLiquidate}
+              disabled={isLoading}
+              className={`flex-1 py-3 px-6 rounded-xl text-lg font-medium transition-all duration-300
+                ${ 
+                    isLoading
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#FF3D3D] to-[#FF5252] hover:shadow-lg hover:shadow-red-500/20 hover:scale-[1.02]"
+                } text-white`}
+            >
+              Liquidate
+            </button>
                     </div>
                 </div>
             )}

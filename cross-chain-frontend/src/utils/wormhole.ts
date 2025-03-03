@@ -1,36 +1,69 @@
 // import { ethers } from 'ethers';
-// import { WormholeContext, MAINNET_CHAINS, TESTNET_CHAINS } from '@wormhole-foundation/connect-sdk';
+// import { wormhole } from '@wormhole-foundation/sdk';
+// import { Wormhole, amount, signSendWait } from '@wormhole-foundation/sdk';
+// import evm from '@wormhole-foundation/sdk/evm';
 
-// // Initialize Wormhole context for testnet
-// const context = new WormholeContext('TESTNET', [
-//   TESTNET_CHAINS.sepolia,  // Source chain
-//   TESTNET_CHAINS.monad     // Destination chain
-// ]);
+// // Chain configurations
+// export const CHAIN_CONFIG = {
+//     sepolia: {
+//         id: 11155111,
+//         rpc: 'https://sepolia.infura.io/v3/bc3fba1bbc6a4ab7a4ec1964d16eb8ff',
+//         name: 'Sepolia',
+//         wormholeChainId: 11155111,
+//     },
+//     monad: {
+//         id: 10143,
+//         rpc: 'https://testnet-rpc.monad.xyz',
+//         name: 'Monad Testnet',
+//         wormholeChainId: 10143,
+//     }
+// };
+
+// // Initialize Wormhole context
+// export const initWormhole = async () => {
+//     try {
+//         const wh = await wormhole('Testnet', [evm]);
+//         return wh;
+//     } catch (error) {
+//         console.error('Failed to initialize Wormhole:', error);
+//         throw error;
+//     }
+// };
 
 // export async function transferFromSepoliaToMonad(
-//   recipientMonadAddress: string,
-//   amount: string
+//     recipientMonadAddress: string,
+//     amountToTransfer: string
 // ) {
-//   try {
-//     // Convert amount to wei
-//     const amountInWei = ethers.utils.parseEther(amount);
+//     try {
+//         // Initialize Wormhole
+//         const wh = await initWormhole();
 
-//     // Create transfer
-//     const transfer = await context.tokenBridge().transfer({
-//       from: TESTNET_CHAINS.sepolia,
-//       to: TESTNET_CHAINS.monad,
-//       token: 'ETH',
-//       amount: amountInWei,
-//       recipient: recipientMonadAddress,
-//     });
+//         // Convert amount to wei
+//         const amountInWei = ethers.utils.parseEther(amountToTransfer);
 
-//     // Execute the transfer
-//     const tx = await transfer.submit();
-//     console.log('Transfer initiated:', tx);
-//     return tx;
+//         // Get the source chain context
+//         const sourceChain = wh.getChain('Sepolia');
+//         const targetChain = wh.getChain('Monad');
 
-//   } catch (error) {
-//     console.error('Wormhole transfer failed:', error);
-//     throw error;
-//   }
+//         // Get Token Bridge contract
+//         const tokenBridge = await sourceChain.getTokenBridge();
+
+//         const tokenId = Wormhole.tokenId(sourceChain.chain, "native");
+
+//         // Create transfer parameters
+//         const transfer = await tokenBridge.transfer(
+//             tokenId, // token address (native token)
+//             amountInWei.toString(),         // amount
+//             CHAIN_CONFIG.monad.wormholeChainId,  // destination chain
+//             recipientMonadAddress           // recipient address
+//         );
+
+//         // Execute the transfer
+//         const txids = await signSendWait(sourceChain, transfer, address);
+//         console.log('Transfer initiated:', txids);
+//         return txids;
+//     } catch (error) {
+//         console.error('Wormhole transfer failed:', error);
+//         throw error;
+//     }
 // }
