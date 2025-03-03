@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useCallback } from 'react';
 import { useContract, useAddress } from '@thirdweb-dev/react';
 import { ethers } from 'ethers';
@@ -6,6 +8,7 @@ import { LoanManagerABI } from '@/contracts/interfaces/LoanManager';
 import { NFTCollateralVaultABI } from '@/contracts/interfaces/NFTCollateralVault';
 import { LiquidationManagerABI } from '@/contracts/interfaces/LiquidationManager';
 import { MockUsdtABI } from '@/contracts/interfaces/mocUsdt';
+// import { useAddress } from '../privy/hooks/useWallet';
 
 interface LoanManagerProps {
     collateralId: number | null;

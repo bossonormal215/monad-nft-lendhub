@@ -8,18 +8,28 @@ import { DMON_NFT_CONTRACT } from '@/contracts/interfaces/dmonNftAbi';
 
 // export const MONAD_RPC ='https://rpc-devnet.monadinfra.com/rpc/3fe540e310bbb6ef0b9f16cd23073b0a'; // Replace with actual Monad Devnet RPC
 export const MONAD_RPC = 'https://testnet-rpc.monad.xyz'; // Replace with actual Monad Devnet RPC
-export const USDT_CONTRACT = '0x4565a53f12942bb7B08CF517F8ae3911102b3AD6'; // 1 testnet
+// export const USDT_CONTRACT = '0x4565a53f12942bb7B08CF517F8ae3911102b3AD6'; // 1 testnet
+// export const USDT_CONTRACT = '0x3E00a6A358B2CFD7682F3D2591e218a65b1D6D6C'; // 2 testnet
+export const USDT_CONTRACT = '0xe78dA65A6CfE45C5DDbf6F2151E70AD7A1CA5875'; // 2 testnet
 
-export const NFT_VAULT_CONTRACT = '0xd0434B6eF7369e213C32cDA3DEd50775B208Ed81'; // 1 testnet
+// export const NFT_VAULT_CONTRACT = '0xd0434B6eF7369e213C32cDA3DEd50775B208Ed81'; // 1 testnet
+// export const NFT_VAULT_CONTRACT = '0x4D3f58fa59dB2f621f5dAb8cdfFdffDD915fda8a'; // 2 testnet
+export const NFT_VAULT_CONTRACT = '0x1f9B16C4f5a2972192Ba31CF8bF999841d219B66'; // 2 testnet
 
+// export const LOAN_MANAGER_CONTRACT = '0x3ffED1D0912FFF6b6f237B9797409F39bc2268Ba'; // 1 testnet
+// export const LOAN_MANAGER_CONTRACT = '0xB04E488a1195966c22c31fAfdDDB13787624f95f'; // 2 testnet
 export const LOAN_MANAGER_CONTRACT =
-  '0x3ffED1D0912FFF6b6f237B9797409F39bc2268Ba'; // 1 testnet
+  '0x77F3EE500935BdA0C7C606f385AD97E311584948'; // 2 testnet
 
+// export const LIQUIDATION_MANAGER_CONTRACT =  '0x0f4D03635456bC3261D4e341F91E36cc3606e0Cd'; // 1 testnet
+// export const LIQUIDATION_MANAGER_CONTRACT = '0x0838615fd37144075b4b3262fbb2D73066388e18'; // 2 testnet
 export const LIQUIDATION_MANAGER_CONTRACT =
-  '0x0f4D03635456bC3261D4e341F91E36cc3606e0Cd'; // 1 testnet
+  '0x5333a7Ea522862ef680Da8EF7178a42a9E6D89C6'; // 2 testnet
 
+// export const LIQUIDITY_POOL_CONTRACT = '0xcAbd7E3DDF1238f2eEaf27c0888FACE396FccBFb'; // 1 testnet
+// export const LIQUIDITY_POOL_CONTRACT = '0xeFB929c945C375F41F33141939dC68425aFFdA6b'; // 2 testnet
 export const LIQUIDITY_POOL_CONTRACT =
-  '0xcAbd7E3DDF1238f2eEaf27c0888FACE396FccBFb'; // 1 testnet
+  '0xEdad7642e3BDC6bC2A185F22abd743d98bf13340'; // 2 testnet
 
 export function useContracts() {
   const { contract: usdt } = useContract(USDT_CONTRACT, MockUsdtABI.abi);

@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useContract, useAddress } from '@thirdweb-dev/react';
@@ -23,7 +25,7 @@ const formatUSDT = (value: string | number): string => {
 
 export function LiquidityProvider() {
     const [amount, setAmount] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [IsLoadiing, setIsLoadiing] = useState(false);
     const [error, setError] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [usdtBalance, setUsdtBalance] = useState<string>('0');
@@ -83,16 +85,19 @@ export function LiquidityProvider() {
     }, [address, usdt, liquidityPool]);
 
     const handleMintUSDT = async () => {
-        if (!usdt || !address || !amount) return;
+        // if (!usdt || !address || !amount) return;
+        if (!usdt || !address ) return;
 
-        setIsLoading(true);
+        setIsLoadiing(true);
         setError('');
         setStatus('Minting USDT...');
 
         try {
             const mintTx = await usdt.call(
-                "mint",
-                [address, ethers.utils.parseEther(amount)]
+                // "mint",
+                // [address, ethers.utils.parseEther(amount)]
+                "mintTokens",
+                []
             );
             console.log("Mint transaction:", mintTx);
             setStatus('Successfully minted USDT! 🎉');
@@ -105,17 +110,17 @@ export function LiquidityProvider() {
                 setError('Only Owner Is Allowed To Mint USDT !! ');
             }
             if (error.message.includes('data')) {
-                setError('Missing revert Data, You Are Not Allowed To Mint!!');
+                setError('You Are Not Allowed To Mint!!, Mint an NFT to be whitelisted for minting 2000 mUSDT');
             }
         } finally {
-            setIsLoading(false);
+            setIsLoadiing(false);
         }
     };
 
     const handleRemoveLiquidity = async () => {
         if (!usdt || !liquidityPool || !address || !amount) return;
 
-        setIsLoading(true);
+        setIsLoadiing(true);
         setError('');
         setStatus('Processing...');
 
@@ -153,14 +158,14 @@ export function LiquidityProvider() {
             }
             // setError(error.message || 'Failed to withdraw liquidity');
         } finally {
-            setIsLoading(false);
+            setIsLoadiing(false);
         }
     };
 
     const handleAddLiquidity = async () => {
         if (!usdt || !liquidityPool || !address || !amount) return;
 
-        setIsLoading(true);
+        setIsLoadiing(true);
         setError('');
         setStatus('Processing...');
 
@@ -202,7 +207,7 @@ export function LiquidityProvider() {
             }
             // setError(error.message || 'Transaction failed');
         } finally {
-            setIsLoading(false);
+            setIsLoadiing(false);
         }
     };
 
@@ -236,7 +241,7 @@ export function LiquidityProvider() {
                                      text-[#F5F6FC] placeholder-[#5D6785] focus:outline-none focus:border-[#98A1C0]
                                      transition-colors"
                             placeholder="Enter amount of USDT"
-                            disabled={isLoading}
+                            disabled={IsLoadiing }
                         />
                     </div>
 
@@ -251,27 +256,27 @@ export function LiquidityProvider() {
                     <div className="grid grid-cols-3 gap-3">
                         <button
                             onClick={handleMintUSDT}
-                            disabled={isLoading || !amount}
+                            disabled={IsLoadiing  }
                             className={`px-4 py-3 bg-[#131A2A] border border-[#1C2839] rounded-[20px]
                                          text-[#F5F6FC] hover:border-[#98A1C0] transition-colors`}
                         >
-                            {isLoading ? 'Processing...' : 'Mint USDT'}
+                            {IsLoadiing  ? 'Processing...' : 'Mint USDT'}
                         </button>
                         <button
                             onClick={handleAddLiquidity}
-                            disabled={isLoading || !amount}
+                            disabled={IsLoadiing  || !amount}
                             className={`px-4 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#6366F1]
                                          rounded-[20px] text-white font-medium hover:opacity-90 transition-opacity`}
                         >
-                            {isLoading ? 'Processing...' : 'Add Liquidity'}
+                            {IsLoadiing  ? 'Processing...' : 'Add Liquidity'}
                         </button>
                         <button
                             onClick={handleRemoveLiquidity}
-                            disabled={isLoading || !amount}
+                            disabled={IsLoadiing || !amount}
                             className={`px-4 py-3 bg-[#131A2A] border border-[#1C2839] rounded-[20px]
                                          text-[#F5F6FC] hover:border-[#98A1C0] transition-colors`}
                         >
-                            {isLoading ? 'Processing...' : 'Withdraw'}
+                            {IsLoadiing ? 'Processing...' : 'Withdraw'}
                         </button>
                     </div>
                 </div>

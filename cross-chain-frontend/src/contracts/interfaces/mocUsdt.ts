@@ -182,6 +182,25 @@ export const MockUsdtABI = {
       inputs: [
         {
           internalType: 'address',
+          name: '',
+          type: 'address',
+        },
+      ],
+      name: 'hasMintedTokens',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
           name: 'spender',
           type: 'address',
         },
@@ -221,6 +240,32 @@ export const MockUsdtABI = {
       type: 'function',
     },
     {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address',
+        },
+      ],
+      name: 'mintAllowance',
+      outputs: [
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'mintTokens',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
       inputs: [],
       name: 'name',
       outputs: [
@@ -228,6 +273,19 @@ export const MockUsdtABI = {
           internalType: 'string',
           name: '',
           type: 'string',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'nftContract',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address',
         },
       ],
       stateMutability: 'view',
@@ -249,6 +307,19 @@ export const MockUsdtABI = {
     {
       inputs: [],
       name: 'renounceOwnership',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_nftContract',
+          type: 'address',
+        },
+      ],
+      name: 'setNFTContract',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function',
@@ -341,6 +412,24 @@ export const MockUsdtABI = {
         },
       ],
       name: 'transferOwnership',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_user',
+          type: 'address',
+        },
+        {
+          internalType: 'uint256',
+          name: '_amount',
+          type: 'uint256',
+        },
+      ],
+      name: 'whitelistUser',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function',

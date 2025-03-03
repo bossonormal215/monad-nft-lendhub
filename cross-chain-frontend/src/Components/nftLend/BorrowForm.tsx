@@ -1,6 +1,7 @@
+'use client'
+
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { useAddress } from '@thirdweb-dev/react';
 import { useContracts } from '@/thirdweb/thirdwebConfig';
 
 interface BorrowFormProps {

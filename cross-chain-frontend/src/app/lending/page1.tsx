@@ -2,22 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import {
-  useAddress,
-  useContract,
-  useNetworkMismatch,
-  useSwitchChain,
-  useSDK,
-  ConnectWallet
-} from "@thirdweb-dev/react";
-import {  useContracts } from "@/thirdweb/thirdwebConfig";
+// import {useAddress, useContract, useNetworkMismatch, useSwitchChain, useSDK, ConnectWallet} from "@thirdweb-dev/react";
+import { useWallets } from "@privy-io/react-auth";
+import { LOAN_MANAGER_CONTRACT, useContracts } from "@/thirdweb/thirdwebConfig";
 import { NFT_VAULT_CONTRACT } from "@/thirdweb/thirdwebConfig";
 import { WhitelistedNFTs } from '@/Components/nftLend/WhitelistedNFTs';
+import { BorrowForm } from '@/Components/nftLend/BorrowForm';
 import { LiquidityProvider } from '@/Components/nftLend/LiquidityProvider';
+import { LoanManager } from '@/Components/nftLend/LoanManager';
 import { DMON_NFT_CONTRACT } from '@/contracts/interfaces/dmonNftAbi';
 import Web3Wrapper from "@/Components/Web3Wrapper";
 import { AdminPanel } from '@/Components/nftLend/AdminPanel';
 import { CollateralList } from '@/Components/nftLend/CollateralList';
+import { LoanDetails } from '@/Components/nftLend/LoanDetails';
+import { useAddress } from "@/Components/privy/hooks/useWallet";
+import { useAccount, useSwitchChain, useWriteContract, useReadContract } from "wagmi";
+const {data, error, isError, isPending, writeContract} = useWriteContract();
 
 const monadTestNet = {
   chainId: 10143, // Replace with actual monad devnet chain ID
@@ -45,7 +45,7 @@ function App() {
 }
 
 function MintDMONPage() {
-  const [isLoadiing, setIsLoadiing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [mintQuantity, setMintQuantity] = useState<number>(1);
@@ -58,14 +58,14 @@ function MintDMONPage() {
   const [adminError, setAdminError] = useState<string>('');
   const [adminStatus, setAdminStatus] = useState<string>('');
 
-
-
-  const address = useAddress();
+  // const address = useAddress();
+  // const address  = useAddress(); // using privy-io/react-auth
+  const {address, chain}  = useAccount(); // using privy-io/using wagmi
   const adminAddress = '0xED42844Cd35d734fec3B65dF486158C443896b41'
-  const { contract: dmonContract, isLoading } = useContract(
-    DMON_NFT_CONTRACT.address,
-    DMON_NFT_CONTRACT.abi
-  );
+  // const { contract: dmonContract } = useContract(
+  //   DMON_NFT_CONTRACT.address,
+  //   DMON_NFT_CONTRACT.abi
+  // );
 
   const isAdmin = address === adminAddress;
 
@@ -85,23 +85,47 @@ function MintDMONPage() {
       if (!dmonContract) return;
 
       try {
-        // Fetch contract information
-        const [
-          privateSalePrice,
-          maxSupplyValue,
-          currentSupply,
-          privateSaleState
-        ] = await Promise.all([
-          dmonContract.call("WhitelistMintPrice"),
-          dmonContract.call("MAX_SUPPLY"),
-          dmonContract.call("totalSupply"),
-          dmonContract.call("isPresaleActive")
-        ]);
+      //   // Fetch contract information
+      //   const [
+      //     // privateSalePrice,
+      //     // maxSupplyValue,
+      //     // currentSupply,
+      //     // privateSaleState
+      //   ] = await Promise.all([
+      //     // dmonContract.call("WhitelistMintPrice"),
+      //     dmonContract.call("MAX_SUPPLY"),
+      //     dmonContract.call("totalSupply"),
+      //     dmonContract.call("isPresaleActive")
+      //   ]);
 
-        setMintPrice(ethers.utils.formatEther(privateSalePrice));
+      const  privateSalePrice = await useReadContract({
+        address: `0x{DMON_NFT_CONTRACT.address  }`,
+        abi:DMON_NFT_CONTRACT.abi,
+        functionName: 'WhitelistMintPrice',
+      });
+    
+      const  maxSupplyValue = await  useReadContract({
+        address: `0x{DMON_NFT_CONTRACT.address  }`,
+        abi:DMON_NFT_CONTRACT.abi,
+        functionName: 'MAX_SUPPLY',
+      });
+    
+      const  currentSupply = await useReadContract({
+        address: `0x{DMON_NFT_CONTRACT.address  }`,
+        abi:DMON_NFT_CONTRACT.abi,
+        functionName: 'totalSupply',
+      });
+    
+      const  privateSaleState = await useReadContract({
+        address: `0x{DMON_NFT_CONTRACT.address  }`,
+        abi:DMON_NFT_CONTRACT.abi,
+        functionName: 'isPresaleActive',
+      });
+
+        setMintPrice(ethers.utils.formatEther(Number(privateSalePrice)));
         setMaxSupply(Number(maxSupplyValue));
         setTotalSupply(Number(currentSupply));
-        setIsPrivateSale(privateSaleState);
+        // setIsPrivateSale(privateSaleState);
 
       } catch (error) {
         console.error("Error fetching contract info:", error);
@@ -123,7 +147,7 @@ function MintDMONPage() {
       return;
     }
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     setError('');
     setStatus('Processing mint...');
 
@@ -148,10 +172,10 @@ function MintDMONPage() {
       console.error("Mint failed:", error);
       // setError(error.message || "Failed to mint NFT");
       if (error.message.includes('whitelist')) {
-        setError('Not whitelisted for the presale mint. reach out to bossonormal1 on discord to WL your address!!');
+        setError('You are not whitelisted for the presale mint.');
       }
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   };
 
@@ -159,7 +183,7 @@ function MintDMONPage() {
   const handleAddToWhitelist = async (address: string) => {
     if (!dmonContract || !isAdmin) return;
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     setAdminError('');
     setAdminStatus('Processing...');
 
@@ -181,14 +205,14 @@ function MintDMONPage() {
         setAdminError('Failed to add address to whitelist');
       }
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   };
 
   const handleTogglePublicSale = async () => {
     if (!dmonContract || !isAdmin) return;
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     setAdminError('');
     setAdminStatus('Processing...');
 
@@ -208,7 +232,7 @@ function MintDMONPage() {
       }
       // setAdminError(error.message || "Failed to toggle sale status");
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
       setAdminStatus('');
     }
   };
@@ -268,13 +292,13 @@ function MintDMONPage() {
 
             <button
               onClick={handleMint}
-              disabled={isLoading || !isPresaleActive || isLoadiing}
-              className={`w-full py-3 px-6 rounded-lg text-lg font-medium ${isLoading || !isPresaleActive || isLoadiing
+              disabled={isLoading || !isPresaleActive}
+              className={`w-full py-3 px-6 rounded-lg text-lg font-medium ${isLoading || !isPresaleActive
                 ? 'bg-gray-600 cursor-not-allowed'
                 : 'bg-blue-500 hover:bg-blue-600'
                 } text-white transition-colors`}
             >
-              {isLoading || isLoadiing? 'Processing...' :
+              {isLoading ? 'Processing...' :
                 !isPresaleActive ? 'Sale Not Active' :
                   'Mint DMON NFT'}
             </button>
@@ -296,11 +320,12 @@ function MintDMONPage() {
 function Main() {
   const address = useAddress();
   const isWrongNetwork = useNetworkMismatch();
+  // const switchNetwork = useSwitchChain(); // thidweb
   const switchNetwork = useSwitchChain();
   const sdk = useSDK();
   const { usdt, nftVault, loanManager, liquidationManager } = useContracts();
   const [status, setStatus] = useState<string>("");
-  const [isLoadiing, setIsLoadiing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCollateralId, setSelectedCollateralId] = useState<number | null>(null);
   const [maxLoanAmount, setMaxLoanAmount] = useState<string>('');
   const [userCollaterals, setUserCollaterals] = useState<any[]>([]);
@@ -391,7 +416,7 @@ function Main() {
       return;
     }
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     setStatus("Processing...");
 
     try {
@@ -494,7 +519,7 @@ function Main() {
       console.error("Error:", error);
       // setStatus(`Error: ${error.message || "Transaction failed"}`);
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   };
 
@@ -504,7 +529,7 @@ function Main() {
       return;
     }
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     // setStatus("Processing borrow request...");
 
     try {
@@ -525,14 +550,14 @@ function Main() {
       console.error("Borrow failed:", error);
       // setStatus(`Borrow failed: ${error.message || "Unknown error"}`);
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   };
 
   /* const handleRepay = async () => {
     if (!activeLoan || !loanManager || !address) return;
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     try {
       const tx = await loanManager.call(
         "repayLoan",
@@ -545,14 +570,14 @@ function Main() {
       console.error("Repay error:", error);
       setStatus("Failed to repay loan");
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   }; 
 
   const handleLiquidate = async () => {
     if (!activeLoan || !liquidationManager || !address) return;
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     try {
       const tx = await liquidationManager.call(
         "liquidate",
@@ -565,7 +590,7 @@ function Main() {
       console.error("Liquidate error:", error);
       setStatus("Failed to liquidate loan");
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   }; */
 
@@ -598,7 +623,7 @@ function Main() {
   const handleAddToWhitelist = async (address: string) => {
     if (!isAdmin || !dmonContract) return;
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     try {
       const tx = await dmonContract.call(
         "addToWhitelist",
@@ -609,14 +634,14 @@ function Main() {
       console.error("Whitelist error:", error);
       setStatus("Failed to add address to whitelist");
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   }; 
 
   const handleTogglePublicSale = async () => {
     if (!isAdmin || !dmonContract) return;
 
-    setIsLoadiing(true);
+    setIsLoading(true);
     try {
       const isActive = await dmonContract.call("isPresaleActive");
       const tx = await dmonContract.call(
@@ -627,7 +652,7 @@ function Main() {
       console.error("Toggle sale error:", error);
       setStatus("Failed to toggle sale status");
     } finally {
-      setIsLoadiing(false);
+      setIsLoading(false);
     }
   }; */
 
@@ -655,7 +680,8 @@ function Main() {
               <ConnectWallet
                 modalTitle="Connect Your Wallet"
                 modalSize="wide"
-                className="!bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] !text-white hover:opacity-90 transition-opacity"
+                className="!bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] !text-white
+                                     hover:opacity-90 transition-opacity"
               />
             </div>
             <div className="pt-8 text-sm text-[#98A1C0]">
@@ -690,7 +716,7 @@ function Main() {
               <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">NFT Collateral</h2>
               <WhitelistedNFTs
                 onNFTDeposit={handleNFTDeposit}
-                isLoading={isLoadiing}
+                isLoading={isLoading}
               />
             </section>
           </div>

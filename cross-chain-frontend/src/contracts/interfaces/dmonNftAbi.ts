@@ -1,9 +1,16 @@
 export const DMON_NFT_CONTRACT = {
   // address: '0xFd6E4CF0FC697236b359ac67701B8D1dFe82D301',
-  address: '0xb14580f95375b097d229EF4fBe330Dc9866e6CFe',
+  // address: '0xb14580f95375b097d229EF4fBe330Dc9866e6CFe',
+  address: '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC',
   abi: [
     {
-      inputs: [],
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_MockUSDTAddress',
+          type: 'address',
+        },
+      ],
       stateMutability: 'nonpayable',
       type: 'constructor',
     },
@@ -212,6 +219,19 @@ export const DMON_NFT_CONTRACT = {
     },
     {
       inputs: [],
+      name: 'MockUSDTContract',
+      outputs: [
+        {
+          internalType: 'contract MockUSDT',
+          name: '',
+          type: 'address',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
       name: 'PublicMintPrice',
       outputs: [
         {
@@ -339,6 +359,25 @@ export const DMON_NFT_CONTRACT = {
           internalType: 'address',
           name: '',
           type: 'address',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address',
+        },
+      ],
+      name: 'hasMinted',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool',
         },
       ],
       stateMutability: 'view',

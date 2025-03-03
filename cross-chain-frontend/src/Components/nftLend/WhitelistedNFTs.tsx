@@ -1,5 +1,9 @@
+'use client'
+
+
 import { useState } from 'react';
 import { WHITELISTED_NFTS, WhitelistedNFT } from '@/app/whitelistedNft/nft';
+// import { useAddress } from '../privy/hooks/useWallet';
 import {  useAddress } from '@thirdweb-dev/react';
 // import { ethers } from 'ethers';
 // import { NFT_VAULT_CONTRACT } from '../thirdweb/thirdwebConfig';

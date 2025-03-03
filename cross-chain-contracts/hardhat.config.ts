@@ -4,9 +4,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.19',
+  solidity: '0.8.28',
   networks: {
-    monad: {
+    monadTestnet: {
       url: process.env.MONAD_RPC_URL,
       accounts: [process.env.PRIVATE_KEY as string],
     },
