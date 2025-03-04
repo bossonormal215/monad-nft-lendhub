@@ -237,7 +237,7 @@ function MintDMONPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-gray-300">Price per NFT:</p>
-              <p className="text-white font-medium">{mintPrice} ETH</p>
+              <p className="text-white font-medium">{mintPrice} MON</p>
             </div>
 
             <div className="flex items-center justify-between">
@@ -262,7 +262,7 @@ function MintDMONPage() {
             <div className="flex items-center justify-between">
               <p className="text-gray-300">Total Price:</p>
               <p className="text-white font-medium">
-                {(Number(mintPrice) * mintQuantity).toFixed(3)} ETH
+                {(Number(mintPrice) * mintQuantity).toFixed(3)} MON
               </p>
             </div>
 
@@ -645,12 +645,13 @@ function Main() {
         // Show connect wallet message when no wallet is connected
         <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
           <div className="text-center space-y-6 max-w-lg">
-            <h2 className="text-3xl font-bold text-[#F5F6FC]">
+             {/* <h2 className="text-3xl font-bold text-[#F5F6FC]">
               Welcome to Monad NFT Lending
-            </h2>
+            </h2> */}
+            
             <p className="text-[#98A1C0] text-lg">
               Connect your wallet to start borrowing against your NFTs or providing liquidity to the platform.
-            </p>
+            </p> 
             <div className="inline-block">
               <ConnectWallet
                 modalTitle="Connect Your Wallet"
