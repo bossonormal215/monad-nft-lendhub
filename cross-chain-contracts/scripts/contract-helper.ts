@@ -19,6 +19,11 @@ async function getContract() {
 
 async function verifyOwner() {
   const [signer] = await ethers.getSigners();
+  const contract = await ethers.getContractAt(
+    // 'GMonad', // Correct contract name the one with pyth
+    'DmonNFT',
+    DEPLOYED_CONTRACT_ADDRESS
+  );
   const owner = await contract.owner();
   if (owner.toLowerCase() !== signer.address.toLowerCase()) {
     throw new Error('Signer is not the contract owner');

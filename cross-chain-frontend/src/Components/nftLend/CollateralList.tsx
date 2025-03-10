@@ -56,8 +56,8 @@ export function CollateralList({ collaterals, onNFTWithdrawn, onBorrow, onSelect
   ]
 
   const renderCollateralCard = (collateral: Collateral, index: number, isActive: boolean) => (
-    <div
-      key={collateral.id}
+                            <div
+                                key={collateral.id}
       className={`relative overflow-hidden bg-gradient-to-br from-[#1C2839] to-[#131A2A] p-6 rounded-[20px] transition-all duration-500 hover:scale-[1.02] hover:shadow-xl ${
         selectedCollateral === collateral.id
           ? "ring-2 ring-[#4C82FB] shadow-lg shadow-[#4C82FB]/10"
@@ -97,9 +97,9 @@ export function CollateralList({ collaterals, onNFTWithdrawn, onBorrow, onSelect
           <div className="flex flex-col items-end gap-2">
             <span className="px-3 py-1.5 bg-[#2C3545] text-[#98A1C0] text-sm rounded-full flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#4C82FB]"></span>
-              NFT #{collateral.tokenId}
-            </span>
-          </div>
+                                        NFT #{collateral.tokenId}
+                                    </span>
+                                </div>
         </div>
 
         {/* Loan Amount Box */}
@@ -110,8 +110,8 @@ export function CollateralList({ collaterals, onNFTWithdrawn, onBorrow, onSelect
               <span className="text-[#98A1C0]">Max Loan:</span>
             </div>
             <span className="text-white font-semibold text-lg">{formatAmount(collateral.maxLoanAmount)} USDT</span>
-          </div>
-        </div>
+                                </div>
+                            </div>
 
         {/* Expanded Content */}
         {selectedCollateral === collateral.id && (
@@ -182,11 +182,11 @@ export function CollateralList({ collaterals, onNFTWithdrawn, onBorrow, onSelect
           <Box className="w-4 h-4 text-[#4C82FB] group-hover:text-[#6366F1] transition-colors" />
           <span className="text-sm font-medium">
             {activeTab === "active" ? "Active Collaterals" : "InActive Collaterals"}
-          </span>
-        </div>
+                                    </span>
+                                </div>
         <div className={`transform transition-transform duration-300 ${isDropdownOpen ? "rotate-180" : ""}`}>
           <ChevronDownIcon className="w-4 h-4 text-[#98A1C0]" />
-        </div>
+                                </div>
       </button>
 
       {/* Collateral Lists */}
@@ -196,25 +196,25 @@ export function CollateralList({ collaterals, onNFTWithdrawn, onBorrow, onSelect
             activeCollaterals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {activeCollaterals.map((collateral, index) => renderCollateralCard(collateral, index, true))}
-              </div>
+                            </div>
             ) : (
               <div className="text-center text-[#98A1C0] py-12 bg-[#1C2839]/50 rounded-xl border border-[#2C3545]">
                 <Box className="w-12 h-12 mx-auto mb-4 text-[#4C82FB]/50" />
                 <p className="text-lg font-medium">No active collaterals found</p>
                 <p className="text-sm text-[#98A1C0]">Add a collateral to get started</p>
-              </div>
+                    </div>
             )
           ) : inactiveCollaterals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {inactiveCollaterals.map((collateral, index) => renderCollateralCard(collateral, index, false))}
-            </div>
+                </div>
           ) : (
             <div className="text-center text-[#98A1C0] py-12 bg-[#1C2839]/50 rounded-xl border border-[#2C3545]">
               <Box className="w-12 h-12 mx-auto mb-4 text-[#4C82FB]/50" />
               <p className="text-lg font-medium">No inactive collaterals found</p>
               <p className="text-sm text-[#98A1C0]">Add a collateral to get started</p>
-            </div>
-          )}
+                </div>
+            )}
         </div>
       )}
     </div>
