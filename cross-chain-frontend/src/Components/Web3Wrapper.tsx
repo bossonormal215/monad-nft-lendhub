@@ -1,12 +1,10 @@
 'use client'
 
-import { Sepolia } from "@thirdweb-dev/chains";
 import { coinbaseWallet, embeddedWallet, metamaskWallet, rabbyWallet, rainbowWallet, ThirdwebProvider, walletConnect, zerionWallet } from "@thirdweb-dev/react";
-
+import PrivyWrapper from "./PrivyWrapper";
 
 const monadTestNet = {
-    chainId: 10143, // Replace with actual monad devnet chain ID
-    // rpc: ['https://rpc-devnet.monadinfra.com/rpc/3fe540e310bbb6ef0b9f16cd23073b0a'],
+    chainId: 10143, 
     rpc: ['https://testnet-rpc.monad.xyz'],
     nativeCurrency: {
       decimals: 18,
@@ -25,7 +23,7 @@ export default function Web3Wrapper({ children }: { children: React.ReactNode })
         <ThirdwebProvider
             activeChain={monadTestNet}
             clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
-            supportedChains={[monadTestNet, Sepolia]}
+            supportedChains={[monadTestNet]}
             autoSwitch={true}
       
             supportedWallets={[

@@ -11,6 +11,11 @@ interface INFTCollateralVault {
         bool isActive;
     }
 
+    function transferCollateral(
+        uint256 collateralId,
+        address newOwner
+    ) external;
+
     function getCollateralDetails(
         uint256 collateralId
     )

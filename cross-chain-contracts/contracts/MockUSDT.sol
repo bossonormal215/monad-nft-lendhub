@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MockUSDT is ERC20, Ownable {
-    uint8 private _decimals = 6;
+    uint8 private _decimals = 18;
     mapping(address => uint256) public mintAllowance; // How many tokens a user can mint
     mapping(address => bool) public hasMintedTokens; // Tracks who has minted tokens
     address public nftContract; // Address of MyNFT contract

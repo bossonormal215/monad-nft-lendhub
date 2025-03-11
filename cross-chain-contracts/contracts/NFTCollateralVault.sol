@@ -79,6 +79,7 @@ contract NFTCollateralVault is Ownable {
     mapping(address => uint256[]) public userCollaterals;
     mapping(address => bool) public whitelistedNFTs;
     uint256 public collateralCounter;
+    address public loanManager;
 
     // Events
     event NFTDeposited(
@@ -91,6 +92,7 @@ contract NFTCollateralVault is Ownable {
     event NFTWithdrawn(address indexed user, uint256 indexed collateralId);
     event NFTWhitelisted(address indexed nftAddress);
     event NFTBlacklisted(address indexed nftAddress);
+    event NFTLiquidated(uint256 indexed collateralId, address indexed newOwner);
 
     // Modifiers
     modifier onlyCollateralOwner(uint256 collateralId) {
@@ -103,6 +105,11 @@ contract NFTCollateralVault is Ownable {
             collateralId > 0 && collateralId <= collateralCounter,
             "Invalid collateral ID"
         );
+        _;
+    }
+
+    modifier onlyLoanManager() {
+        require(msg.sender == loanManager, "Only LoanManager can call this");
         _;
     }
 
@@ -121,6 +128,32 @@ contract NFTCollateralVault is Ownable {
     function removeNFTFromWhitelist(address nftAddress) external onlyOwner {
         whitelistedNFTs[nftAddress] = false;
         emit NFTBlacklisted(nftAddress);
+    }
+
+    function setLoanManager(address _loanManager) external onlyOwner {
+        loanManager = _loanManager;
+    }
+
+    function transferCollateral(
+        uint256 collateralId,
+        address newOwner
+    ) external onlyLoanManager {
+        require(collaterals[collateralId].isActive, "Collateral is not active");
+
+        Collateral storage collateral = collaterals[collateralId];
+
+        // Transfer NFT to new owner (deployer/owner of LoanManager)
+        IERC721(collateral.nftAddress).transferFrom(
+            address(this),
+            newOwner,
+            collateral.tokenId
+        );
+
+        // Mark collateral as inactive
+        collateral.isActive = false;
+        collateral.currentLoanAmount = 0;
+
+        emit NFTLiquidated(collateralId, newOwner);
     }
 
     // Main functions

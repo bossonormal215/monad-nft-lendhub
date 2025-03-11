@@ -243,11 +243,6 @@ contract DmonNFT is ERC721Enumerable, Ownable, ReentrancyGuard, IERC2981 {
         }
     }
 
-    // // Owner can whitelist addresses for NFT minting
-    // function addToWhitelist(address _user) external onlyOwner {
-    //     whitelist[_user] = true;
-    // }
-
     function togglePresale() external onlyOwner {
         isPresaleActive = !isPresaleActive;
         emit SaleStateChanged("Presale", isPresaleActive);

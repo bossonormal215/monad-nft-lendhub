@@ -45,11 +45,42 @@ export const LoanManagerABI = {
         {
           indexed: false,
           internalType: 'uint256',
+          name: 'duration',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
           name: 'timestamp',
           type: 'uint256',
         },
       ],
       name: 'LoanIssued',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'borrower',
+          type: 'address',
+        },
+        {
+          indexed: true,
+          internalType: 'uint256',
+          name: 'collateralId',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'address',
+          name: 'newOwner',
+          type: 'address',
+        },
+      ],
+      name: 'LoanLiquidated',
       type: 'event',
     },
     {
@@ -130,7 +161,20 @@ export const LoanManagerABI = {
     },
     {
       inputs: [],
-      name: 'LOAN_DURATION',
+      name: 'MAX_LOAN_DURATION',
+      outputs: [
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'MIN_LOAN_DURATION',
       outputs: [
         {
           internalType: 'uint256',
@@ -212,7 +256,7 @@ export const LoanManagerABI = {
           type: 'uint256',
         },
       ],
-      name: 'isLoanLiquidatable',
+      name: 'isLoanOverdue',
       outputs: [
         {
           internalType: 'bool',
@@ -235,8 +279,26 @@ export const LoanManagerABI = {
           name: 'amount',
           type: 'uint256',
         },
+        {
+          internalType: 'uint256',
+          name: 'duration',
+          type: 'uint256',
+        },
       ],
       name: 'issueLoan',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'collateralId',
+          type: 'uint256',
+        },
+      ],
+      name: 'liquidateOverdueLoan',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function',
@@ -280,11 +342,6 @@ export const LoanManagerABI = {
           type: 'uint256',
         },
         {
-          internalType: 'bool',
-          name: 'isActive',
-          type: 'bool',
-        },
-        {
           internalType: 'uint256',
           name: 'interestRate',
           type: 'uint256',
@@ -293,6 +350,16 @@ export const LoanManagerABI = {
           internalType: 'uint256',
           name: 'duration',
           type: 'uint256',
+        },
+        {
+          internalType: 'bool',
+          name: 'isActive',
+          type: 'bool',
+        },
+        {
+          internalType: 'bool',
+          name: 'isLiquidated',
+          type: 'bool',
         },
       ],
       stateMutability: 'view',

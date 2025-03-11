@@ -1,4 +1,4 @@
-/* pragma solidity ^0.8.20;
+/* 
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./NFTCollateralVault.sol";
@@ -66,8 +66,9 @@ contract LoanManager {
     }
 }
 */
+
+/*
 ///////////////////////////////////////////
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -115,7 +116,7 @@ contract LoanManager is Ownable {
         liquidityPool = IUSDTLiquidityPool(_liquidityPool);
     }
 
-    function issueLoan(uint256 collateralId, uint256 amount) external {
+    function issueLoan(uint256 collateralId, uint256 amount, uint256 duration) external {
         // Get collateral details
         (
             address nftAddress,
@@ -142,7 +143,7 @@ contract LoanManager is Ownable {
             timestamp: block.timestamp,
             isActive: true,
             interestRate: INTEREST_RATE,
-            duration: LOAN_DURATION
+            duration: duration
         });
 
         // Update user loans
@@ -240,5 +241,238 @@ contract LoanManager is Ownable {
         );
 
         return (totalDebt * 10000) / maxLoanAmount >= LIQUIDATION_THRESHOLD;
+    }
+}
+*/
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./interfaces/INFTCollateralVault.sol";
+import "./interfaces/IUSDTLiquidityPool.sol";
+
+contract LoanManager is Ownable {
+    struct Loan {
+        uint256 collateralId;
+        uint256 amount;
+        uint256 timestamp;
+        uint256 interestRate; // Annual interest rate in basis points (1% = 100)
+        uint256 duration; // Loan duration in seconds
+        bool isActive;
+        bool isLiquidated;
+    }
+
+    mapping(uint256 => Loan) public loans;
+    mapping(address => uint256[]) public userLoans;
+
+    IERC20 public usdt;
+    INFTCollateralVault public nftVault;
+    IUSDTLiquidityPool public liquidityPool;
+
+    uint256 public constant INTEREST_RATE = 1000; // 10% annual interest
+    uint256 public constant MIN_LOAN_DURATION = 5 minutes; // Minimum duration is 5 minutes
+    uint256 public constant MAX_LOAN_DURATION = 30 days; // Maximum duration remains 30 days
+
+    uint256 public constant LIQUIDATION_THRESHOLD = 8500; // 85%
+
+    event LoanIssued(
+        address indexed borrower,
+        uint256 indexed collateralId,
+        uint256 amount,
+        uint256 duration,
+        uint256 timestamp
+    );
+    event LoanRepaid(
+        address indexed borrower,
+        uint256 indexed collateralId,
+        uint256 amount,
+        uint256 interest
+    );
+    event LoanLiquidated(
+        address indexed borrower,
+        uint256 indexed collateralId,
+        address newOwner
+    );
+
+    constructor(address _usdt, address _nftVault, address _liquidityPool) {
+        usdt = IERC20(_usdt);
+        nftVault = INFTCollateralVault(_nftVault);
+        liquidityPool = IUSDTLiquidityPool(_liquidityPool);
+    }
+
+    /**
+     * @dev Borrow USDT against NFT collateral
+     */
+    function issueLoan(
+        uint256 collateralId,
+        uint256 amount,
+        uint256 duration
+    ) external {
+        require(
+            duration >= MIN_LOAN_DURATION && duration <= MAX_LOAN_DURATION,
+            "Invalid loan duration"
+        );
+
+        // Getting collateral details
+        (
+            address nftAddress,
+            uint256 tokenId,
+            address owner,
+            uint256 maxLoanAmount,
+            uint256 currentLoanAmount,
+            bool isActive
+        ) = nftVault.getCollateralDetails(collateralId);
+
+        require(owner == msg.sender, "Not collateral owner");
+        require(isActive, "Collateral not active");
+        require(amount <= maxLoanAmount, "Amount exceeds max loan");
+        require(currentLoanAmount == 0, "Loan already exists");
+        require(
+            amount <= liquidityPool.getTotalLiquidity(),
+            "Insufficient liquidity"
+        );
+
+        // Create loan
+        loans[collateralId] = Loan({
+            collateralId: collateralId,
+            amount: amount,
+            timestamp: block.timestamp,
+            isActive: true,
+            isLiquidated: false,
+            interestRate: INTEREST_RATE,
+            duration: duration
+        });
+
+        // Track user's loans
+        userLoans[msg.sender].push(collateralId);
+
+        // Update vault
+        nftVault.updateLoanAmount(collateralId, amount);
+
+        // Transfer USDT to borrower
+        liquidityPool.borrowUSDT(msg.sender, amount);
+
+        emit LoanIssued(
+            msg.sender,
+            collateralId,
+            amount,
+            duration,
+            block.timestamp
+        );
+    }
+
+    /**
+     * @dev Repay loan
+     */
+    function repayLoan(uint256 collateralId) external {
+        Loan storage loan = loans[collateralId];
+        require(loan.isActive, "Loan not active");
+        require(
+            block.timestamp <= loan.timestamp + loan.duration,
+            "Loan period has ended. Cannot repay."
+        );
+
+        // Calculate interest
+        uint256 interest = calculateInterest(loan.amount, loan.timestamp);
+        uint256 totalRepayment = loan.amount + interest;
+
+        // Transfer USDT from borrower to pool
+        require(
+            usdt.transferFrom(
+                msg.sender,
+                address(liquidityPool),
+                totalRepayment
+            ),
+            "USDT transfer failed"
+        );
+
+        // Update loan status
+        loan.isActive = false;
+        nftVault.updateLoanAmount(collateralId, 0);
+
+        emit LoanRepaid(msg.sender, collateralId, loan.amount, interest);
+    }
+
+    /**
+     * @dev Check if a loan is overdue & liquidate if necessary
+     */
+    function liquidateOverdueLoan(uint256 collateralId) external {
+        Loan storage loan = loans[collateralId];
+        require(loan.isActive, "Loan not active or already settled");
+        require(
+            block.timestamp > loan.timestamp + loan.duration,
+            "Loan period not expired yet"
+        );
+
+        // Mark loan as liquidated
+        loan.isActive = false;
+        loan.isLiquidated = true;
+
+        // Transfer NFT to contract owner
+        nftVault.transferCollateral(collateralId, owner());
+
+        emit LoanLiquidated(msg.sender, collateralId, owner());
+    }
+
+    /**
+     * @dev Calculate interest owed on loan
+     */
+    function calculateInterest(
+        uint256 amount,
+        uint256 startTime
+    ) public view returns (uint256) {
+        uint256 timeElapsed = block.timestamp - startTime;
+        return (amount * INTEREST_RATE * timeElapsed) / (365 days * 10000);
+    }
+
+    /**
+     * @dev Retrieve all active loans of a user
+     */
+    function getUserLoans(
+        address user
+    )
+        external
+        view
+        returns (
+            uint256[] memory collateralIds,
+            uint256[] memory amounts,
+            uint256[] memory timestamps,
+            bool[] memory activeStates,
+            uint256[] memory interestAmounts
+        )
+    {
+        uint256[] storage userLoanIds = userLoans[user];
+        uint256 length = userLoanIds.length;
+
+        collateralIds = new uint256[](length);
+        amounts = new uint256[](length);
+        timestamps = new uint256[](length);
+        activeStates = new bool[](length);
+        interestAmounts = new uint256[](length);
+
+        for (uint256 i = 0; i < length; i++) {
+            uint256 loanId = userLoanIds[i];
+            Loan storage loan = loans[loanId];
+
+            collateralIds[i] = loan.collateralId;
+            amounts[i] = loan.amount;
+            timestamps[i] = loan.timestamp;
+            activeStates[i] = loan.isActive;
+            interestAmounts[i] = loan.isActive
+                ? calculateInterest(loan.amount, loan.timestamp)
+                : 0;
+        }
+    }
+
+    /**
+     * @dev Checks if a loan is overdue and can be liquidated
+     */
+    function isLoanOverdue(uint256 collateralId) public view returns (bool) {
+        Loan storage loan = loans[collateralId];
+        if (!loan.isActive) return false;
+        return block.timestamp > loan.timestamp + loan.duration;
     }
 }

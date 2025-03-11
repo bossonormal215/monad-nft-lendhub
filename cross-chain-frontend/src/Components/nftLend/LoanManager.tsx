@@ -210,18 +210,19 @@ export function LoanManager({
                 raw: currentAllowance.toString()
             });
 
-            const interestAmount = '1000000000000000000'
+            const interestAmount = '20000000000000000000'
 
             // If current allowance is less than repayment amount, approve the difference plus 1
-            if (currentAllowance.lt(repaymentAmount.add(interestAmount))) {
+            // if (currentAllowance.lt(repaymentAmount.add(interestAmount))) {
+            if (repaymentAmount) {
                 setStatus('Approving USDT...');
 
                 try {
                     // reset approval to 0
-                    await usdt.call(
-                        "approve",
-                        [LOAN_MANAGER_CONTRACT, ethers.constants.Zero]
-                    );
+                    // await usdt.call(
+                    //     "approve",
+                    //     [LOAN_MANAGER_CONTRACT, ethers.constants.Zero]
+                    // );
                     // Calculate amount to approve: (repaymentAmount - currentAllowance) + 1
                     const amountToApprove = repaymentAmount.add(interestAmount);
                     console.log("Approving additional amount:", {
@@ -296,18 +297,19 @@ export function LoanManager({
 
         try {
             // Check if loan is eligible for liquidation
-            const loanDetails = await liquidationManager.call(
-                "loans",
+            // const loanDetails = await liquidationManager.call(
+            const loanDetails = await loanManager.call(
+                "isLoanOverdue",
                 [collateralId]
             );
             console.log("Can liquidate:", loanDetails);
 
-            if (!loanDetails || !loanDetails.isActive) {
+            if (!loanDetails ) {
                 setError("This loan is not eligible for liquidation yet");
                 return;
             }
 
-            // Check if caller has permission to liquidate
+           /* // Check if caller has permission to liquidate
             const hasPermission = await liquidationManager.call(
                 "hasLiquidationPermission",
                 [address, collateralId]
@@ -318,14 +320,17 @@ export function LoanManager({
                 setError("You don't have permission to liquidate this loan");
                 return;
             }
+            */
 
             // Attempt liquidation
             setStatus('Initiating liquidation...');
-            const tx = await liquidationManager.call(
-                "liquidate",
+            // const tx = await liquidationManager.call(
+            const tx = await loanManager.call(
+                "liquidateOverdueLoan",
                 [collateralId]
             );
             console.log("Liquidate transaction:", tx);
+            setStatus('Liquidated successfully');
 
             setStatus("Collateral successfully liquidated! 🎉");
             await fetchLoanDetails();

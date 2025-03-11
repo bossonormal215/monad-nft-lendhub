@@ -2,6 +2,7 @@
 
 import { AppProps } from 'next/app';
 import { PrivyProvider } from "@privy-io/react-auth";
+import { monadTestnet } from 'viem/chains';
 
 
 const privy_apiKey = process.env.NEXT_PUBLIC_PRIVY_API_KEY as string
@@ -12,7 +13,8 @@ function Provider({ Component, pageProps }: AppProps) {
     appId={privy_apiKey}
     config={
       {
-        // Customize Privy's appearance in your app
+        defaultChain: monadTestnet,
+        supportedChains: [monadTestnet],
         appearance: {
           theme: 'dark',
           accentColor: '#676FFF',

@@ -20,8 +20,7 @@ import { AdminPanel } from '@/Components/nftLend/AdminPanel';
 import { CollateralList } from '@/Components/nftLend/CollateralList';
 
 const monadTestNet = {
-  chainId: 10143, // Replace with actual monad devnet chain ID
-  // rpc: ['https://rpc-devnet.monadinfra.com/rpc/3fe540e310bbb6ef0b9f16cd23073b0a'],
+  chainId: 10143, 
   rpc: ['https://testnet-rpc.monad.xyz'],
   nativeCurrency: {
     decimals: 18,
@@ -85,7 +84,6 @@ function MintDMONPage() {
       if (!dmonContract) return;
 
       try {
-        // Fetch contract information
         const [
           privateSalePrice,
           maxSupplyValue,
@@ -498,7 +496,7 @@ function Main() {
     }
   };
 
-  const handleBorrow = async (collateralId: number, amount: string) => {
+  const handleBorrow = async (collateralId: number, amount: string, durationInSeconds: number) => {
     if (!loanManager || !address) {
       setStatus("Please connect your wallet");
       return;
@@ -512,7 +510,8 @@ function Main() {
         "issueLoan",
         [
           collateralId,
-          ethers.utils.parseEther(amount)
+          ethers.utils.parseEther(amount),
+          durationInSeconds
         ]
       );
 

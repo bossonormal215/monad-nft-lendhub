@@ -1,15 +1,16 @@
-import { Header } from "@/components/header";
-import { Button } from "@/Components/privy/ui/button";
+// import { Header } from "@/components/header";
+// import { Button } from "@/Components/privy/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { Toaster } from "@/Components/privy/ui/toaster";
-import { WagmiConfig } from "@/providers/wagmi-provider";
+// import { Toaster } from "@/Components/privy/ui/toaster";
+// import { WagmiConfig } from "@/providers/wagmi-provider";
 
 export default function Home() {
   return (
-    <WagmiConfig>
+    // <WagmiConfig>
+    <>
     <div className="flex min-h-screen flex-col">
-      <Header />
+      {/* <Header /> */}
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
@@ -27,12 +28,14 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link href="/borrow">
-                    <Button className="bg-monad-500 hover:bg-monad-600">
+                    {/* <Button className="bg-monad-500 hover:bg-monad-600"> */}
                       Borrow Now
-                    </Button>
+                    {/* </Button> */}
                   </Link>
                   <Link href="/lend">
-                    <Button variant="outline">Become a Lender</Button>
+                    {/* <Button > */}
+                        Become a Lender
+                    {/* </Button> */}
                   </Link>
                 </div>
               </div>
@@ -188,8 +191,8 @@ export default function Home() {
         </nav>
       </footer>
       </div>
-      <Toaster />
-      </WagmiConfig>
-    
+      {/* <Toaster /> */}
+      {/* </WagmiConfig> */}
+    </>
   );
 }

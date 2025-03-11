@@ -60,7 +60,7 @@ export function LiquidityProvider() {
         if (!liquidityPool) return;
         try {
             const totalLiquidity = await liquidityPool.call(
-                "totalDeposits",
+                "getTotalLiquidity",
                 []
             );
             setPoolBalance(ethers.utils.formatEther(totalLiquidity));

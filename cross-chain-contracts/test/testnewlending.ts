@@ -43,7 +43,7 @@ async function main() {
   const nonce = await getNextNonce(BORROWER_WALLET);
 
   // ✅ Step 1: Borrower Lists NFT for Loan
-
+  /*
   console.log('\n🔹 Step 1: Borrower Lists NFT for Loan...');
   console.log(' Borrower Approving NFT for Loan...');
 
@@ -102,6 +102,7 @@ async function main() {
       Number(lenderLoans[0].startTime) + Number(lenderLoans[0].loanDuration)
     }`
   );
+  
 
   console.log('\n🔹 Step 5: Borrower Claims the Loan...');
   const loanClaimTx = await nftLendHub
@@ -110,6 +111,7 @@ async function main() {
   await loanClaimTx.wait(1);
   console.log('✅ Loan Claimed!');
 
+  /*
   // ✅ Step 5: Borrower Repays the Loan
   console.log('\n🔹 Step 6: Borrower Approves wMON & Repays Loan...');
   const repaymentAmount =
@@ -125,7 +127,7 @@ async function main() {
     .repayLoan(NFT_ADDRESS, NFT_ID /*, { nonce: nonce + 1 });
   await repayLoanTx.wait();
   console.log('✅ Loan Repaid!');
-  */
+
 
   // ✅ Step 6: Fetch Completed Loans
   console.log('\n🔹 Step 7: Fetch Completed Loans...');
@@ -133,8 +135,6 @@ async function main() {
   console.log('✅ Completed Loans:', completedLoans);
 
   // ✅ Step 7: Lender Claims Repayment
-  /*
-
   console.log('\n🔹 Step 8: Lender Claims Repayment...');
   await nftLendHub.connect(LENDER_WALLET).claimRepayment(NFT_ADDRESS, NFT_ID);
   console.log('✅ Repayment Claimed by Lender!');

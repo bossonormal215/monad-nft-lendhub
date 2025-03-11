@@ -7,12 +7,26 @@ import { useContracts } from '@/thirdweb/thirdwebConfig';
 interface BorrowFormProps {
     collateralId: number | null;
     maxLoanAmount: string;
-    onBorrow: (collateralId: number, amount: string) => Promise<void>;
+    onBorrow: (collateralId: number, amount: string, durationInSeconds: number) => Promise<void>;
     isLoading: boolean;
 }
 
+
+// Duration options in seconds
+const DURATION_OPTIONS = [
+    { label: "5 minutes", value: 5 * 60 },
+    { label: "20 minutes", value: 20 * 60 },
+    { label: "4 hours", value: 4 * 60 * 60 },
+    { label: "12 hours", value: 12 * 60 * 60 },
+    { label: "1 day", value: 24 * 60 * 60 },
+    { label: "7 days", value: 7 * 24 * 60 * 60 },
+    { label: "14 days", value: 14 * 24 * 60 * 60 },
+    { label: "30 days", value: 30 * 24 * 60 * 60 },
+  ]
+
 export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }: BorrowFormProps) {
     const [amount, setAmount] = useState<string>('');
+    const [duration, setDuration] = useState<number>(0)
     const [error, setError] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -56,11 +70,17 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
             return false;
         }
 
+        // Validate duration
+    if (!duration) {
+        setError("Please select a loan duration")
+        return false
+      }
+
         return true;
     };
 
     const handleSubmit = async () => {
-        if (!loanManager || !collateralId || !amount) {
+        if (!loanManager || !collateralId || !amount || !duration) {
             setError("Please enter a valid amount");
             return;
         }
@@ -94,7 +114,7 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
             // Issue the loan
             const tx = await loanManager.call(
                 "issueLoan",
-                [collateralId, parsedAmount]
+                [collateralId, parsedAmount, duration]
             );
 
             console.log("Borrow transaction completed:", tx);
@@ -103,7 +123,7 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
             setError('');
 
             // Call onBorrow after successful transaction
-            await onBorrow(collateralId, amount);
+            await onBorrow(collateralId, amount, duration);
         } catch (error: any) {
             console.error("Detailed borrow error:", error);
 
@@ -148,6 +168,28 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
                             disabled={isProcessing || isLoading}
                         />
                     </div>
+
+                    <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Loan Duration</label>
+            <select
+              value={duration}
+              onChange={(e) => {
+                setDuration(Number(e.target.value))
+                setError("")
+                setStatus("")
+              }}
+              className="w-full px-3 py-2 bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
+              disabled={isProcessing || isLoading}
+            >
+              <option value={0}>Select loan duration</option>
+              {DURATION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
 
                     <button
                         onClick={handleSubmit}

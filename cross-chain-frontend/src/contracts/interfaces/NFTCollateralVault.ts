@@ -197,6 +197,7 @@
 ///////////////////////////
 
 export const NFTCollateralVaultABI = {
+  address: '0x8b499ae4929E59d8101cbbb54b49690Ba0c3627C',
   abi: [
     {
       anonymous: false,
@@ -246,6 +247,25 @@ export const NFTCollateralVaultABI = {
         },
       ],
       name: 'NFTDeposited',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: 'uint256',
+          name: 'collateralId',
+          type: 'uint256',
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'newOwner',
+          type: 'address',
+        },
+      ],
+      name: 'NFTLiquidated',
       type: 'event',
     },
     {
@@ -495,6 +515,19 @@ export const NFTCollateralVaultABI = {
     },
     {
       inputs: [],
+      name: 'loanManager',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
       name: 'owner',
       outputs: [
         {
@@ -522,6 +555,37 @@ export const NFTCollateralVaultABI = {
     {
       inputs: [],
       name: 'renounceOwnership',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_loanManager',
+          type: 'address',
+        },
+      ],
+      name: 'setLoanManager',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'collateralId',
+          type: 'uint256',
+        },
+        {
+          internalType: 'address',
+          name: 'newOwner',
+          type: 'address',
+        },
+      ],
+      name: 'transferCollateral',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function',

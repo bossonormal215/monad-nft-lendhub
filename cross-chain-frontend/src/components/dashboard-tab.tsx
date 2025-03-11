@@ -1,441 +1,441 @@
-"use client"
+// "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/Components/privy/ui/button"
-import { Card, CardContent } from "@/Components/privy/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/privy/ui/tabs"
-import { usePrivy } from "@privy-io/react-auth"
-import { useToast } from "@/Components/privy/ui/use-toast"
-import { useAccount, useWriteContract } from "wagmi"
-import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI, ERC20_ABI } from "./lib/constants"
-import { calculateRepaymentAmount } from "./lib/utils"
-import { getAllUserLoans, type LoanData } from "./lib/contract-utils"
-import { Loader2 } from "lucide-react"
-import { NFTCard } from "@/components/nft-card"
+// import { useState, useEffect } from "react"
+// import { Button } from "@/Components/privy/ui/button"
+// import { Card, CardContent } from "@/Components/privy/ui/card"
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/privy/ui/tabs"
+// import { usePrivy } from "@privy-io/react-auth"
+// import { useToast } from "@/Components/privy/ui/use-toast"
+// import { useAccount, useWriteContract } from "wagmi"
+// import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI, ERC20_ABI } from "./lib/constants"
+// import { calculateRepaymentAmount } from "./lib/utils"
+// import { getAllUserLoans, type LoanData } from "./lib/contract-utils"
+// import { Loader2 } from "lucide-react"
+// import { NFTCard } from "@/components/nft-card"
 
-export function DashboardTab() {
-  const { authenticated, login } = usePrivy()
-  const { address } = useAccount()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(true)
-  const [myBorrowings, setMyBorrowings] = useState<LoanData[]>([])
-  const [myLendings, setMyLendings] = useState<LoanData[]>([])
-  const [activeTab, setActiveTab] = useState("borrowings")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [processingLoanIndex, setProcessingLoanIndex] = useState<number | null>(null)
+// export function DashboardTab() {
+//   const { authenticated, login } = usePrivy()
+//   const { address } = useAccount()
+//   const { toast } = useToast()
+//   const [isLoading, setIsLoading] = useState(true)
+//   const [myBorrowings, setMyBorrowings] = useState<LoanData[]>([])
+//   const [myLendings, setMyLendings] = useState<LoanData[]>([])
+//   const [activeTab, setActiveTab] = useState("borrowings")
+//   const [isProcessing, setIsProcessing] = useState(false)
+//   const [processingLoanIndex, setProcessingLoanIndex] = useState<number | null>(null)
 
-  const { writeContractAsync: approveToken } = useWriteContract()
-  const { writeContractAsync: repayLoan } = useWriteContract()
-  const { writeContractAsync: claimLoan } = useWriteContract()
-  const { writeContractAsync: claimRepayment } = useWriteContract()
-  const { writeContractAsync: claimNFT } = useWriteContract()
+//   const { writeContractAsync: approveToken } = useWriteContract()
+//   const { writeContractAsync: repayLoan } = useWriteContract()
+//   const { writeContractAsync: claimLoan } = useWriteContract()
+//   const { writeContractAsync: claimRepayment } = useWriteContract()
+//   const { writeContractAsync: claimNFT } = useWriteContract()
 
-  useEffect(() => {
-    if (!authenticated || !address) {
-      return
-    }
+//   useEffect(() => {
+//     if (!authenticated || !address) {
+//       return
+//     }
 
-    const fetchUserLoans = async () => {
-      setIsLoading(true)
-      try {
-        console.log("Fetching loans for address:", address)
+//     const fetchUserLoans = async () => {
+//       setIsLoading(true)
+//       try {
+//         console.log("Fetching loans for address:", address)
 
-        // Using the new utility function that leverages the enhanced contract
-        const { borrowings, lendings } = await getAllUserLoans(address)
+//         // Using the new utility function that leverages the enhanced contract
+//         const { borrowings, lendings } = await getAllUserLoans(address)
 
-        // Filter borrowings to separate pending, active, and completed loans
-        const pendingBorrowings = borrowings.filter((loan) => !loan.active && !loan.completed)
-        const activeBorrowings = borrowings.filter((loan) => loan.active && !loan.completed)
-        const completedBorrowings = borrowings.filter((loan) => loan.completed)
+//         // Filter borrowings to separate pending, active, and completed loans
+//         const pendingBorrowings = borrowings.filter((loan) => !loan.active && !loan.completed)
+//         const activeBorrowings = borrowings.filter((loan) => loan.active && !loan.repaid && !loan.completed)
+//         const completedBorrowings = borrowings.filter((loan) => loan.completed)
 
-        console.log("Pending borrowings:", pendingBorrowings.length)
-        console.log("Active borrowings:", activeBorrowings.length)
-        console.log("Completed borrowings:", completedBorrowings.length)
+//         console.log("Pending borrowings:", pendingBorrowings.length)
+//         console.log("Active borrowings:", activeBorrowings.length)
+//         console.log("Completed borrowings:", completedBorrowings.length)
 
-        // Combine all borrowings, prioritizing active loans
-        setMyBorrowings([...activeBorrowings, ...pendingBorrowings, ...completedBorrowings])
+//         // Combine all borrowings, prioritizing active loans
+//         setMyBorrowings([...activeBorrowings, ...pendingBorrowings, ...completedBorrowings])
 
-        // Filter lendings to separate active and completed loans
-        const activeLendings = lendings.filter((loan) => loan.active && !loan.completed)
-        const completedLendings = lendings.filter((loan) => loan.completed)
+//         // Filter lendings to separate active and completed loans
+//         const activeLendings = lendings.filter((loan) => loan.active && !loan.completed)
+//         const completedLendings = lendings.filter((loan) => loan.completed )
 
-        console.log("Active lendings:", activeLendings.length)
-        console.log("Completed lendings:", completedLendings.length)
+//         console.log("Active lendings:", activeLendings.length)
+//         console.log("Completed lendings:", completedLendings.length)
 
-        // Combine all lendings, prioritizing active loans
-        setMyLendings([...activeLendings, ...completedLendings])
-      } catch (error) {
-        console.error("Error fetching user loans:", error)
-        toast({
-          title: "Error",
-          description: "Failed to fetch your loans",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
+//         // Combine all lendings, prioritizing active loans
+//         setMyLendings([...activeLendings, ...completedLendings])
+//       } catch (error) {
+//         console.error("Error fetching user loans:", error)
+//         toast({
+//           title: "Error",
+//           description: "Failed to fetch your loans",
+//           variant: "destructive",
+//         })
+//       } finally {
+//         setIsLoading(false)
+//       }
+//     }
 
-    fetchUserLoans()
-  }, [authenticated, address, toast])
+//     fetchUserLoans()
+//   }, [authenticated, address, toast])
 
-  const handleClaimLoan = async (loan: LoanData, index: number) => {
-    if (!authenticated) {
-      login()
-      return
-    }
+//   const handleClaimLoan = async (loan: LoanData, index: number) => {
+//     if (!authenticated) {
+//       login()
+//       return
+//     }
 
-    try {
-      setIsProcessing(true)
-      setProcessingLoanIndex(index)
+//     try {
+//       setIsProcessing(true)
+//       setProcessingLoanIndex(index)
 
-      await claimLoan({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
-        functionName: "claimLoan",
-        args: [loan.nftAddress, loan.nftId],
-      })
+//       await claimLoan({
+//         address: NFT_LENDHUB_ADDRESS,
+//         abi: NFT_LENDHUB_ABI,
+//         functionName: "claimLoan",
+//         args: [loan.nftAddress, loan.nftId],
+//       })
 
-      toast({
-        title: "Success",
-        description: "Loan claimed successfully",
-      })
+//       toast({
+//         title: "Success",
+//         description: "Loan claimed successfully",
+//       })
 
-      // Update the loan status in the UI
-      const updatedLoans = [...myBorrowings]
-      updatedLoans[index] = { ...updatedLoans[index], claimed: true }
-      setMyBorrowings(updatedLoans)
-    } catch (error) {
-      console.error("Error claiming loan:", error)
-      toast({
-        title: "Error",
-        description: "Failed to claim loan",
-        variant: "destructive",
-      })
-    } finally {
-      setIsProcessing(false)
-      setProcessingLoanIndex(null)
-    }
-  }
+//       // Update the loan status in the UI
+//       const updatedLoans = [...myBorrowings]
+//       updatedLoans[index] = { ...updatedLoans[index], claimed: true }
+//       setMyBorrowings(updatedLoans)
+//     } catch (error) {
+//       console.error("Error claiming loan:", error)
+//       toast({
+//         title: "Error",
+//         description: "Failed to claim loan",
+//         variant: "destructive",
+//       })
+//     } finally {
+//       setIsProcessing(false)
+//       setProcessingLoanIndex(null)
+//     }
+//   }
 
-  const handleRepayLoan = async (loan: LoanData, index: number) => {
-    if (!authenticated) {
-      login()
-      return
-    }
+//   const handleRepayLoan = async (loan: LoanData, index: number) => {
+//     if (!authenticated) {
+//       login()
+//       return
+//     }
 
-    try {
-      setIsProcessing(true)
-      setProcessingLoanIndex(index)
+//     try {
+//       setIsProcessing(true)
+//       setProcessingLoanIndex(index)
 
-      const repaymentAmount = calculateRepaymentAmount(loan.loanAmount, Number(loan.interestRate))
+//       const repaymentAmount = calculateRepaymentAmount(loan.loanAmount, Number(loan.interestRate))
 
-      // First approve the token transfer
-      await approveToken({
-        address: loan.loanToken as `0x${string}`, // Use the loan token from the loan data
-        abi: ERC20_ABI,
-        functionName: "approve",
-        args: [NFT_LENDHUB_ADDRESS, repaymentAmount],
-      })
+//       // First approve the token transfer
+//       await approveToken({
+//         address: loan.loanToken as `0x${string}`, // Use the loan token from the loan data
+//         abi: ERC20_ABI,
+//         functionName: "approve",
+//         args: [NFT_LENDHUB_ADDRESS, repaymentAmount],
+//       })
 
-      toast({
-        title: "Success",
-        description: "Token approval successful",
-      })
+//       toast({
+//         title: "Success",
+//         description: "Token approval successful",
+//       })
 
-      // Then repay the loan
-      await repayLoan({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
-        functionName: "repayLoan",
-        args: [loan.nftAddress, loan.nftId],
-      })
+//       // Then repay the loan
+//       await repayLoan({
+//         address: NFT_LENDHUB_ADDRESS,
+//         abi: NFT_LENDHUB_ABI,
+//         functionName: "repayLoan",
+//         args: [loan.nftAddress, loan.nftId],
+//       })
 
-      toast({
-        title: "Success",
-        description: "Loan repaid successfully. Your NFT has been returned to your wallet.",
-      })
+//       toast({
+//         title: "Success",
+//         description: "Loan repaid successfully. Your NFT has been returned to your wallet.",
+//       })
 
-      // Update the loan status in the UI
-      const updatedLoans = [...myBorrowings]
-      updatedLoans[index] = {
-        ...updatedLoans[index],
-        repaid: true,
-        completed: true,
-      }
-      setMyBorrowings(updatedLoans)
-    } catch (error) {
-      console.error("Error repaying loan:", error)
-      toast({
-        title: "Error",
-        description: "Failed to repay loan",
-        variant: "destructive",
-      })
-    } finally {
-      setIsProcessing(false)
-      setProcessingLoanIndex(null)
-    }
-  }
+//       // Update the loan status in the UI
+//       const updatedLoans = [...myBorrowings]
+//       updatedLoans[index] = {
+//         ...updatedLoans[index],
+//         repaid: true,
+//         completed: true,
+//       }
+//       setMyBorrowings(updatedLoans)
+//     } catch (error) {
+//       console.error("Error repaying loan:", error)
+//       toast({
+//         title: "Error",
+//         description: "Failed to repay loan",
+//         variant: "destructive",
+//       })
+//     } finally {
+//       setIsProcessing(false)
+//       setProcessingLoanIndex(null)
+//     }
+//   }
 
-  const handleClaimRepayment = async (loan: LoanData, index: number) => {
-    if (!authenticated) {
-      login()
-      return
-    }
+//   const handleClaimRepayment = async (loan: LoanData, index: number) => {
+//     if (!authenticated) {
+//       login()
+//       return
+//     }
 
-    try {
-      setIsProcessing(true)
-      setProcessingLoanIndex(index)
+//     try {
+//       setIsProcessing(true)
+//       setProcessingLoanIndex(index)
 
-      await claimRepayment({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
-        functionName: "claimRepayment",
-        args: [loan.nftAddress, loan.nftId],
-      })
+//       await claimRepayment({
+//         address: NFT_LENDHUB_ADDRESS,
+//         abi: NFT_LENDHUB_ABI,
+//         functionName: "claimRepayment",
+//         args: [loan.nftAddress, loan.nftId],
+//       })
 
-      toast({
-        title: "Success",
-        description: "Repayment claimed successfully",
-      })
+//       toast({
+//         title: "Success",
+//         description: "Repayment claimed successfully",
+//       })
 
-      // Update the loan status in the UI
-      const updatedLoans = [...myLendings]
-      updatedLoans[index] = {
-        ...updatedLoans[index],
-        repaymentClaimed: true,
-      }
-      setMyLendings(updatedLoans)
-    } catch (error) {
-      console.error("Error claiming repayment:", error)
-      toast({
-        title: "Error",
-        description: "Failed to claim repayment",
-        variant: "destructive",
-      })
-    } finally {
-      setIsProcessing(false)
-      setProcessingLoanIndex(null)
-    }
-  }
+//       // Update the loan status in the UI
+//       const updatedLoans = [...myLendings]
+//       updatedLoans[index] = {
+//         ...updatedLoans[index],
+//         repaymentClaimed: true,
+//       }
+//       setMyLendings(updatedLoans)
+//     } catch (error) {
+//       console.error("Error claiming repayment:", error)
+//       toast({
+//         title: "Error",
+//         description: "Failed to claim repayment",
+//         variant: "destructive",
+//       })
+//     } finally {
+//       setIsProcessing(false)
+//       setProcessingLoanIndex(null)
+//     }
+//   }
 
-  const handleClaimNFT = async (loan: LoanData, index: number) => {
-    if (!authenticated) {
-      login()
-      return
-    }
+//   const handleClaimNFT = async (loan: LoanData, index: number) => {
+//     if (!authenticated) {
+//       login()
+//       return
+//     }
 
-    try {
-      setIsProcessing(true)
-      setProcessingLoanIndex(index)
+//     try {
+//       setIsProcessing(true)
+//       setProcessingLoanIndex(index)
 
-      await claimNFT({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
-        functionName: "claimNFT",
-        args: [loan.nftAddress, loan.nftId],
-      })
+//       await claimNFT({
+//         address: NFT_LENDHUB_ADDRESS,
+//         abi: NFT_LENDHUB_ABI,
+//         functionName: "claimNFT",
+//         args: [loan.nftAddress, loan.nftId],
+//       })
 
-      toast({
-        title: "Success",
-        description: "NFT claimed successfully",
-      })
+//       toast({
+//         title: "Success",
+//         description: "NFT claimed successfully",
+//       })
 
-      // Update the loan status in the UI
-      const updatedLoans = [...myLendings]
-      updatedLoans[index] = {
-        ...updatedLoans[index],
-        nftClaimed: true,
-        completed: true,
-      }
-      setMyLendings(updatedLoans)
-    } catch (error) {
-      console.error("Error claiming NFT:", error)
-      toast({
-        title: "Error",
-        description: "Failed to claim NFT",
-        variant: "destructive",
-      })
-    } finally {
-      setIsProcessing(false)
-      setProcessingLoanIndex(null)
-    }
-  }
+//       // Update the loan status in the UI
+//       const updatedLoans = [...myLendings]
+//       updatedLoans[index] = {
+//         ...updatedLoans[index],
+//         nftClaimed: true,
+//         completed: true,
+//       }
+//       setMyLendings(updatedLoans)
+//     } catch (error) {
+//       console.error("Error claiming NFT:", error)
+//       toast({
+//         title: "Error",
+//         description: "Failed to claim NFT",
+//         variant: "destructive",
+//       })
+//     } finally {
+//       setIsProcessing(false)
+//       setProcessingLoanIndex(null)
+//     }
+//   }
 
-  if (!authenticated) {
-    return (
-      <div className="mx-auto max-w-md">
-        <Card className="w-full">
-          <CardContent className="pt-6 pb-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">Connect Wallet</h2>
-            <p className="text-muted-foreground mb-6">Please connect your wallet to view your dashboard</p>
-            <Button onClick={() => login()} className="w-full bg-monad-500 hover:bg-monad-600">
-              Connect Wallet
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+//   if (!authenticated) {
+//     return (
+//       <div className="mx-auto max-w-md">
+//         <Card className="w-full">
+//           <CardContent className="pt-6 pb-6 text-center">
+//             <h2 className="text-xl font-semibold mb-4">Connect Wallet</h2>
+//             <p className="text-muted-foreground mb-6">Please connect your wallet to view your dashboard</p>
+//             <Button onClick={() => login()} className="w-full bg-monad-500 hover:bg-monad-600">
+//               Connect Wallet
+//             </Button>
+//           </CardContent>
+//         </Card>
+//       </div>
+//     )
+//   }
 
-  return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold">Your Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Manage your borrowings and lendings</p>
-      </div>
+//   return (
+//     <div className="mx-auto max-w-6xl">
+//       <div className="mb-8 text-center">
+//         <h1 className="text-3xl font-bold">Your Dashboard</h1>
+//         <p className="text-muted-foreground mt-2">Manage your borrowings and lendings</p>
+//       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="borrowings">My Borrowings</TabsTrigger>
-          <TabsTrigger value="lendings">My Lendings</TabsTrigger>
-        </TabsList>
+//       <Tabs value={activeTab} onValueChange={setActiveTab}>
+//         <TabsList className="grid w-full grid-cols-2 mb-8">
+//           <TabsTrigger value="borrowings">My Borrowings</TabsTrigger>
+//           <TabsTrigger value="lendings">My Lendings</TabsTrigger>
+//         </TabsList>
 
-        <TabsContent value="borrowings">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
-            </div>
-          ) : myBorrowings.length === 0 ? (
-            <Card className="text-center py-12">
-              <CardContent>
-                <p>You don't have any active borrowings.</p>
-                <Button
-                  className="mt-4 bg-monad-500 hover:bg-monad-600"
-                  onClick={() => (window.location.href = "/borrow")}
-                >
-                  Borrow Now
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {myBorrowings.map((loan, index) => {
-                const isNotFunded = !loan.active
-                const isRepaid = loan.repaid
-                const isCompleted = loan.completed
+//         <TabsContent value="borrowings">
+//           {isLoading ? (
+//             <div className="flex justify-center items-center py-12">
+//               <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
+//             </div>
+//           ) : myBorrowings.length === 0 ? (
+//             <Card className="text-center py-12">
+//               <CardContent>
+//                 <p>You don't have any active borrowings.</p>
+//                 <Button
+//                   className="mt-4 bg-monad-500 hover:bg-monad-600"
+//                   onClick={() => (window.location.href = "/borrow")}
+//                 >
+//                   Borrow Now
+//                 </Button>
+//               </CardContent>
+//             </Card>
+//           ) : (
+//             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+//               {myBorrowings.map((loan, index) => {
+//                 console.log('Loan Data: ',loan)
+//                 const isNotFunded = !loan.active
+//                 const isRepaid = loan.repaid
+//                 const isCompleted = loan.completed
 
-                let actionText = "Waiting for Lender"
-                let onAction = null
-                let actionDisabled = true
+//                 let actionText = "Waiting for Lender"
+//                 let onAction = null
+//                 let actionDisabled = true
 
-                if (isCompleted) {
-                  actionText = "Loan Completed"
-                } else if (isNotFunded) {
-                  actionText = "Waiting for Lender"
-                } else if (isRepaid) {
-                  actionText = "Loan Repaid"
-                } else if (loan.active && !loan.claimed) {
-                  actionText = "Claim Loan"
-                  onAction = () => handleClaimLoan(loan, index)
-                  actionDisabled = false
-                } else {
-                  actionText = "Repay Loan"
-                  onAction = () => handleRepayLoan(loan, index)
-                  actionDisabled = false
-                }
+//                 if (isCompleted === true) {
+//                   actionText = "Loan Completed"
+//                 } else if (isNotFunded) {
+//                   actionText = "Waiting for Lender"
+//                 } else if (isRepaid) {
+//                   actionText = "Loan Repaid"
+//                 } else if (loan.active && !loan.claimed) {
+//                   actionText = "Claim Loan"
+//                   onAction = () => handleClaimLoan(loan, index)
+//                   actionDisabled = false
+//                 } else {
+//                   actionText = "Repay Loan"
+//                   onAction = () => handleRepayLoan(loan, index)
+//                   actionDisabled = false
+//                 }
 
-                return (
-                  <NFTCard
-                    key={`borrowing-${loan.nftAddress}-${Number(loan.nftId)}`}
-                    nftId={Number(loan.nftId)}
-                    nftAddress={loan.nftAddress}
-                    nftOwner={loan.nftOwner}
-                    loanAmount={loan.loanAmount}
-                    interestRate={Number(loan.interestRate)}
-                    loanDuration={Number(loan.loanDuration)}
-                    startTime={Number(loan.startTime)}
-                    repaid={loan.repaid}
-                    lender={loan.lender}
-                    loanToken={loan.loanToken}
-                    active={loan.active}
-                    completed={loan.completed}
-                    onAction={onAction ? () => onAction!() : undefined}
-                    actionText={actionText}
-                    actionDisabled={actionDisabled}
-                    isProcessing={isProcessing && processingLoanIndex === index}
-                    showLender={true}
-                  />
-                )
-              })}
-            </div>
-          )}
-        </TabsContent>
+//                 return (
+//                   <NFTCard
+//                     key={`borrowing-${loan.nftAddress}-${Number(loan.nftId)}`}
+//                     nftId={Number(loan.nftId)}
+//                     nftAddress={loan.nftAddress}
+//                     nftOwner={loan.nftOwner}
+//                     loanAmount={loan.loanAmount}
+//                     interestRate={Number(loan.interestRate)}
+//                     loanDuration={Number(loan.loanDuration)}
+//                     startTime={Number(loan.startTime)}
+//                     repaid={loan.repaid}
+//                     lender={loan.lender}
+//                     loanToken={loan.loanToken}
+//                     active={loan.active}
+//                     completed={loan.completed}
+//                     onAction={onAction ? () => onAction!() : undefined}
+//                     actionText={actionText}
+//                     actionDisabled={actionDisabled}
+//                     isProcessing={isProcessing && processingLoanIndex === index}
+//                     showLender={true}
+//                   />
+//                 )
+//               })}
+//             </div>
+//           )}
+//         </TabsContent>
 
-        <TabsContent value="lendings">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
-            </div>
-          ) : myLendings.length === 0 ? (
-            <Card className="text-center py-12">
-              <CardContent>
-                <p>You don't have any active lendings.</p>
-                <Button
-                  className="mt-4 bg-monad-500 hover:bg-monad-600"
-                  onClick={() => (window.location.href = "/lend")}
-                >
-                  Lend Now
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {myLendings.map((loan, index) => {
-                const now = Math.floor(Date.now() / 1000)
-                const loanEnd = Number(loan.startTime) + Number(loan.loanDuration)
-                const gracePeriodEnd = loanEnd + 7 * 86400 // 7 days grace period
-                const canClaimNFT = !loan.repaid && now > gracePeriodEnd && !loan.completed
-                const isCompleted = loan.completed
+//         <TabsContent value="lendings">
+//           {isLoading ? (
+//             <div className="flex justify-center items-center py-12">
+//               <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
+//             </div>
+//           ) : myLendings.length === 0 ? (
+//             <Card className="text-center py-12">
+//               <CardContent>
+//                 <p>You don't have any active lendings.</p>
+//                 <Button
+//                   className="mt-4 bg-monad-500 hover:bg-monad-600"
+//                   onClick={() => (window.location.href = "/lend")}
+//                 >
+//                   Lend Now
+//                 </Button>
+//               </CardContent>
+//             </Card>
+//           ) : (
+//             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+//               {myLendings.map((loan, index) => {
+//                 const now = Math.floor(Date.now() / 1000)
+//                 const loanEnd = Number(loan.startTime) + Number(loan.loanDuration)
+//                 const gracePeriodEnd = loanEnd + 7 * 86400 // 7 days grace period
+//                 const canClaimNFT = !loan.repaid && now > gracePeriodEnd && !loan.completed
+//                 const isCompleted = loan.completed
 
-                let actionText = "Waiting for Repayment"
-                let onAction = null
-                let actionDisabled = true
+//                 let actionText = "Waiting for Repayment"
+//                 let onAction = null
+//                 let actionDisabled = true
 
-                if (isCompleted) {
-                  actionText = "Loan Completed"
-                } else if (loan.repaid && !loan.repaymentClaimed) {
-                  actionText = "Claim Repayment"
-                  onAction = () => handleClaimRepayment(loan, index)
-                  actionDisabled = false
-                } else if (loan.repaid && loan.repaymentClaimed) {
-                  actionText = "Repayment Claimed"
-                } else if (canClaimNFT) {
-                  actionText = "Claim NFT"
-                  onAction = () => handleClaimNFT(loan, index)
-                  actionDisabled = false
-                } else if (loan.nftClaimed) {
-                  actionText = "NFT Claimed"
-                }
+//                 if (isCompleted) {
+//                   actionText = "Loan Completed"
+//                 } else if (loan.repaid && !loan.repaymentClaimed) {
+//                   actionText = "Claim Repayment"
+//                   onAction = () => handleClaimRepayment(loan, index)
+//                   actionDisabled = false
+//                 } else if (loan.repaid && loan.repaymentClaimed) {
+//                   actionText = "Repayment Claimed"
+//                 } else if (canClaimNFT) {
+//                   actionText = "Claim NFT"
+//                   onAction = () => handleClaimNFT(loan, index)
+//                   actionDisabled = false
+//                 } else if (loan.nftClaimed) {
+//                   actionText = "NFT Claimed"
+//                 }
 
-                return (
-                  <NFTCard
-                    key={`lending-${loan.nftAddress}-${Number(loan.nftId)}`}
-                    nftId={Number(loan.nftId)}
-                    nftAddress={loan.nftAddress}
-                    nftOwner={loan.nftOwner}
-                    loanAmount={loan.loanAmount}
-                    interestRate={Number(loan.interestRate)}
-                    loanDuration={Number(loan.loanDuration)}
-                    startTime={Number(loan.startTime)}
-                    repaid={loan.repaid}
-                    lender={loan.lender}
-                    loanToken={loan.loanToken}
-                    active={loan.active}
-                    completed={loan.completed}
-                    onAction={onAction ? () => onAction!() : undefined}
-                    actionText={actionText}
-                    actionDisabled={actionDisabled}
-                    isProcessing={isProcessing && processingLoanIndex === index}
-                    showLender={false}
-                  />
-                )
-              })}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
-}
-
+//                 return (
+//                   <NFTCard
+//                     key={`lending-${loan.nftAddress}-${Number(loan.nftId)}`}
+//                     nftId={Number(loan.nftId)}
+//                     nftAddress={loan.nftAddress}
+//                     nftOwner={loan.nftOwner}
+//                     loanAmount={loan.loanAmount}
+//                     interestRate={Number(loan.interestRate)}
+//                     loanDuration={Number(loan.loanDuration)}
+//                     startTime={Number(loan.startTime)}
+//                     repaid={loan.repaid}
+//                     lender={loan.lender}
+//                     loanToken={loan.loanToken}
+//                     active={loan.active}
+//                     completed={loan.completed}
+//                     onAction={onAction ? () => onAction!() : undefined}
+//                     actionText={actionText}
+//                     actionDisabled={actionDisabled}
+//                     isProcessing={isProcessing && processingLoanIndex === index}
+//                     showLender={false}
+//                   />
+//                 )
+//               })}
+//             </div>
+//           )}
+//         </TabsContent>
+//       </Tabs>
+//     </div>
+//   )
+// }
