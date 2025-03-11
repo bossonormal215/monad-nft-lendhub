@@ -272,11 +272,9 @@ contract LoanManager is Ownable {
     INFTCollateralVault public nftVault;
     IUSDTLiquidityPool public liquidityPool;
 
-    uint256 public constant INTEREST_RATE = 1000; // 10% annual interest
+    uint256 public constant INTEREST_RATE = 1000; // 10% 30 days interest
     uint256 public constant MIN_LOAN_DURATION = 5 minutes; // Minimum duration is 5 minutes
     uint256 public constant MAX_LOAN_DURATION = 30 days; // Maximum duration remains 30 days
-
-    uint256 public constant LIQUIDATION_THRESHOLD = 8500; // 85%
 
     event LoanIssued(
         address indexed borrower,
@@ -425,7 +423,7 @@ contract LoanManager is Ownable {
         uint256 startTime
     ) public view returns (uint256) {
         uint256 timeElapsed = block.timestamp - startTime;
-        return (amount * INTEREST_RATE * timeElapsed) / (365 days * 10000);
+        return (amount * INTEREST_RATE * timeElapsed) / (30 days * 10000);
     }
 
     /**

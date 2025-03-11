@@ -145,8 +145,10 @@ function MintDMONPage() {
     } catch (error: any) {
       console.error("Mint failed:", error);
       // setError(error.message || "Failed to mint NFT");
-      if (error.message.includes('whitelist')) {
+      if (error.message.includes('You are not whitelisted to mint an NFT')) {
         setError('Not whitelisted for the presale mint. reach out to bossonormal1 on discord to WL your address!!');
+      } else if(error.message.includes('You have already minted an NFT')) {
+        setError('You Have Already minted!!!');
       }
     } finally {
       setIsLoadiing(false);

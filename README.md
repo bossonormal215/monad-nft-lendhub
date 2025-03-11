@@ -5,12 +5,14 @@ A decentralized NFT-backed lending and borrowing platform built natively on Mona
 ## 🌟 Key Features
 
 ### For Borrowers
+
 - 🎭 NFT Collateralization: Deposit whitelisted NFTs as collateral
 - 💰 Instant Loans: Borrow up to 70% of NFT floor price in USDT
 - ⚡ Quick Withdrawals: Reclaim NFT instantly after loan repayment
 - 📊 Real-time Monitoring: Track loan health and repayment status
 
 ### For Liquidity Providers
+
 - 🏦 Yield Generation: Earn interest from loan repayments
 - 🎯 Points System: Accumulate rewards based on:
   - Deposit amount
@@ -19,6 +21,7 @@ A decentralized NFT-backed lending and borrowing platform built natively on Mona
 - 🔄 Flexible Withdrawals: Remove liquidity anytime (subject to availability)
 
 ### Platform Features
+
 - 🔐 Automated Liquidations: Protect protocol and LP funds
 - ⚖️ Dynamic Interest Rates: Based on pool utilization
 - 🎨 Whitelisted NFTs: Carefully curated collections
@@ -41,7 +44,6 @@ A decentralized NFT-backed lending and borrowing platform built natively on Mona
 - Hardhat
 - Monad Testnet RPC URL
 
-
 ### Installation
 
 1. Clone the repository
@@ -57,8 +59,17 @@ cd monad-nft-lendhub
 npm install
 ```
 
-3. Create a `.env` file in the root directory and add your environment variables
+3. Create a `.env` file in the cross-chain-contracts root
 
+- MONAD_RPC_URL
+- PRIVATE_KEY
+- PRIVATE_KEY2
+
+### And another `.env.local` in the cross-chain-frontend root
+
+- NEXT_PUBLIC_THIRDWEB_CLIENT_ID
+- NEXT_PUBLIC_PRIVY_API_KEY
+- NEXT_PUBLIC_ZEROX_API_KEY
 
 ### Start development server
 
@@ -66,29 +77,33 @@ npm install
 npm run dev
 ```
 
-
 ## 👨‍💻 User Flow
 
 1. **Connect Wallet**
+
    - Connect to Monad Testnet
    - Auto network switching supported
 
 2. **Get Whitelisted & Mint NFT**
+
    - Get address whitelisted by admin
    - Mint test NFT (max 5 per wallet)
    - Fetch tokenId from block explorer
 
 3. **Deposit NFT**
+
    - Select whitelisted collection
    - Enter tokenId
    - Approve & deposit NFT
 
 4. **Borrow USDT**
+
    - Enter loan amount (≤70% of NFT value)
    - Receive USDT instantly
    - Monitor loan status
 
 5. **Repay & Withdraw**
+
    - Repay loan + interest
    - Withdraw NFT after repayment
 
@@ -100,6 +115,7 @@ npm run dev
 ## 🔄 Current Status
 
 ### Implemented Features
+
 - ✅ Wallet Connection & Network Switching
 - ✅ NFT Minting & Whitelisting
 - ✅ NFT Collateral Deposits
@@ -108,6 +124,7 @@ npm run dev
 - ✅ Basic Points System
 
 ### In Progress
+
 - 🏗️ Wormhole Bridge Integration
 - 🏗️ Advanced Points System
 - 🏗️ Liquidation Automation
