@@ -32,6 +32,18 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
     const [isProcessing, setIsProcessing] = useState(false);
     const { loanManager } = useContracts();
 
+    // Add auto-dismiss effect
+  useEffect(() => {
+    if (status || error) {
+      const timer = setTimeout(() => {
+        setStatus('');
+        setError('')
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
     // Reset states when collateral changes
     useEffect(() => {
         setAmount('');
@@ -206,11 +218,25 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
                     </button>
 
                     {error && (
-                        <p className="mt-2 text-sm text-red-500">{error}</p>
+                        <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+                        style={{
+                            animation: 'fadInOut 20s ease-in-out'
+                        }}
+                        >
+                      <p className='text-sm text-red'>{error}</p>
+                      </div>
                     )}
-                    {status && !error && (
-                        <p className="mt-2 text-sm text-green-500">{status}</p>
-                    )}
+
+                     {/* Status Messages */}
+          {status && (
+            <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+              style={{
+                animation: 'fadeInOut 20s ease-in-out'
+              }}
+            >
+              <p className="text-sm text-[#F5F6FC]">{status}</p>
+            </div>
+          )}
                 </>
             )}
         </div>

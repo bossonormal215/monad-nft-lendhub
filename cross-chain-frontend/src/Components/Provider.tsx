@@ -2,10 +2,24 @@
 
 import { AppProps } from 'next/app';
 import { PrivyProvider } from "@privy-io/react-auth";
-import { monadTestnet } from 'viem/chains';
+import { monadTestnet } from 'viem/chains';;
 
 
 const privy_apiKey = process.env.NEXT_PUBLIC_PRIVY_API_KEY as string
+// const monadTestnet = {
+//   chainId: 10143, 
+//   rpc: [process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC],
+//   nativeCurrency: {
+//     decimals: 18,
+//     name: "Monad TestNet",
+//     symbol: "MON",
+//   },
+//   shortName: "monad",
+//   slug: "monad",
+//   testnet: true,
+//   chain: "monadTestnet",
+//   name: "Monad Testnet",
+// };
 
 function Provider({ Component, pageProps }: AppProps) {
   return (

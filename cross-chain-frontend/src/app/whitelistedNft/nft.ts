@@ -12,12 +12,11 @@ export const WHITELISTED_NFTS: WhitelistedNFT[] = [
   {
     // address: '0xFd6E4CF0FC697236b359ac67701B8D1dFe82D301', devnet
     // address: '0xb14580f95375b097d229EF4fBe330Dc9866e6CFe', // testnet
-    address: '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC', // testnet 2
+    address: '0x48724834cEb86E79AC8f0E861d8176c5fa324A6D', // testnet 2
     name: 'DMONNFT',
     // symbol: 'DMON',
     description: 'Exclusive Monad Ape Collection',
-    image:
-      '/home/bosso/works/hackaton/cross-chain/cross-chain-frontend/src/images/monadPFP.jpg',
+    image: '',
     // image: '/images/monad-ape.png', // Add your NFT collection image
     maxLoanAmount: 1000, // 1000 USDT
     ltvRatio: 70,

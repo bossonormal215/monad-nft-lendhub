@@ -126,20 +126,20 @@ async function main() {
   console.log('USDT deployed to:', UsdtAddress);
 
   // Deploy DMONNFT
-  /*const DmonNFT = await ethers.getContractFactory('DmonNFT');
+  const DmonNFT = await ethers.getContractFactory('DmonNFT');
   const dmonNFT = await DmonNFT.deploy(UsdtAddress);
   await dmonNFT.waitForDeployment();
   const DmonNFTAddress = await dmonNFT.getAddress();
-  console.log('DMON NFT deployed to:', DmonNFTAddress); */
-  const DmonNFTAddress = '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC'; // Example NFT Collection
-  const nftContract = await ethers.getContractAt('DmonNFT', DmonNFTAddress);
+  console.log('DMON NFT deployed to:', DmonNFTAddress);
+  // const DmonNFTAddress = '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC'; // Example NFT Collection
+  // const nftContract = await ethers.getContractAt('DmonNFT', DmonNFTAddress);
 
   // configure DmonNFT to be able to call whitelist user on MockUsdt
   await usdt.setNFTContract(DmonNFTAddress);
   console.log('Configured DMONNft to whitelist user...');
 
   // Iniitial whitelist to let deployer to mintNFT
-  await nftContract.addToWhitelist([deployer.address]);
+  await dmonNFT.addToWhitelist([deployer.address]);
 
   // Deploy USDT Liquidity Pool
   const USDTLiquidityPool = await ethers.getContractFactory(

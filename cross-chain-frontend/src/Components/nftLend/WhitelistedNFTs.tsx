@@ -23,7 +23,7 @@ const NFTCard = ({ nft, onSelect, selected }: NFTCardProps) => {
         >
             {nft.image && (
                 <img
-                    src={nft.image}
+                    src='../app/favicon.ico'
                     alt={nft.name}
                     className="w-full h-48 object-cover rounded-lg mb-4"
                 />

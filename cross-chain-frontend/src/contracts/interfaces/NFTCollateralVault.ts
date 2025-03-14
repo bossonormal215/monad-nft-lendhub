@@ -197,7 +197,7 @@
 ///////////////////////////
 
 export const NFTCollateralVaultABI = {
-  address: '0x8b499ae4929E59d8101cbbb54b49690Ba0c3627C',
+  address: '0x291f04af2132110083D2C7d73845Fb11Fe8d810a',
   abi: [
     {
       anonymous: false,

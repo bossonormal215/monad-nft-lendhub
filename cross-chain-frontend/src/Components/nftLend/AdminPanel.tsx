@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
 interface AdminPanelProps {
@@ -14,6 +14,18 @@ export function AdminPanel({ isAdmin, onAddWhitelist, onTogglePublicSale }: Admi
     const [isLoading, setIsLoading] = useState(false);
     const [AdminError, setAdminError] = useState('');
     const [status, setStatus] = useState('');
+
+    // Add auto-dismiss effect
+      useEffect(() => {
+        if (status || AdminError) {
+          const timer = setTimeout(() => {
+            setStatus('');
+            setAdminError('')
+          }, 5000); // 5 seconds
+    
+          return () => clearTimeout(timer);
+        }
+      }, [status]);
 
     if (!isAdmin) return null;
 
@@ -72,8 +84,17 @@ export function AdminPanel({ isAdmin, onAddWhitelist, onTogglePublicSale }: Admi
                             </button>
                         </div>
                         {AdminError && <p className="mt-2 text-sm text-red-500">{AdminError}</p>}
-                        {status && <p className="mt-2 text-sm text-green-500">{status}</p>}
-                    </div>
+                         {/* Status Messages */}
+                     {status && (
+                      <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+                          style={{
+                          animation: 'fadeInOut 20s ease-in-out'
+                                }}
+                        >
+                         <p className="text-sm text-[#F5F6FC]">{status}</p>
+                       </div>
+                      )}
+                      </div>
 
                     <div className="flex justify-between items-center">
                         <span className="text-sm text-[#98A1C0]">Public Sale Status</span>

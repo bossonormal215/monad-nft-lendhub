@@ -5,7 +5,7 @@ import PrivyWrapper from "./PrivyWrapper";
 
 const monadTestNet = {
     chainId: 10143, 
-    rpc: ['https://testnet-rpc.monad.xyz'],
+    rpc: [ process.env.NEXT_PUBLIC_PUBLIC_MONAD_TESTNET_RPC as string, process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC as string,],
     nativeCurrency: {
       decimals: 18,
       name: "Monad TestNet",

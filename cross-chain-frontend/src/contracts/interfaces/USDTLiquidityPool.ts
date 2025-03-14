@@ -531,6 +531,7 @@
 
 ////////////////////
 export const USDTLiquidityPoolABI = {
+  address: '0x196F7638B53c2a1adA87e7689e67fd510350e744',
   abi: [
     {
       inputs: [

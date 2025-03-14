@@ -73,6 +73,7 @@ function MintDMONPage() {
     if (status || error) {
       const timer = setTimeout(() => {
         setStatus('');
+        setError('')
       }, 5000); // 5 seconds
 
       return () => clearTimeout(timer);
@@ -82,19 +83,36 @@ function MintDMONPage() {
   useEffect(() => {
     const fetchContractInfo = async () => {
       if (!dmonContract) return;
+    //   if (isWrongNetwork) {
+    //     alert("Please switch your wallet to Monad TestNet.");
+    //     switchNetwork(monadTestNet.chainId);
+    // }
+    
 
       try {
-        const [
-          privateSalePrice,
-          maxSupplyValue,
-          currentSupply,
-          privateSaleState
-        ] = await Promise.all([
-          dmonContract.call("WhitelistMintPrice"),
-          dmonContract.call("MAX_SUPPLY"),
-          dmonContract.call("totalSupply"),
-          dmonContract.call("isPresaleActive")
-        ]);
+        const privateSalePrice = await dmonContract.call("WhitelistMintPrice");
+        console.log("Private Sale Price:", privateSalePrice);
+
+        const maxSupplyValue = await dmonContract.call('MAX_SUPPLY')
+        console.log('Max supply: ', maxSupplyValue)
+
+        const currentSupply = await dmonContract.call('totalSupply')
+        console.log('Current supply: ', currentSupply)
+        
+        const privateSaleState = await dmonContract.call('isPresaleActive')
+        console.log('Private sale state:', privateSaleState)
+
+        // const [
+        //   privateSalePrice,
+        //   maxSupplyValue,
+        //   currentSupply,
+        //   privateSaleState
+        // ] = await Promise.all([
+        //   dmonContract.call("WhitelistMintPrice"),
+        //   dmonContract.call("MAX_SUPPLY"),
+        //   dmonContract.call("totalSupply"),
+        //   dmonContract.call("isPresaleActive")
+        // ]);
 
         setMintPrice(ethers.utils.formatEther(privateSalePrice));
         setMaxSupply(Number(maxSupplyValue));
@@ -103,7 +121,11 @@ function MintDMONPage() {
 
       } catch (error) {
         console.error("Error fetching contract info:", error);
+        console.log("Using NFT Contract Address:", DMON_NFT_CONTRACT.address);
         setError("Failed to load NFT information");
+      }
+      finally {
+        // setError('')
       }
     };
 
@@ -279,7 +301,7 @@ function MintDMONPage() {
                   'Mint DMON NFT'}
             </button>
 
-            {error && (
+            {error && !status && (
               <p className="text-red-500 text-sm text-center">{error}</p>
             )}
             {status && !error && (
@@ -719,3 +741,7 @@ function Main() {
 }
 
 export default App;
+
+function switchNetwork(chainId: number) {
+  throw new Error("Function not implemented.");
+}

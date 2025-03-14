@@ -1,7 +1,7 @@
 export const DMON_NFT_CONTRACT = {
   // address: '0xFd6E4CF0FC697236b359ac67701B8D1dFe82D301',
   // address: '0xb14580f95375b097d229EF4fBe330Dc9866e6CFe',
-  address: '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC',
+  address: '0x48724834cEb86E79AC8f0E861d8176c5fa324A6D',
   abi: [
     {
       inputs: [

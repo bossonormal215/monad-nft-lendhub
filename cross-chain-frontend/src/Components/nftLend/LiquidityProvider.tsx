@@ -31,6 +31,18 @@ export function LiquidityProvider() {
     const [usdtBalance, setUsdtBalance] = useState<string>('0');
     const [poolBalance, setPoolBalance] = useState<string>('0');
 
+    // Add auto-dismiss effect
+  useEffect(() => {
+    if (status || error) {
+      const timer = setTimeout(() => {
+        setStatus('');
+        setError('')
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
     const address = useAddress();
     const { contract: usdt } = useContract(USDT_CONTRACT);
     const { contract: liquidityPool } = useContract(LIQUIDITY_POOL_CONTRACT, USDTLiquidityPoolABI.abi);
@@ -106,14 +118,18 @@ export function LiquidityProvider() {
             if (error.message.includes) {
                 console.log('USDT MINTING Error: ', error.message)
             }
-            if (error.message.includes('owner')) {
+            else if(error.message.includes('You have no tokens to mint')){
+                setError( 'You have Already minted!!')
+            }
+            else if (error.message.includes('owner')) {
                 setError('Only Owner Is Allowed To Mint USDT !! ');
             }
-            if (error.message.includes('data')) {
+            else if (error.message.includes('data')) {
                 setError('You Are Not Allowed To Mint!!, Mint an NFT to be whitelisted for minting 2000 mUSDT');
             }
         } finally {
             setIsLoadiing(false);
+            setStatus('')
         }
     };
 
@@ -246,12 +262,25 @@ export function LiquidityProvider() {
                     </div>
 
                     {error && (
-                        <p className="text-sm text-red-500">{error}</p>
+                        <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+                        style={{
+                            animation: 'fadInOut 20s ease-in-out'
+                        }}
+                        >
+                      <p className='text-sm text-red'>{error}</p>
+                      </div>
                     )}
 
-                    {status && !error && (
-                        <p className="text-sm text-blue-400">{status}</p>
-                    )}
+                      {/* Status Messages */}
+                      {status && (
+                      <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+                          style={{
+                          animation: 'fadeInOut 20s ease-in-out'
+                                }}
+                        >
+                         <p className="text-sm text-[#F5F6FC]">{status}</p>
+                       </div>
+                      )}
 
                     <div className="grid grid-cols-3 gap-3">
                         <button

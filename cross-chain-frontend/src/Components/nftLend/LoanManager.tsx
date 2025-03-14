@@ -46,6 +46,18 @@ export function LoanManager({
     const [activeLoan, setActiveLoan] = useState<any>(null);
     const address = useAddress();
 
+    // Add auto-dismiss effect
+  useEffect(() => {
+    if (status || error) {
+      const timer = setTimeout(() => {
+        setStatus('');
+        setError('')
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
     // Move all contract initializations to component level
     const { contract: loanManager } = useContract(
         LOAN_MANAGER_CONTRACT,
@@ -458,9 +470,16 @@ export function LoanManager({
             {error && (
                 <p className="mt-2 text-sm text-red-500">{error}</p>
             )}
-            {status && !error && (
-                <p className="mt-2 text-sm text-green-500">{status}</p>
-            )}
+              {/* Status Messages */}
+              {status && (
+                      <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+                          style={{
+                          animation: 'fadeInOut 20s ease-in-out'
+                                }}
+                        >
+                         <p className="text-sm text-[#F5F6FC]">{status}</p>
+                       </div>
+                      )}
         </div>
     );
 } 
