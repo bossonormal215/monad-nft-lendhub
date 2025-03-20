@@ -1,17 +1,17 @@
 "use client"
 
-// import { Header } from "@/components/header"
-// import { LendTab } from "@/components/lend-tab"
-// import { WagmiConfig } from "@/providers/wagmi-provider";
+import { Header } from "@/components/header"
+import { LendTab } from "@/components/lend-tab"
+import { WagmiConfig } from "@/providers/wagmi-provider";
 
 export default function LendPage() {
   return (
-    <>
-    {/* // <WagmiConfig > */}
+    
+    <WagmiConfig >
     <div className="flex min-h-screen flex-col">
-      {/* <Header /> */}
+      <Header />
       <main className="flex-1 container py-8">
-        {/* <LendTab /> */}
+        <LendTab />
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-muted-foreground">© 2024 NFT LendHub. All rights reserved.</p>
@@ -25,8 +25,7 @@ export default function LendPage() {
         </nav>
       </footer>
     </div>
-    {/* </WagmiConfig > */}
-    </>
+    </WagmiConfig >
   )
 }
 

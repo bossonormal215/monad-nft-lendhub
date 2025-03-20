@@ -17,12 +17,13 @@ async function main() {
   console.log(`🔹 Borrower Address: ${BORROWER_WALLET.address}`);
 
   // ✅ Deployed contract addresses (Replace with the actual deployed addresses)
-  const NFT_LENDHUB_ADDRESS = '0x4F672C822d9a4B9cE92D247C8FC3bf1C471E2f39';
+  // const NFT_LENDHUB_ADDRESS = '0x4F672C822d9a4B9cE92D247C8FC3bf1C471E2f39';
+  const NFT_LENDHUB_ADDRESS = '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF';
   const NFT_ADDRESS = '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC'; // Example NFT Collection
 
   // ✅ Loan parameters
-  const NFT_ID = 7;
-  //   const NFT_ID = 448;
+  // const NFT_ID = 7;
+  const NFT_ID = 448;
   const LOAN_AMOUNT = ethers.parseEther('2'); // 2 MON
   const INTEREST_RATE = 5; // 5% interest
   const LOAN_DURATION = 7 * 86400; // 7 days
@@ -67,6 +68,13 @@ async function main() {
   await listTx.wait(1);
 
   console.log('✅ NFT Listed for Loan!');
+  */
+
+  console.log('\n🔍 Fetching loan details directly from contract...');
+  const loanData = await nftLendHub.loans(NFT_ADDRESS, NFT_ID);
+
+  console.log('📌 On-Chain Loan Data:', loanData);
+  console.log('📌 Lender Address on-chain:', loanData.lender);
 
   // ✅ Step 2: Fetch All Available Loans
   console.log('\n🔹 Step 2: Fetch Available Loans...');
@@ -89,6 +97,7 @@ async function main() {
     .fundLoan(NFT_ADDRESS, NFT_ID);
   await fundTx.wait(1);
   console.log('✅ Loan Funded!');
+  */
 
   // ✅ Step 4: Fetch User-Specific Loans
   console.log('\n🔹 Step 4: Fetch User-Specific Loans...');
@@ -102,8 +111,8 @@ async function main() {
       Number(lenderLoans[0].startTime) + Number(lenderLoans[0].loanDuration)
     }`
   );
-  
 
+  /*
   console.log('\n🔹 Step 5: Borrower Claims the Loan...');
   const loanClaimTx = await nftLendHub
     .connect(BORROWER_WALLET)

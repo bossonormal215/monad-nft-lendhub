@@ -4,7 +4,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.28',
+  solidity: {
+    version: '0.8.28',
+    settings: {
+      viaIR: true,
+      optimizer: {
+        enabled: true,
+        runs: 200, // You can adjust the number of runs as needed
+      },
+    },
+  },
   networks: {
     monadTestnet: {
       // url: process.env.MONAD_RPC_URL,

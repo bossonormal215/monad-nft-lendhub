@@ -7,8 +7,10 @@
     "check-status": "npx hardhat run scripts/interaction/status.ts --network monadTestnet",
     "deploy-bd-contracts": "npx hardhat run scripts/deploy-bd.ts --network monadTestnet",
     "deploy-p2pLendingContracts2": "npx hardhat run scripts/p2pLending2/deploy.ts --network monadTestnet",
+    "deploy-p2pLendingContracts4": "npx hardhat run scripts/p2pLending4/deploy.ts --network monadTestnet",
     "test-nftlending": "npx hardhat run test/testNftLending.ts --network monadTestnet",
     "test-nftlending2": "npx hardhat run test/testNftLending2.ts --network monadTestnet",
+    "test-nftlending4": "npx hardhat run test/testNftLending4.ts --network monadTestnet",
     "test-nftlending3": "npx hardhat run test/testnewlending.ts --network monadTestnet"
   },
   "devDependencies": {

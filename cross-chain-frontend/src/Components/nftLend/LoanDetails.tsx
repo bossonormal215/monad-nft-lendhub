@@ -1,6 +1,7 @@
 'use client'
 
 import { ethers } from 'ethers';
+import Web3Wrapper from '../Web3Wrapper';
 
 interface LoanDetailsProps {
     loan?: {
@@ -26,6 +27,7 @@ export function LoanDetails({ loan, onRepay, onLiquidate, isLoading }: LoanDetai
     const isOverdue = timeLeft < 0;
 
     return (
+        <Web3Wrapper>
         <div className="bg-[#131A2A] rounded-[20px] p-6">
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -81,6 +83,7 @@ export function LoanDetails({ loan, onRepay, onLiquidate, isLoading }: LoanDetai
                 </div>
             </div>
         </div>
+        </Web3Wrapper>
     );
 }
 

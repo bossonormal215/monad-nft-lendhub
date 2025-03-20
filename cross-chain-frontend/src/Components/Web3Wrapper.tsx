@@ -2,6 +2,9 @@
 
 import { coinbaseWallet, embeddedWallet, metamaskWallet, rabbyWallet, rainbowWallet, ThirdwebProvider, walletConnect, zerionWallet } from "@thirdweb-dev/react";
 import PrivyWrapper from "./PrivyWrapper";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const monadTestNet = {
     chainId: 10143, 
@@ -35,10 +38,10 @@ export default function Web3Wrapper({ children }: { children: React.ReactNode })
               rabbyWallet(),
               rainbowWallet()
             ]}
-        >
-            {/* <PrivyWrapper> */}
-                {children}
-            {/* </PrivyWrapper> */}
+        > 
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
         </ThirdwebProvider>
     );
 } 

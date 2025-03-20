@@ -1,61 +1,353 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/privy/ui/card"
+import { Input } from "@/Components/privy/ui/input"
+import { Label } from "@/Components/privy/ui/label"
+import { Button } from "@/Components/privy/ui/button"
+import { useAccount, useWriteContract } from "wagmi"
+import { ERC721_ABI, NFT_LENDHUB_ABI } from "./lib/constants"
+import { NFT_ADDRESS, NFT_LENDHUB_ADDRESS, WMON_ADDRESS } from "./lib/constants"
+import { useToast } from "@/Components/privy/ui/use-toast"
+import { usePrivy } from "@privy-io/react-auth"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/privy/ui/select"
+import { parseAmount } from "./lib/utils"
+import { Loader2 } from "lucide-react"
+
+const BorrowTab = () => {
+  const { address } = useAccount()
+  const { toast } = useToast()
+  const { authenticated, login } = usePrivy()
+
+  const { writeContractAsync: approveNft } = useWriteContract()
+  const { writeContractAsync: listNft } = useWriteContract()
+
+  const [nftId, setNftId] = useState("")
+  const [loanAmount, setLoanAmount] = useState("")
+  const [interestRate, setInterestRate] = useState("5")
+  const [loanDuration, setLoanDuration] = useState("7")
+  const [loanToken, setLoanToken] = useState(WMON_ADDRESS)
+
+  const [isApproving, setIsApproving] = useState(false)
+  const [isListing, setIsListing] = useState(false)
+
+  const [nftAddress, setNftAddress] = useState(NFT_ADDRESS)
+
+  // ✅ Handle NFT Approval
+  const handleApproveNft = async () => {
+    if (!authenticated) {
+      login()
+      return
+    }
+
+    if (!nftId) {
+      toast({ title: "Error", description: "Please enter a valid NFT ID", variant: "destructive" })
+      return
+    }
+
+    try {
+      setIsApproving(true)
+      console.log("🔹 Approving NFT:", nftAddress, nftId)
+
+      await approveNft({
+        address: nftAddress as `0x${string}`,
+        abi: ERC721_ABI,
+        functionName: "approve",
+        args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)],
+      })
+
+      toast({ title: "Success", description: "NFT approved for lending" })
+    } catch (error) {
+      console.error("❌ Error approving NFT:", error)
+      toast({ title: "Error", description: "Failed to approve NFT", variant: "destructive" })
+    } finally {
+      setIsApproving(false)
+    }
+  }
+
+  // ✅ Handle Listing NFT for Loan
+  const handleListNft = async () => {
+    if (!authenticated) {
+      login()
+      return
+    }
+
+    if (!nftId || !loanAmount || !interestRate || !loanDuration) {
+      toast({ title: "Error", description: "Please fill in all fields", variant: "destructive" })
+      return
+    }
+
+    try {
+      setIsListing(true)
+      console.log("🔹 Listing NFT for Loan:", nftAddress, nftId)
+
+      await listNft({
+        address: NFT_LENDHUB_ADDRESS,
+        abi: NFT_LENDHUB_ABI,
+        functionName: "listNFTForLoan",
+        args: [
+          nftAddress,
+          BigInt(nftId),
+          parseAmount(loanAmount),
+          BigInt(interestRate),
+          BigInt(Number.parseInt(loanDuration) * 86400), // Convert days to seconds
+          loanToken,
+        ],
+      })
+
+      toast({ title: "Success", description: "NFT listed for loan" })
+
+      // ✅ Reset form
+      setNftId("")
+      setLoanAmount("")
+      setInterestRate("5")
+      setLoanDuration("7")
+      setLoanToken(WMON_ADDRESS)
+    } catch (error) {
+      console.error("❌ Error listing NFT:", error)
+      toast({ title: "Error", description: "Failed to list NFT for loan", variant: "destructive" })
+    } finally {
+      setIsListing(false)
+    }
+  }
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <Card className="border border-monad-border bg-card">
+        <CardHeader className="bg-gradient-to-r from-card to-card/90 py-3 px-4">
+          <CardTitle className="text-base text-foreground">NFT Information</CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">Enter your NFT details</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 pt-3 px-4">
+          <div className="space-y-1">
+            <Label className="text-xs text-foreground">NFT Collection Address</Label>
+            <Input
+              placeholder="Enter NFT contract address"
+              value={nftAddress}
+              onChange={(e) => setNftAddress(e.target.value)}
+              className="bg-muted border-monad-border focus:border-monad-500 focus:ring-monad-500/20 h-8 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="nft-id" className="text-xs text-foreground">
+              NFT ID
+            </Label>
+            <Input
+              id="nft-id"
+              placeholder="Enter NFT ID"
+              value={nftId}
+              onChange={(e) => setNftId(e.target.value)}
+              className="bg-muted border-monad-border focus:border-monad-500 focus:ring-monad-500/20 h-8 text-sm"
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="border-t border-monad-border pt-3 px-4 pb-4">
+          <Button
+            disabled={isApproving || isListing}
+            onClick={handleApproveNft}
+            className="w-full bg-monad-500 hover:bg-monad-600 text-white disabled:bg-muted disabled:text-muted-foreground h-8 text-sm"
+          >
+            {isApproving ? (
+              <>
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                Approving...
+              </>
+            ) : (
+              "Approve NFT"
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <Card className="border border-monad-border bg-card">
+        <CardHeader className="bg-gradient-to-r from-card to-card/90 py-3 px-4">
+          <CardTitle className="text-base text-foreground">Loan Terms</CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">Specify your loan requirements</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 pt-3 px-4">
+          <div className="space-y-1">
+            <Label htmlFor="loan-amount" className="text-xs text-foreground">
+              Loan Amount
+            </Label>
+            <Input
+              id="loan-amount"
+              placeholder="Enter loan amount"
+              value={loanAmount}
+              onChange={(e) => setLoanAmount(e.target.value)}
+              className="bg-muted border-monad-border focus:border-monad-500 focus:ring-monad-500/20 h-8 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="interest-rate" className="text-xs text-foreground">
+              Interest Rate (%)
+            </Label>
+            <div className="grid grid-cols-4 gap-1">
+              {["5", "10", "15", "20"].map((rate) => (
+                <Button
+                  key={rate}
+                  type="button"
+                  variant={interestRate === rate ? "default" : "outline"}
+                  className={`h-7 text-xs px-1 ${
+                    interestRate === rate
+                      ? "bg-monad-500 hover:bg-monad-600 text-white"
+                      : "border-monad-border hover:border-monad-500 hover:text-monad-500"
+                  }`}
+                  onClick={() => setInterestRate(rate)}
+                >
+                  {rate}%
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="loan-duration" className="text-xs text-foreground">
+              Loan Duration
+            </Label>
+            <div className="grid grid-cols-4 gap-1">
+              {[
+                { value: "7", label: "7d" },
+                { value: "14", label: "14d" },
+                { value: "30", label: "30d" },
+                { value: "60", label: "60d" },
+              ].map((duration) => (
+                <Button
+                  key={duration.value}
+                  type="button"
+                  variant={loanDuration === duration.value ? "default" : "outline"}
+                  className={`h-7 text-xs px-1 ${
+                    loanDuration === duration.value
+                      ? "bg-monad-500 hover:bg-monad-600 text-white"
+                      : "border-monad-border hover:border-monad-500 hover:text-monad-500"
+                  }`}
+                  onClick={() => setLoanDuration(duration.value)}
+                >
+                  {duration.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs text-foreground">Loan Token</Label>
+            <Select value={loanToken} onValueChange={setLoanToken}>
+              <SelectTrigger className="bg-muted border-monad-border focus:ring-monad-500/20 h-8 text-sm">
+                <SelectValue placeholder="Select token" />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-monad-border">
+                <SelectItem value={WMON_ADDRESS}>WMON</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+        <CardFooter className="border-t border-monad-border pt-3 px-4 pb-4">
+          <Button
+            disabled={isApproving || isListing}
+            onClick={handleListNft}
+            className="w-full bg-monad-500 hover:bg-monad-600 text-white disabled:bg-muted disabled:text-muted-foreground h-8 text-sm"
+          >
+            {isListing ? (
+              <>
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                Listing...
+              </>
+            ) : (
+              "List NFT for Loan"
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <Card className="md:col-span-2 border border-monad-border bg-card">
+        <CardHeader className="py-3 px-4">
+          <CardTitle className="text-base text-foreground">How It Works</CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          <ol className="list-decimal list-inside space-y-1 text-xs text-muted-foreground">
+            <li>Enter your NFT ID and approve the NFT for listing</li>
+            <li>Specify your desired loan amount, interest rate, and duration</li>
+            <li>List your NFT as collateral</li>
+            <li>Once a lender funds your loan, you can claim the loan amount</li>
+            <li>Repay the loan (principal + interest) before the due date to get your NFT back</li>
+            <li>If you don't repay, the lender can claim your NFT after the grace period</li>
+          </ol>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default BorrowTab
+
+
+
+
+
+/////////////////////////////////////--------------------------------------------/////////////////////////
 // "use client"
 
+// import type React from "react"
+
 // import { useState } from "react"
-// import { Button } from "@/Components/privy/ui/button"
 // import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/privy/ui/card"
 // import { Input } from "@/Components/privy/ui/input"
 // import { Label } from "@/Components/privy/ui/label"
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/privy/ui/select"
-// import { usePrivy } from "@privy-io/react-auth"
-// import { useToast } from "@/Components/privy/ui/use-toast"
+// import { Button } from "@/Components/privy/ui/button"
 // import { useAccount, useReadContract, useWriteContract } from "wagmi"
-// import {
-//   NFT_LENDHUB_ADDRESS,
-//   NFT_LENDHUB_ABI,
-//   ERC721_ABI,
-//   NFT_ADDRESS,
-//   WMON_ADDRESS,
-//   USDT_ADDRESS,
-//   ETH_ADDRESS,
-// } from "./lib/constants"
-// import { parseAmount } from "./lib/utils"
-// import { Loader2 } from "lucide-react"
+// import { ERC721_ABI, NFT_LENDHUB_ABI } from "./lib/constants"
+// import { NFT_ADDRESS, NFT_LENDHUB_ADDRESS, WMON_ADDRESS } from "./lib/constants"
+// import { useToast } from "@/Components/privy/ui/use-toast"
 // import { loanExists } from "./lib/contract-utils"
+// import { parseAmount } from "./lib/utils"
+// import { usePrivy } from "@privy-io/react-auth"
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/privy/ui/select"
 
-// export function BorrowTab() {
-//   const { authenticated, login } = usePrivy()
-//   const { address } = useAccount()
+// type BorrowTabProps = {}
+
+// const BorrowTab: React.FC<BorrowTabProps> = () => {
+//   const { address, isConnected } = useAccount()
 //   const { toast } = useToast()
+//   const { authenticated, login } = usePrivy()
+
+//   const { writeContractAsync: approveNft } = useWriteContract()
+//   const { writeContractAsync: listNft } = useWriteContract()
+
 //   const [nftId, setNftId] = useState("")
 //   const [loanAmount, setLoanAmount] = useState("")
 //   const [interestRate, setInterestRate] = useState("5")
 //   const [loanDuration, setLoanDuration] = useState("7")
 //   const [loanToken, setLoanToken] = useState(WMON_ADDRESS)
+
 //   const [isApproving, setIsApproving] = useState(false)
 //   const [isListing, setIsListing] = useState(false)
 //   const [isCheckingLoan, setIsCheckingLoan] = useState(false)
 //   const [loanAlreadyExists, setLoanAlreadyExists] = useState(false)
 
+//   // First, let's modify the component to allow custom NFT address input
+//   // Add a new state for NFT address
+//   const [nftAddress, setNftAddress] = useState(NFT_ADDRESS)
+
+//   // Update the NFT owner check to use the custom NFT address and properly handle BigInt conversion
 //   const { data: nftOwner } = useReadContract({
-//     address: NFT_ADDRESS,
+//     address: nftAddress as `0x${string}`,
 //     abi: ERC721_ABI,
 //     functionName: "ownerOf",
-//     args: [BigInt(nftId || "0")],
-//     // enabled: !!nftId && nftId !== "0",
+//     args: [nftId ? BigInt(nftId) : BigInt(0)],
+//     // enabled: !!nftId && nftId !== "0" && !!nftAddress,
 //   })
 
-//   const isOwner = address && nftOwner && address.toLowerCase() === nftOwner
+//   // Fix the isOwner check to properly compare addresses
+//   const isOwner = address && nftOwner && address === nftOwner
 
-//   const { writeContractAsync: approveNft } = useWriteContract()
-//   const { writeContractAsync: listNft } = useWriteContract()
-
-//   // Check if the NFT is already listed for a loan
+//   // Update the checkLoanExists function to use the custom NFT address
 //   const checkLoanExists = async () => {
-//     if (!nftId) return
+//     if (!nftId || !nftAddress) return
 
 //     setIsCheckingLoan(true)
 //     try {
-//       const exists = await loanExists(NFT_ADDRESS, BigInt(nftId))
+//       const exists = await loanExists(nftAddress, BigInt(nftId))
 //       setLoanAlreadyExists(exists)
 
 //       if (exists) {
@@ -72,16 +364,17 @@
 //     }
 //   }
 
+//   // Update the handleApproveNft function to use the custom NFT address
 //   const handleApproveNft = async () => {
 //     if (!authenticated) {
 //       login()
 //       return
 //     }
 
-//     if (!nftId) {
+//     if (!nftId || !nftAddress) {
 //       toast({
 //         title: "Error",
-//         description: "Please enter a valid NFT ID",
+//         description: "Please enter a valid NFT ID and address",
 //         variant: "destructive",
 //       })
 //       return
@@ -105,7 +398,7 @@
 //     try {
 //       setIsApproving(true)
 //       await approveNft({
-//         address: NFT_ADDRESS,
+//         address: nftAddress as `0x${string}`,
 //         abi: ERC721_ABI,
 //         functionName: "approve",
 //         args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)],
@@ -127,13 +420,14 @@
 //     }
 //   }
 
+//   // Update the handleListNft function to use the custom NFT address
 //   const handleListNft = async () => {
 //     if (!authenticated) {
 //       login()
 //       return
 //     }
 
-//     if (!nftId || !loanAmount || !interestRate || !loanDuration) {
+//     if (!nftId || !nftAddress || !loanAmount || !interestRate || !loanDuration) {
 //       toast({
 //         title: "Error",
 //         description: "Please fill in all fields",
@@ -164,7 +458,7 @@
 //         abi: NFT_LENDHUB_ABI,
 //         functionName: "listNFTForLoan",
 //         args: [
-//           NFT_ADDRESS,
+//           nftAddress,
 //           BigInt(nftId),
 //           parseAmount(loanAmount),
 //           BigInt(interestRate),
@@ -198,159 +492,89 @@
 //   }
 
 //   return (
-//     <div className="mx-auto max-w-4xl">
-//       <div className="mb-8 text-center">
-//         <h1 className="text-3xl font-bold">Borrow Against Your NFT</h1>
-//         <p className="text-muted-foreground mt-2">List your NFT as collateral and get a loan in your preferred token</p>
-//       </div>
+//     <Card>
+//       <CardHeader>
+//         <CardTitle>List NFT for Loan</CardTitle>
+//         <CardDescription>List your NFT to request a loan.</CardDescription>
+//       </CardHeader>
+//       <CardContent className="grid gap-4">
+//         {/* Now, let's update the UI to include an input field for the NFT address
+//         Replace the hardcoded NFT Collection input with this: */}
+//         <div className="space-y-2">
+//           <Label>NFT Collection Address</Label>
+//           <Input
+//             placeholder="Enter NFT contract address"
+//             value={nftAddress}
+//             onChange={(e) => {
+//               setNftAddress(e.target.value)
+//               setLoanAlreadyExists(false)
+//             }}
+//           />
+//         </div>
 
-//       <div className="grid gap-8 md:grid-cols-2">
-//         <Card>
-//           <CardHeader>
-//             <CardTitle>NFT Information</CardTitle>
-//             <CardDescription>Enter the details of the NFT you want to use as collateral</CardDescription>
-//           </CardHeader>
-//           <CardContent className="space-y-4">
-//             <div className="space-y-2">
-//               <Label htmlFor="nft-id">NFT ID</Label>
-//               <div className="flex gap-2">
-//                 <Input
-//                   id="nft-id"
-//                   placeholder="Enter your NFT ID"
-//                   value={nftId}
-//                   onChange={(e) => {
-//                     setNftId(e.target.value)
-//                     setLoanAlreadyExists(false)
-//                   }}
-//                 />
-//                 <Button variant="outline" onClick={checkLoanExists} disabled={!nftId || isCheckingLoan}>
-//                   {isCheckingLoan ? <Loader2 className="h-4 w-4 animate-spin" /> : "Check"}
-//                 </Button>
-//               </div>
-//               {loanAlreadyExists && <p className="text-sm text-destructive">This NFT is already listed for a loan</p>}
-//             </div>
-//             <div className="space-y-2">
-//               <Label>NFT Collection</Label>
-//               <Input value="Dmon NFT Collection" disabled />
-//             </div>
-//             {nftId && (
-//               <div className="pt-2">
-//                 <p className="text-sm">Owner: {isOwner ? "You own this NFT" : "You don't own this NFT"}</p>
-//               </div>
-//             )}
-//           </CardContent>
-//           <CardFooter>
-//             <Button
-//               onClick={handleApproveNft}
-//               disabled={!isOwner || isApproving || loanAlreadyExists}
-//               className="w-full bg-monad-500 hover:bg-monad-600"
-//             >
-//               {isApproving ? (
-//                 <>
-//                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-//                   Approving...
-//                 </>
-//               ) : (
-//                 "Approve NFT"
-//               )}
-//             </Button>
-//           </CardFooter>
-//         </Card>
+//         <div className="space-y-2">
+//           <Label htmlFor="nft-id">NFT ID</Label>
+//           <Input
+//             id="nft-id"
+//             placeholder="Enter NFT ID"
+//             value={nftId}
+//             onChange={(e) => {
+//               setNftId(e.target.value)
+//               setLoanAlreadyExists(false)
+//             }}
+//           />
+//         </div>
+//         <div className="space-y-2">
+//           <Label htmlFor="loan-amount">Loan Amount</Label>
+//           <Input
+//             id="loan-amount"
+//             placeholder="Enter loan amount"
+//             value={loanAmount}
+//             onChange={(e) => setLoanAmount(e.target.value)}
+//           />
+//         </div>
+//         <div className="space-y-2">
+//           <Label htmlFor="interest-rate">Interest Rate (%)</Label>
+//           <Input
+//             id="interest-rate"
+//             placeholder="Enter interest rate"
+//             value={interestRate}
+//             onChange={(e) => setInterestRate(e.target.value)}
+//           />
+//         </div>
+//         <div className="space-y-2">
+//           <Label htmlFor="loan-duration">Loan Duration (Days)</Label>
+//           <Input
+//             id="loan-duration"
+//             placeholder="Enter loan duration"
+//             value={loanDuration}
+//             onChange={(e) => setLoanDuration(e.target.value)}
+//           />
+//         </div>
 
-//         <Card>
-//           <CardHeader>
-//             <CardTitle>Loan Terms</CardTitle>
-//             <CardDescription>Specify the terms for your loan</CardDescription>
-//           </CardHeader>
-//           <CardContent className="space-y-4">
-//             <div className="space-y-2">
-//               <Label htmlFor="loan-amount">Loan Amount</Label>
-//               <Input
-//                 id="loan-amount"
-//                 placeholder="e.g. 1.5"
-//                 value={loanAmount}
-//                 onChange={(e) => setLoanAmount(e.target.value)}
-//               />
-//             </div>
-//             <div className="space-y-2">
-//               <Label htmlFor="loan-token">Loan Token</Label>
-//               <Select value={loanToken} onValueChange={setLoanToken}>
-//                 <SelectTrigger>
-//                   <SelectValue placeholder="Select loan token" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   <SelectItem value={WMON_ADDRESS}>wMON</SelectItem>
-//                   <SelectItem value={USDT_ADDRESS}>USDT</SelectItem>
-//                   <SelectItem value={ETH_ADDRESS}>ETH</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//             </div>
-//             <div className="space-y-2">
-//               <Label htmlFor="interest-rate">Interest Rate (%)</Label>
-//               <Select value={interestRate} onValueChange={setInterestRate}>
-//                 <SelectTrigger>
-//                   <SelectValue placeholder="Select interest rate" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   <SelectItem value="5">5%</SelectItem>
-//                   <SelectItem value="10">10%</SelectItem>
-//                   <SelectItem value="15">15%</SelectItem>
-//                   <SelectItem value="20">20%</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//             </div>
-//             <div className="space-y-2">
-//               <Label htmlFor="loan-duration">Loan Duration (Days)</Label>
-//               <Select value={loanDuration} onValueChange={setLoanDuration}>
-//                 <SelectTrigger>
-//                   <SelectValue placeholder="Select loan duration" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   <SelectItem value="7">7 days</SelectItem>
-//                   <SelectItem value="14">14 days</SelectItem>
-//                   <SelectItem value="30">30 days</SelectItem>
-//                   <SelectItem value="60">60 days</SelectItem>
-//                 </SelectContent>
-//               </Select>
-//             </div>
-//           </CardContent>
-//           <CardFooter>
-//             <Button
-//               onClick={handleListNft}
-//               disabled={!isOwner || isListing || loanAlreadyExists}
-//               className="w-full bg-monad-500 hover:bg-monad-600"
-//             >
-//               {isListing ? (
-//                 <>
-//                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-//                   Listing NFT...
-//                 </>
-//               ) : (
-//                 "List NFT for Loan"
-//               )}
-//             </Button>
-//           </CardFooter>
-//         </Card>
-//       </div>
-
-//       <div className="mt-8">
-//         <Card>
-//           <CardHeader>
-//             <CardTitle>How It Works</CardTitle>
-//           </CardHeader>
-//           <CardContent>
-//             <ol className="list-decimal list-inside space-y-2">
-//               <li>Enter your NFT ID and approve the NFT for listing</li>
-//               <li>Specify your desired loan amount, interest rate, and duration</li>
-//               <li>List your NFT as collateral</li>
-//               <li>Once a lender funds your loan, you can claim the loan amount</li>
-//               <li>Repay the loan (principal + interest) before the due date to get your NFT back</li>
-//               <li>If you don't repay, the lender can claim your NFT after the grace period</li>
-//             </ol>
-//           </CardContent>
-//         </Card>
-//       </div>
-//     </div>
+//         <div className="space-y-2">
+//           <Label>Loan Token</Label>
+//           <Select value={loanToken} onValueChange={setLoanToken}>
+//             <SelectTrigger className="w-[180px]">
+//               <SelectValue placeholder="Select a loan token" />
+//             </SelectTrigger>
+//             <SelectContent>
+//               <SelectItem value={WMON_ADDRESS}>WMON</SelectItem>
+//             </SelectContent>
+//           </Select>
+//         </div>
+//       </CardContent>
+//       <CardFooter className="flex justify-between">
+//         <Button disabled={isApproving || isListing || isCheckingLoan} onClick={handleApproveNft}>
+//           {isApproving ? "Approving..." : "Approve NFT"}
+//         </Button>
+//         <Button disabled={isApproving || isListing || isCheckingLoan} onClick={handleListNft}>
+//           {isListing ? "Listing..." : "List NFT"}
+//         </Button>
+//       </CardFooter>
+//     </Card>
 //   )
 // }
 
+// export default BorrowTab
+///////////////////////----------------------------------//////////////////////////////

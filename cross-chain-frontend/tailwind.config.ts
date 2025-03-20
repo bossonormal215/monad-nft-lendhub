@@ -17,9 +17,81 @@
 //   plugins: [],
 // } satisfies Config;
 
+// /** @type {import('tailwindcss').Config} */
+// module.exports = {
+//   darkMode: 'class',
+//   content: [
+//     './pages/**/*.{ts,tsx}',
+//     './components/**/*.{ts,tsx}',
+//     './app/**/*.{ts,tsx}',
+//     './src/**/*.{ts,tsx}',
+//     '*.{js,ts,jsx,tsx,mdx}',
+//   ],
+//   theme: {
+//     container: {
+//       center: true,
+//       padding: '2rem',
+//       screens: {
+//         '2xl': '1400px',
+//       },
+//     },
+//     extend: {
+//       colors: {
+//         border: 'hsl(var(--border))',
+//         input: 'hsl(var(--input))',
+//         ring: 'hsl(var(--ring))',
+//         background: 'hsl(var(--background))',
+//         foreground: 'hsl(var(--foreground))',
+//         primary: {
+//           DEFAULT: 'hsl(var(--primary))',
+//           foreground: 'hsl(var(--primary-foreground))',
+//         },
+//         secondary: {
+//           DEFAULT: 'hsl(var(--secondary))',
+//           foreground: 'hsl(var(--secondary-foreground))',
+//         },
+//         destructive: {
+//           DEFAULT: 'hsl(var(--destructive))',
+//           foreground: 'hsl(var(--destructive-foreground))',
+//         },
+//         muted: {
+//           DEFAULT: 'hsl(var(--muted))',
+//           foreground: 'hsl(var(--muted-foreground))',
+//         },
+//         accent: {
+//           DEFAULT: 'hsl(var(--accent))',
+//           foreground: 'hsl(var(--accent-foreground))',
+//         },
+//         popover: {
+//           DEFAULT: 'hsl(var(--popover))',
+//           foreground: 'hsl(var(--popover-foreground))',
+//         },
+//         card: {
+//           DEFAULT: 'hsl(var(--card))',
+//           foreground: 'hsl(var(--card-foreground))',
+//         },
+//         monad: {
+//           primary: '#6366F1',
+//           background: '#0A0B0D',
+//           foreground: '#FFFFFF',
+//           border: '#27272A',
+//           input: '#18181B',
+//           hover: '#4F46E5',
+//         },
+//       },
+//       borderRadius: {
+//         lg: 'var(--radius)',
+//         md: 'calc(var(--radius) - 2px)',
+//         sm: 'calc(var(--radius) - 4px)',
+//       },
+//     },
+//   },
+//   plugins: [],
+// };
+///////////////////////////////----------------------------/////////////////////////
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ['class'],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -71,12 +143,22 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))',
         },
         monad: {
-          primary: '#6366F1',
-          background: '#0A0B0D',
+          primary: '#8A5CF5', // Main purple from the image
+          background: '#0F111A', // Dark background from the image
           foreground: '#FFFFFF',
           border: '#27272A',
           input: '#18181B',
-          hover: '#4F46E5',
+          hover: '#7C4DF1', // Slightly darker purple for hover states
+          // Color scale for the purple
+          100: '#F3EEFF',
+          200: '#E4D9FF',
+          300: '#C9B3FF',
+          400: '#AF8DFF',
+          500: '#8A5CF5', // Main purple color
+          600: '#7C4DF1',
+          700: '#6D3FE4',
+          800: '#5A31C7',
+          900: '#4A2AA6',
         },
       },
       borderRadius: {

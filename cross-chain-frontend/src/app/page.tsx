@@ -496,7 +496,8 @@ export default function Home() {
                   <span>
                     Currently, the admin manually whitelists addresses for testing purposes. Contact{" "}
                     <a
-                      href="https://discord.com/channels/@me/952805903881617449"
+                      // href="https://discord.com/channels/@me/1342472266218471481"
+                      href="https://discord.com/channels/@me/1083130742017634316"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#8B5CF6] hover:text-[#6366F1] transition-colors"

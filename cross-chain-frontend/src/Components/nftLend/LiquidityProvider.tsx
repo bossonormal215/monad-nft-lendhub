@@ -115,6 +115,7 @@ export function LiquidityProvider() {
             setStatus('Successfully minted USDT! 🎉');
             await fetchUSDTBalance();
         } catch (error: any) {
+            setStatus('')
             if (error.message.includes) {
                 console.log('USDT MINTING Error: ', error.message)
             }
@@ -166,6 +167,7 @@ export function LiquidityProvider() {
             await fetchUSDTBalance();
             await fetchPoolBalance();
         } catch (error: any) {
+            setStatus('')
             console.error('Error:', error);
             if (error.message.includes('User denied transaction signature.')) {
                 setError('User denied transaction signature.')
@@ -216,6 +218,7 @@ export function LiquidityProvider() {
             await fetchUSDTBalance();
             await fetchPoolBalance();
         } catch (error: any) {
+            setStatus('')
             console.error('Error:', error);
             if (error.message.includes('user cancel')) {
                 setError('User Cancelled the tx')

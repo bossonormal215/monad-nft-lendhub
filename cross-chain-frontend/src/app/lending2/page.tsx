@@ -1,593 +1,760 @@
-// "use client"
 
+
+
+"use client"
+
+import { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import {
+  useAddress,
+  useContract,
+  useNetworkMismatch,
+  useSwitchChain,
+  useSDK,
+  ConnectWallet
+} from "@thirdweb-dev/react";
+import {  useContracts } from "@/thirdweb/thirdwebConfig";
+import { NFT_VAULT_CONTRACT } from "@/thirdweb/thirdwebConfig";
+import { WhitelistedNFTs } from '@/Components/nftLend/WhitelistedNFTs';
+import { LiquidityProvider } from '@/Components/nftLend/LiquidityProvider';
+import { DMON_NFT_CONTRACT } from '@/contracts/interfaces/dmonNftAbi';
 import Web3Wrapper from "@/Components/Web3Wrapper";
+import { AdminPanel } from '@/Components/nftLend/AdminPanel';
+import { CollateralList } from '@/Components/nftLend/CollateralList';
 
-// import { useState, useEffect } from "react"
-// import { formatEther, parseEther } from "viem"
-// import { useAccount, useReadContract, useWriteContract, useChain, useSwitchChain } from "wagmi"
-// import { usePrivy } from "@privy-io/react-auth"
-// import { WhitelistedNFTs } from "@/Components/nftLend/WhitelistedNFTs"
-// import { LiquidityProvider } from "@/Components/nftLend/LiquidityProvider"
-// import { DMON_NFT_CONTRACT } from "@/contracts/interfaces/dmonNftAbi"
-// import Web3Wrapper from "@/Components/Web3Wrapper"
-// import { AdminPanel } from "@/Components/nftLend/AdminPanel"
-// import { CollateralList } from "@/Components/nftLend/CollateralList"
-// import { NFT_VAULT_CONTRACT } from "@/thirdweb/thirdwebConfig";
-// import { useContracts } from "@/thirdweb/usecontracts"
-// import { monadTestnet } from "viem/chains"
-// import { createPublicClient, http } from 'viem';
-// import { useWaitForTransaction } from "wagmi"
-// import { NFTCollateralVaultABI } from "@/contracts/interfaces/NFTCollateralVault"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// const publicClient = createPublicClient({
-//   chain: monadTestnet,
-//   transport: http('https://testnet-rpc.monad.xyz'),
-// });
+const monadTestNet = {
+  chainId: 10143, 
+  rpc: ['https://testnet-rpc.monad.xyz'],
+  nativeCurrency: {
+    decimals: 18,
+    name: "Monad TestNet",
+    symbol: "MON",
+  },
+  shortName: "monad",
+  slug: "monad",
+  testnet: true,
+  chain: "monad",
+  name: "Monad Testnet",
+};
 
+
+
+
+const queryClient = new QueryClient();
+
+// Move App component here
 function App() {
   return (
     <Web3Wrapper>
-      {/* <Main /> */}
-      <div>
-        BUILDING
-      </div>
+      <Main />
     </Web3Wrapper>
-  )
+  );
 }
 
-// function MintDMONPage() {
-//   const [isLoading, setIsLoading] = useState(false)
-//   const [error, setError] = useState<string>("")
-//   const [status, setStatus] = useState<string>("")
-//   const [mintQuantity, setMintQuantity] = useState<number>(1)
-//   const [mintPrice, setMintPrice] = useState<string>("0")
-//   const [maxSupply, setMaxSupply] = useState<number>(0)
-//   const [totalSupply, setTotalSupply] = useState<number>(0)
-//   const [isPresaleActive, setIsPrivateSale] = useState<boolean>(false)
-//   const [whitelistAddress, setWhitelistAddress] = useState<string>("")
-//   const [isPublicSale, setIsPublicSale] = useState<boolean>(false)
-//   const [adminError, setAdminError] = useState<string>("")
-//   const [adminStatus, setAdminStatus] = useState<string>("")
-
-//   const { address } = useAccount()
-//   const adminAddress = "0xED42844Cd35d734fec3B65dF486158C443896b41"
-//   const isAdmin = address === adminAddress
-
-//   const { data: privateSalePrice } = useReadContract({
-//     address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//     abi: DMON_NFT_CONTRACT.abi,
-//     functionName: "WhitelistMintPrice",
-//   })
-
-//   const { data: maxSupplyValue } = useReadContract({
-//     address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//     abi: DMON_NFT_CONTRACT.abi,
-//     functionName: "MAX_SUPPLY",
-//   })
-
-//   const { data: currentSupply } = useReadContract({
-//     address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//     abi: DMON_NFT_CONTRACT.abi,
-//     functionName: "totalSupply",
-//   })
-
-//   const { data: privateSaleState } = useReadContract({
-//     address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//     abi: DMON_NFT_CONTRACT.abi,
-//     functionName: "isPresaleActive",
-//   })
-
-//   const { writeContract: whitelistMint, isLoading: isMintLoading } = useWriteContract()
-
-//   const { writeContract: addToWhitelist, isLoading: isWhitelistLoading } = useWriteContract()
-
-//   const { writeContract: togglePublicSale, isLoading: isToggleLoading } = useWriteContract()
-
-//   useEffect(() => {
-//     if (status || error) {
-//       const timer = setTimeout(() => {
-//         setStatus("")
-//         setError("")
-//       }, 5000)
-//       return () => clearTimeout(timer)
-//     }
-//   }, [status, error])
-
-//   useEffect(() => {
-//     if (privateSalePrice) setMintPrice(formatEther(privateSalePrice as bigint))
-//     if (maxSupplyValue) setMaxSupply(Number(maxSupplyValue))
-//     if (currentSupply) setTotalSupply(Number(currentSupply))
-//     if (privateSaleState !== undefined) setIsPrivateSale(privateSaleState as boolean)
-//   }, [privateSalePrice, maxSupplyValue, currentSupply, privateSaleState])
-
-//   const handleMint = async () => {
-//     if (!address) {
-//       setError("Please connect your wallet")
-//       return
-//     }
-
-//     if (!isPresaleActive) {
-//       setError("Private sale is not active")
-//       return
-//     }
-
-//     setIsLoading(true)
-//     setError("")
-//     setStatus("Processing mint...")
-
-//     try {
-//       const price = parseEther(mintPrice)
-//       const totalPrice = price * BigInt(mintQuantity)
-
-//       await whitelistMint({
-//         address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//         abi: DMON_NFT_CONTRACT.abi,
-//         functionName: "whitelistMint",
-//         args: [BigInt(mintQuantity)],
-//         value: totalPrice,
-//       })
-
-//       setStatus(`Successfully minted ${mintQuantity} DMON NFT${mintQuantity > 1 ? "s" : ""}! 🎉`)
-//     } catch (error: any) {
-//       console.error("Mint failed:", error)
-//       if (error.message?.includes("whitelist")) {
-//         setError("Not whitelisted for the presale mint. reach out to bossonormal1 on discord to WL your address!!")
-//       } else {
-//         setError("Failed to mint NFT")
-//       }
-//     } finally {
-//       setIsLoading(false)
-//     }
-//   }
-
-//   const handleAddToWhitelist = async (address: string) => {
-//     if (!isAdmin) return
-
-//     setIsLoading(true)
-//     setAdminError("")
-//     setAdminStatus("Processing...")
-
-//     try {
-//       await addToWhitelist({
-//         address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//         abi: DMON_NFT_CONTRACT.abi,
-//         functionName: "addToWhitelist",
-//         args: [[address]],
-//       })
-
-//       setAdminStatus(`Added ${address} to whitelist`)
-//       setWhitelistAddress("")
-//     } catch (error: any) {
-//       console.error("Whitelist error:", error)
-//       setAdminError(
-//         error.message?.includes("user rejected")
-//           ? "Transaction was rejected by user"
-//           : "Failed to add address to whitelist",
-//       )
-//     } finally {
-//       setIsLoading(false)
-//     }
-//   }
-
-//   const handleTogglePublicSale = async () => {
-//     if (!isAdmin) return
-
-//     setIsLoading(true)
-//     setAdminError("")
-//     setAdminStatus("Processing...")
-
-//     try {
-//       await togglePublicSale({
-//         address: DMON_NFT_CONTRACT.address as `0x${string}`,
-//         abi: DMON_NFT_CONTRACT.abi,
-//         functionName: "togglePublicSale",
-//       })
-//       setIsPublicSale(!isPublicSale)
-//       setAdminStatus(`${isPublicSale ? "Disabled" : "Enabled"} public sale`)
-//     } catch (error: any) {
-//       console.error("Toggle sale error:", error)
-//       setAdminError(
-//         error.message?.includes("user denied transaction signature")
-//           ? "User Rejected The TX"
-//           : "Failed to toggle sale status",
-//       )
-//     } finally {
-//       setIsLoading(false)
-//       setAdminStatus("")
-//     }
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-//       <div className="max-w-3xl mx-auto">
-//         {isAdmin && (
-//           <AdminPanel
-//             isAdmin={isAdmin}
-//             onAddWhitelist={handleAddToWhitelist}
-//             onTogglePublicSale={handleTogglePublicSale}
-//           />
-//         )}
-
-//         <div className="bg-gray-800 rounded-lg shadow-xl p-6 space-y-6">
-//           <div className="text-center">
-//             <h1 className="text-3xl font-bold text-white mb-2">MINT DMON NFT</h1>
-//             <p className="text-gray-400">
-//               {totalSupply} / {maxSupply} Minted
-//             </p>
-//           </div>
-
-//           <div className="space-y-4">
-//             <div className="flex items-center justify-between">
-//               <p className="text-gray-300">Price per NFT:</p>
-//               <p className="text-white font-medium">{mintPrice} MON</p>
-//             </div>
-
-//             <div className="flex items-center justify-between">
-//               <p className="text-gray-300">Quantity:</p>
-//               <div className="flex items-center space-x-3">
-//                 <button
-//                   onClick={() => setMintQuantity(Math.max(1, mintQuantity - 1))}
-//                   className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 text-white"
-//                 >
-//                   -
-//                 </button>
-//                 <span className="text-white font-medium">{mintQuantity}</span>
-//                 <button
-//                   onClick={() => setMintQuantity(Math.min(5, mintQuantity + 1))}
-//                   className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 text-white"
-//                 >
-//                   +
-//                 </button>
-//               </div>
-//             </div>
-
-//             <div className="flex items-center justify-between">
-//               <p className="text-gray-300">Total Price:</p>
-//               <p className="text-white font-medium">{(Number(mintPrice) * mintQuantity).toFixed(3)} MON</p>
-//             </div>
-
-//             <button
-//               onClick={handleMint}
-//               disabled={isMintLoading || !isPresaleActive || isLoading}
-//               className={`w-full py-3 px-6 rounded-lg text-lg font-medium ${
-//                 isMintLoading || !isPresaleActive || isLoading
-//                   ? "bg-gray-600 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white transition-colors`}
-//             >
-//               {isMintLoading || isLoading ? "Processing..." : !isPresaleActive ? "Sale Not Active" : "Mint DMON NFT"}
-//             </button>
-
-//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-//             {status && !error && <p className="text-green-500 text-sm text-center">{status}</p>}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// function Main() {
-//   const [status, setStatus] = useState<string>("")
-//   const [isLoading, setIsLoading] = useState(false)
-//   const [selectedCollateralId, setSelectedCollateralId] = useState<number | null>(null)
-//   const [maxLoanAmount, setMaxLoanAmount] = useState<string>("")
-//   const [userCollaterals, setUserCollaterals] = useState<any[]>([])
-//   const [userUsdtBalance, setUserUsdtBalance] = useState<string>("0")
-//   const [activeLoan, setActiveLoan] = useState<any>(null)
-//   const [isApproved, setIsApproved] = useState(false)
-
-//   const { address } = useAccount()
-//   const chain = useChain()
-//   const { switchChain } = useSwitchChain()
-//   const { user, authenticated, login } = usePrivy()
-//   const { usdt, nftVault, loanManager, liquidationManager } = useContracts()
-
-//   const adminAddress = "0xED42844Cd35d734fec3B65dF486158C443896b41"
-
-//   const nftContract = {
-//     address: "" as `0x${string}`, // Initialize with an empty address
-//     abi: [
-//       {
-//         inputs: [
-//           { name: "owner", type: "address" },
-//           { name: "operator", type: "address" },
-//         ],
-//         name: "isApprovedForAll",
-//         outputs: [{ name: "", type: "bool" }],
-//         stateMutability: "view",
-//         type: "function",
-//       },
-//       {
-//         inputs: [
-//           { name: "operator", type: "address" },
-//           { name: "approved", type: "bool" },
-//         ],
-//         name: "setApprovalForAll",
-//         outputs: [],
-//         stateMutability: "nonpayable",
-//         type: "function",
-//       },
-//     ],
-//   }
-
-//   const { writeContract } = useWriteContract()
-
-//   useEffect(() => {
-//     if (address && chain?.id !== monadTestnet.id) {
-//       alert("Please switch your wallet to Monad TestNet.")
-//       switchChain({ chainId: monadTestnet.id })
-//     }
-//   }, [address, chain?.id, switchChain])
-
-//   useEffect(() => {
-//     if (address && nftVault) {
-//       fetchUserCollaterals()
-//     }
-//   }, [address, nftVault])
-
-//   useEffect(() => {
-//     if (address && usdt) {
-//       fetchUserUsdtBalance()
-//     }
-//   }, [address, usdt])
-
-//   const fetchUserCollaterals = async () => {
-//     if (!nftVault || !address) return
-
-//     try {
-//       console.log("Fetching collaterals for address:", address)
-
-//       const collateralsData = (await publicClient.readContract({
-//             address: NFTCollateralVaultABI.address as `0x${string}`,
-//             abi: NFTCollateralVaultABI.abi,
-//             functionName: 'getUserCollaterals',
-//             args: [address]
-//           }))
-//       console.log("Raw collaterals data:", collateralsData)
-
-//       if (collateralsData) {
-//         const [collateralIds, nftAddresses, tokenIds, maxLoanAmounts, currentLoanAmounts, activeStates] =
-//           collateralsData
-
-//         const formattedCollaterals = collateralIds.map((id: bigint, index: number) => ({
-//           id: Number(id),
-//           nftAddress: nftAddresses[index],
-//           tokenId: Number(tokenIds[index]),
-//           maxLoanAmount: maxLoanAmounts[index],
-//           currentLoanAmount: currentLoanAmounts[index],
-//           isActive: activeStates[index],
-//         }))
-
-//         console.log("Formatted collaterals:", formattedCollaterals)
-//         setUserCollaterals(formattedCollaterals)
-
-//         if (formattedCollaterals.length > 0) {
-//           const activeCollateral = formattedCollaterals[0]
-//           setSelectedCollateralId(activeCollateral.id)
-//           setMaxLoanAmount(formatEther(activeCollateral.maxLoanAmount))
-//         }
-//       }
-//     } catch (error) {
-//       console.error("Error fetching user collaterals:", error)
-//     }
-//   }
-
-//   const fetchUserUsdtBalance = async () => {
-//     if (!usdt || !address) return
-
-//     try {
-//       const balance = await usdt.read.balanceOf([address as `0x${string}`])
-//       setUserUsdtBalance(formatEther(balance))
-//     } catch (error) {
-//       console.error("Error fetching USDT balance:", error)
-//     }
-//   }
-
-//   const handleNFTDeposit = async (nftAddress: string, tokenId: string, maxAmount: number) => {
-//     if (!nftVault || !address) {
-//       setStatus("Please connect your wallet")
-//       return
-//     }
-
-//     setIsLoading(true)
-//     setStatus("Processing...")
-
-//     try {
-//       nftContract.address = nftAddress as `0x${string}`
-
-//       const isApprovedForAll = await nftVault.read.isApprovedForAll([address, NFT_VAULT_CONTRACT])
-//       setIsApproved(isApprovedForAll)
-
-//       if (!isApprovedForAll) {
-//         setStatus("Approving NFT transfer...")
-//         await writeContract({
-//           ...nftContract,
-//           functionName: "setApprovalForAll",
-//           args: [NFT_VAULT_CONTRACT, true],
-//         })
-//         setStatus("NFT transfer approved!")
-//       }
-
-//       setStatus("Depositing NFT...")
-//       const { hash } = await writeContract({
-//         address: nftVault.address,
-//         abi: nftVault.abi,
-//         functionName: "depositNFT",
-//         args: [nftAddress as `0x${string}`, BigInt(tokenId), parseEther(maxAmount.toString())],
-//       })
-
-//       // Wait for transaction confirmation
-//       const { waitForTransactionReceipt } = useWaitForTransaction()
-//       const receipt = await waitForTransactionReceipt({ hash })
-//       console.log("Full transaction receipt:", receipt)
-
-//       let collateralId
-
-//       try {
-//         collateralId = await nftVault.read.getLatestCollateralId()
-//         console.log("Latest Collateral ID:", collateralId)
-//       } catch (error) {
-//         console.error("Error getting latest collateral ID:", error)
-//       }
-
-//       if (collateralId) {
-//         setSelectedCollateralId(Number(collateralId))
-//         setMaxLoanAmount(maxAmount.toString())
-//         setStatus("NFT successfully deposited! 🎉")
-//       } else {
-//         throw new Error("Failed to get collateral ID")
-//       }
-
-//       await fetchUserCollaterals()
-//     } catch (depositError: any) {
-//       console.error("Deposit failed:", depositError)
-//       if (depositError.message?.includes("invalid token ID")) {
-//         setStatus("Invalid TokenID Entered")
-//       } else if (depositError.message?.includes("transfer from incorrect owner")) {
-//         setStatus("You Are Not The Owner of the tokenId")
-//       } else if (depositError.message?.includes("NFT not whitelisted")) {
-//         setStatus("NFT not whitelisted")
-//       } else {
-//         setStatus("Deposit Failed")
-//       }
-//     } finally {
-//       setIsLoading(false)
-//     }
-//   }
-
-//   const handleBorrow = async (collateralId: number, amount: string) => {
-//     if (!loanManager || !address) {
-//       setStatus("Please connect your wallet")
-//       return
-//     }
-
-//     setIsLoading(true)
-
-//     try {
-//       const { hash } = await writeContract({
-//         address: loanManager.address,
-//         abi: loanManager.abi,
-//         functionName: "issueLoan",
-//         args: [BigInt(collateralId), parseEther(amount)],
-//       })
-
-//       // Wait for transaction confirmation
-//       const { waitForTransactionReceipt } = useWaitForTransaction()
-//       await waitForTransactionReceipt({ hash })
-//       setStatus("Loan successfully issued! 🎉")
-//     } catch (error: any) {
-//       console.error("Borrow failed:", error)
-//     } finally {
-//       setIsLoading(false)
-//     }
-//   }
-
-//   const handleNFTWithdrawn = async (collateralId: number) => {
-//     await fetchUserCollaterals()
-//     setSelectedCollateralId(null)
-//     setMaxLoanAmount("0")
-//   }
-
-//   const fetchLoanDetails = async (collateralId: number) => {
-//     if (!loanManager || !address) return
-
-//     try {
-//       const loanDetails = await loanManager.read.loans([BigInt(collateralId)])
-//       setActiveLoan(loanDetails)
-//     } catch (error) {
-//       console.error("Error fetching loan details:", error)
-//     }
-//   }
-
-//   const handleLogin = async () => {
-//     try {
-//       await login()
-//     } catch (error) {
-//       console.error("Login failed:", error)
-//     }
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-[#0D111C] text-white">
-//       <header className="sticky top-0 z-50 bg-[#131A2A]/80 backdrop-blur-sm p-4 border-b border-[#1C2839]">
-//         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-//           <h1 className="text-2xl sm:text-3xl font-bold">Monad NFT Lending</h1>
-//           {!authenticated ? (
-//             <button onClick={handleLogin} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium">
-//               Connect Wallet
-//             </button>
-//           ) : (
-//             <div className="flex items-center gap-2 px-4 py-2 bg-[#1C2839] rounded-lg">
-//               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-//               <span className="text-sm font-medium truncate max-w-[150px]">
-//                 {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connected"}
-//               </span>
-//             </div>
-//           )}
-//         </div>
-//       </header>
-
-//       {!authenticated ? (
-//         <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
-//           <div className="text-center space-y-6 max-w-lg">
-//             <p className="text-[#98A1C0] text-lg">
-//               Connect your wallet to start borrowing against your NFTs or providing liquidity to the platform.
-//             </p>
-//             <button
-//               onClick={handleLogin}
-//               className="px-6 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-//             >
-//               Connect Wallet
-//             </button>
-//           </div>
-//         </div>
-//       ) : (
-//         <main className="container mx-auto px-4 py-6 space-y-8">
-//           <section className="bg-[#131A2A] rounded-[20px] p-6">
-//             <MintDMONPage />
-//           </section>
-
-//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//             <section className="bg-[#131A2A] rounded-[20px] p-6">
-//               <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">Liquidity Pool</h2>
-//               <LiquidityProvider />
-//             </section>
-
-//             <section className="bg-[#131A2A] rounded-[20px] p-6">
-//               <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">NFT Collateral</h2>
-//               <WhitelistedNFTs onNFTDeposit={handleNFTDeposit} isLoading={isLoading} />
-//             </section>
-//           </div>
-
-//           {userCollaterals.length > 0 && (
-//             <CollateralList
-//               collaterals={userCollaterals}
-//               onSelect={(collateral) => {
-//                 setSelectedCollateralId(collateral.id)
-//                 fetchLoanDetails(collateral.id)
-//               }}
-//               onNFTWithdrawn={handleNFTWithdrawn}
-//               onBorrow={handleBorrow}
-//             />
-//           )}
-
-//           {status && (
-//             <div
-//               className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg 
-//                             shadow-lg border border-gray-700 animate-fade-in-out"
-//               style={{
-//                 animation: "fadeInOut 20s ease-in-out",
-//               }}
-//             >
-//               <p className="text-sm text-[#F5F6FC]">{status}</p>
-//             </div>
-//           )}
-//         </main>
-//       )}
-//     </div>
-//   )
-// }
-
-export default App
+function MintDMONPage() {
+  const [isLoadiing, setIsLoadiing] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [mintQuantity, setMintQuantity] = useState<number>(1);
+  const [mintPrice, setMintPrice] = useState<string>('0');
+  const [maxSupply, setMaxSupply] = useState<number>(0);
+  const [totalSupply, setTotalSupply] = useState<number>(0);
+  const [isPresaleActive, setIsPrivateSale] = useState<boolean>(false);
+  const [whitelistAddress, setWhitelistAddress] = useState<string>('');
+  const [isPublicSale, setIsPublicSale] = useState<boolean>(false);
+  const [adminError, setAdminError] = useState<string>('');
+  const [adminStatus, setAdminStatus] = useState<string>('');
+
+
+
+  const address = useAddress();
+  const adminAddress = '0xED42844Cd35d734fec3B65dF486158C443896b41'
+  const { contract: dmonContract, isLoading } = useContract(
+    DMON_NFT_CONTRACT.address,
+    DMON_NFT_CONTRACT.abi
+  );
+
+  const isAdmin = address === adminAddress;
+
+  // Add auto-dismiss effect
+  useEffect(() => {
+    if (status || error) {
+      const timer = setTimeout(() => {
+        setStatus('');
+        setError('')
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    const fetchContractInfo = async () => {
+      if (!dmonContract) return;
+    //   if (isWrongNetwork) {
+    //     alert("Please switch your wallet to Monad TestNet.");
+    //     switchNetwork(monadTestNet.chainId);
+    // }
+    
+
+      try {
+        const privateSalePrice = await dmonContract.call("WhitelistMintPrice");
+        console.log("Private Sale Price:", privateSalePrice);
+
+        const maxSupplyValue = await dmonContract.call('MAX_SUPPLY')
+        console.log('Max supply: ', maxSupplyValue)
+
+        const currentSupply = await dmonContract.call('totalSupply')
+        console.log('Current supply: ', currentSupply)
+        
+        const privateSaleState = await dmonContract.call('isPresaleActive')
+        console.log('Private sale state:', privateSaleState)
+
+        // const [
+        //   privateSalePrice,
+        //   maxSupplyValue,
+        //   currentSupply,
+        //   privateSaleState
+        // ] = await Promise.all([
+        //   dmonContract.call("WhitelistMintPrice"),
+        //   dmonContract.call("MAX_SUPPLY"),
+        //   dmonContract.call("totalSupply"),
+        //   dmonContract.call("isPresaleActive")
+        // ]);
+
+        setMintPrice(ethers.utils.formatEther(privateSalePrice));
+        setMaxSupply(Number(maxSupplyValue));
+        setTotalSupply(Number(currentSupply));
+        setIsPrivateSale(privateSaleState);
+
+      } catch (error) {
+        setStatus('')
+        console.error("Error fetching contract info:", error);
+        console.log("Using NFT Contract Address:", DMON_NFT_CONTRACT.address);
+        setError("Failed to load NFT information");
+      }
+      finally {
+        // setError('')
+      }
+    };
+
+    fetchContractInfo();
+  }, [dmonContract]);
+
+  const handleMint = async () => {
+    if (!dmonContract || !address) {
+      setError("Please connect your wallet");
+      return;
+    }
+
+    if (!isPresaleActive) {
+      setError("Private sale is not active");
+      return;
+    }
+
+    setIsLoadiing(true);
+    setError('');
+    setStatus('Processing mint...');
+
+    try {
+      const price = ethers.utils.parseEther(mintPrice);
+      const totalPrice = price.mul(mintQuantity);
+
+      const tx = await dmonContract.call(
+        "whitelistMint",
+        [mintQuantity],
+        { value: totalPrice }
+      );
+
+      console.log("Mint transaction:", tx);
+      setStatus(`Successfully minted ${mintQuantity} DMON NFT${mintQuantity > 1 ? 's' : ''}! 🎉`);
+
+      // Refresh total supply
+      const newSupply = await dmonContract.call("totalSupply");
+      setTotalSupply(Number(newSupply));
+
+    } catch (error: any) {
+      setStatus('')
+      console.error("Mint failed:", error);
+      // setError(error.message || "Failed to mint NFT");
+      if (error.message.includes('You are not whitelisted to mint an NFT')) {
+        setError('Not whitelisted for the presale mint. reach out to bossonormal1 on discord to WL your address!!');
+      } else if(error.message.includes('You have already minted an NFT')) {
+        setError('You Have Already minted!!!');
+      }
+    } finally {
+      setIsLoadiing(false);
+    }
+  };
+
+  // Admin Functions
+  const handleAddToWhitelist = async (address: string) => {
+    if (!dmonContract || !isAdmin) return;
+
+    setIsLoadiing(true);
+    setAdminError('');
+    setAdminStatus('Processing...');
+
+    try {
+      // Format the address array properly
+      const tx = await dmonContract.call(
+        "addToWhitelist",
+        [[address]] // Make sure it's a nested array
+      );
+
+      console.log("Whitelist tx:", tx);
+      setAdminStatus(`Added ${address} to whitelist`);
+      setWhitelistAddress(''); // Reset input
+    } catch (error: any) {
+      setAdminStatus('')
+      console.error("Whitelist error:", error);
+      if (error.message.includes('user rejected')) {
+        setAdminError('Transaction was rejected by user');
+      } else {
+        setAdminError('Failed to add address to whitelist');
+      }
+    } finally {
+      setIsLoadiing(false);
+    }
+  };
+
+  const handleTogglePublicSale = async () => {
+    if (!dmonContract || !isAdmin) return;
+
+    setIsLoadiing(true);
+    setAdminError('');
+    setAdminStatus('Processing...');
+
+    try {
+      const tx = await dmonContract.call(
+        "togglePublicSale",
+        []
+      );
+      console.log("Toggle sale tx:", tx);
+      setIsPublicSale(!isPublicSale);
+      setAdminStatus(`${isPublicSale ? 'Disabled' : 'Enabled'} public sale`);
+    } catch (error: any) {
+      console.error("Toggle sale error:", error);
+      if (error.message.includes('user denied transaction signature')) {
+        setAdminError('User Rejected The TX');
+        setAdminStatus('User Rejected The TX');
+      }
+      // setAdminError(error.message || "Failed to toggle sale status");
+    } finally {
+      setIsLoadiing(false);
+      setAdminStatus('');
+    }
+  };
+
+  return (
+    <Web3Wrapper>
+    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Admin Panel */}
+        {isAdmin && (
+          <AdminPanel
+            isAdmin={isAdmin}
+            onAddWhitelist={handleAddToWhitelist}
+            onTogglePublicSale={handleTogglePublicSale}
+          />
+        )}
+
+        {/* {NFT MINT SECTION} */}
+        <div className="bg-gray-800 rounded-lg shadow-xl p-6 space-y-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white mb-2">MINT DMON NFT</h1>
+            <p className="text-gray-400">
+              {totalSupply} / {maxSupply} Minted
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-gray-300">Price per NFT:</p>
+              <p className="text-white font-medium">{mintPrice} MON</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <p className="text-gray-300">Quantity:</p>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setMintQuantity(Math.max(1, mintQuantity - 1))}
+                  className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 text-white"
+                >
+                  -
+                </button>
+                <span className="text-white font-medium">{mintQuantity}</span>
+                <button
+                  onClick={() => setMintQuantity(Math.min(5, mintQuantity + 1))}
+                  className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 text-white"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <p className="text-gray-300">Total Price:</p>
+              <p className="text-white font-medium">
+                {(Number(mintPrice) * mintQuantity).toFixed(3)} MON
+              </p>
+            </div>
+
+            <button
+              onClick={handleMint}
+              disabled={isLoading || !isPresaleActive || isLoadiing}
+              className={`w-full py-3 px-6 rounded-lg text-lg font-medium ${isLoading || !isPresaleActive || isLoadiing
+                ? 'bg-gray-600 cursor-not-allowed'
+                : 'bg-blue-500 hover:bg-blue-600'
+                } text-white transition-colors`}
+            >
+              {isLoading || isLoadiing? 'Processing...' :
+                !isPresaleActive ? 'Sale Not Active' :
+                  'Mint DMON NFT'}
+            </button>
+
+            {error && !status && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+            {status && !error && (
+              <p className="text-green-500 text-sm text-center">{status}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+    </Web3Wrapper>
+  );
+}
+
+
+function Main() {
+  const address = useAddress();
+  const isWrongNetwork = useNetworkMismatch();
+  const switchNetwork = useSwitchChain();
+  const sdk = useSDK();
+  const { usdt, nftVault, loanManager, liquidationManager } = useContracts();
+  const [status, setStatus] = useState<string>("");
+  const [isLoadiing, setIsLoadiing] = useState(false);
+  const [selectedCollateralId, setSelectedCollateralId] = useState<number | null>(null);
+  const [maxLoanAmount, setMaxLoanAmount] = useState<string>('');
+  const [userCollaterals, setUserCollaterals] = useState<any[]>([]);
+  const [userUsdtBalance, setUserUsdtBalance] = useState<string>('0');
+  const [activeLoan, setActiveLoan] = useState<any>(null);
+  // const [isAdmin, setIsAdmin] = useState(false);
+
+  const adminAddress = '0xED42844Cd35d734fec3B65dF486158C443896b41';
+
+  useEffect(() => {
+    if (isWrongNetwork) {
+      alert("Please switch your wallet to Monad TestNet.");
+      switchNetwork(monadTestNet.chainId);
+    }
+  }, [isWrongNetwork, switchNetwork]);
+
+  useEffect(() => {
+    if (address && nftVault) {
+      fetchUserCollaterals();
+    }
+  }, [address, nftVault]);
+
+  useEffect(() => {
+    if (address && usdt) {
+      fetchUserUsdtBalance();
+    }
+  }, [address, usdt]);
+
+  const fetchUserCollaterals = async () => {
+    if (!nftVault || !address) return;
+
+    try {
+      console.log("Fetching collaterals for address:", address);
+
+      const collateralsData = await nftVault.call(
+        "getUserCollaterals",
+        [address]
+      );
+      console.log("Raw collaterals data:", collateralsData);
+
+      if (collateralsData) {
+        const [
+          collateralIds,
+          nftAddresses,
+          tokenIds,
+          maxLoanAmounts,
+          currentLoanAmounts,
+          activeStates
+        ] = collateralsData;
+
+        const formattedCollaterals = collateralIds.map((id: any, index: number) => ({
+          id: Number(id),
+          nftAddress: nftAddresses[index],
+          tokenId: Number(tokenIds[index]),
+          maxLoanAmount: maxLoanAmounts[index],
+          currentLoanAmount: currentLoanAmounts[index],
+          isActive: activeStates[index]
+        }));
+
+        console.log("Formatted collaterals:", formattedCollaterals);
+        setUserCollaterals(formattedCollaterals);
+
+        if (formattedCollaterals.length > 0) {
+          const activeCollateral = formattedCollaterals[0];
+          setSelectedCollateralId(activeCollateral.id);
+          setMaxLoanAmount(ethers.utils.formatEther(activeCollateral.maxLoanAmount));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user collaterals:", error);
+    }
+  };
+
+  const fetchUserUsdtBalance = async () => {
+    if (!usdt || !address) return;
+
+    try {
+      const balance = await usdt.call("balanceOf", [address]);
+      setUserUsdtBalance(ethers.utils.formatEther(balance));
+    } catch (error) {
+      console.error("Error fetching USDT balance:", error);
+    }
+  };
+
+  const handleNFTDeposit = async (nftAddress: string, tokenId: string, maxAmount: number) => {
+    if (!sdk || !nftVault || !address) {
+      setStatus("Please connect your wallet");
+      return;
+    }
+
+    setIsLoadiing(true);
+    setStatus("Processing...");
+
+    try {
+      const nftContract = await sdk.getContract(nftAddress);
+
+      // Check approval
+      const isApproved = await nftContract.call(
+        "isApprovedForAll",
+        [address, NFT_VAULT_CONTRACT]
+      );
+
+      if (!isApproved) {
+        setStatus("Approving NFT transfer...");
+        const approveTx = await nftContract.call(
+          "setApprovalForAll",
+          [NFT_VAULT_CONTRACT, true]
+        );
+        setStatus("NFT transfer approved!");
+      }
+
+      // Deposit NFT
+      setStatus("Depositing NFT...");
+      try {
+        const tx = await nftVault.call(
+          "depositNFT",
+          [
+            nftAddress,
+            Number(tokenId),
+            ethers.utils.parseEther(maxAmount.toString())
+          ]
+        );
+
+        console.log("Full transaction response:", tx);
+
+        if (typeof tx === 'object' && tx.receipt) {
+          const events = tx.receipt.events;
+          console.log("Transaction events:", events);
+
+          // Try different ways to get collateralId
+          let collateralId;
+
+          // Method 1: Try to get from NFTDeposited event
+          const depositEvent = events?.find((e: any) => e.event === "NFTDeposited" || e.eventName === "NFTDeposited");
+          if (depositEvent) {
+            console.log("Found NFTDeposited event:", depositEvent);
+            collateralId = depositEvent.args?.collateralId || depositEvent.args?.[0];
+          }
+
+          // Method 2: If no event found, try to get from first event's args
+          if (!collateralId && events && events.length > 0) {
+            console.log("Checking first event:", events[0]);
+            collateralId = events[0].args?.collateralId || events[0].args?.[0];
+          }
+
+          // Method 3: Fallback to getting latest collateral ID
+          if (!collateralId) {
+            console.log("Getting latest collateral ID");
+            collateralId = await nftVault.call("getLatestCollateralId");
+          }
+
+          // Convert BigNumber to number if needed
+          if (typeof collateralId === 'object' && collateralId._hex) {
+            collateralId = Number(collateralId._hex);
+          }
+
+          console.log("Final Collateral ID:", collateralId);
+
+          if (collateralId) {
+            setSelectedCollateralId(Number(collateralId));
+            setMaxLoanAmount(maxAmount.toString());
+            setStatus("NFT successfully deposited! 🎉");
+          } else {
+            throw new Error("Failed to get collateral ID");
+          }
+        }
+
+        // Refresh user's collaterals after successful deposit
+        await fetchUserCollaterals();
+      } catch (depositError: any) {
+        if (depositError.message.includes(' invalid token ID')) {
+          console.log("Depsoit error( invalid token ID) :", depositError);
+          setStatus('Invalid TokenID Entered')
+        }
+        else if (depositError.message.includes('transfer from incorrect owner')) {
+          console.log('Deposit Error( transfer from incorrect owner): ', depositError.message)
+          setStatus('You Are Not The Owner of the tokenId')
+        } else if (depositError.message.includes('NFT not whitelisted')) {
+          console.log('Deposit Error( NFT collection NOT WHITELISTED): ', depositError.message)
+          setStatus('NFT not whitelisted')
+        }
+        else {
+          console.error("Deposit failed:", depositError.message);
+          // setStatus(`Deposit failed: ${depositError.message || "Unknown error"}`);
+          setStatus('Deposit Failed')
+          // throw depositError;
+        }
+      }
+
+    } catch (error: any) {
+      console.error("Error:", error);
+      // setStatus(`Error: ${error.message || "Transaction failed"}`);
+    } finally {
+      setIsLoadiing(false);
+    }
+  };
+
+  const handleBorrow = async (collateralId: number, amount: string, durationInSeconds: number) => {
+    if (!loanManager || !address) {
+      setStatus("Please connect your wallet");
+      return;
+    }
+
+    setIsLoadiing(true);
+    // setStatus("Processing borrow request...");
+
+    try {
+      const tx = await loanManager.call(
+        "issueLoan",
+        [
+          collateralId,
+          ethers.utils.parseEther(amount),
+          durationInSeconds
+        ]
+      );
+
+      if (typeof tx === 'object' && tx.receipt) {
+        console.log("Borrow transaction hash:", tx.receipt.transactionHash);
+      }
+
+      setStatus("Loan successfully issued! 🎉");
+    } catch (error: any) {
+      console.error("Borrow failed:", error);
+      // setStatus(`Borrow failed: ${error.message || "Unknown error"}`);
+    } finally {
+      setIsLoadiing(false);
+    }
+  };
+
+  /* const handleRepay = async () => {
+    if (!activeLoan || !loanManager || !address) return;
+
+    setIsLoadiing(true);
+    try {
+      const tx = await loanManager.call(
+        "repayLoan",
+        [activeLoan.id]
+      );
+      await tx.wait();
+      setStatus("Successfully repaid loan");
+      await fetchLoanDetails(activeLoan.id);
+    } catch (error: any) {
+      console.error("Repay error:", error);
+      setStatus("Failed to repay loan");
+    } finally {
+      setIsLoadiing(false);
+    }
+  }; 
+
+  const handleLiquidate = async () => {
+    if (!activeLoan || !liquidationManager || !address) return;
+
+    setIsLoadiing(true);
+    try {
+      const tx = await liquidationManager.call(
+        "liquidate",
+        [activeLoan.id]
+      );
+      await tx.wait();
+      setStatus("Successfully liquidated loan");
+      await fetchLoanDetails(activeLoan.id);
+    } catch (error: any) {
+      console.error("Liquidate error:", error);
+      setStatus("Failed to liquidate loan");
+    } finally {
+      setIsLoadiing(false);
+    }
+  }; */
+
+  const handleNFTWithdrawn = async (collateralId: number) => {
+    // Refresh user's collaterals
+    await fetchUserCollaterals();
+    // Reset selected collateral
+    setSelectedCollateralId(null);
+    setMaxLoanAmount('0');
+  };
+
+
+  const fetchLoanDetails = async (collateralId: number) => {
+    if (!loanManager || !address) return;
+
+    try {
+      const loanDetails = await loanManager.call(
+        "loans",
+        [collateralId]
+      );
+      setActiveLoan(loanDetails);
+    } catch (error) {
+      console.error("Error fetching loan details:", error);
+    }
+  };
+
+  /*
+
+  // Add the missing admin handlers
+  const handleAddToWhitelist = async (address: string) => {
+    if (!isAdmin || !dmonContract) return;
+
+    setIsLoadiing(true);
+    try {
+      const tx = await dmonContract.call(
+        "addToWhitelist",
+        [[address]]
+      );
+      setStatus(`Successfully added ${address} to whitelist`);
+    } catch (error: any) {
+      console.error("Whitelist error:", error);
+      setStatus("Failed to add address to whitelist");
+    } finally {
+      setIsLoadiing(false);
+    }
+  }; 
+
+  const handleTogglePublicSale = async () => {
+    if (!isAdmin || !dmonContract) return;
+
+    setIsLoadiing(true);
+    try {
+      const isActive = await dmonContract.call("isPresaleActive");
+      const tx = await dmonContract.call(
+        isActive ? "pausePresale" : "startPresale"
+      );
+      setStatus(`Successfully ${isActive ? 'paused' : 'started'} the presale`);
+    } catch (error: any) {
+      console.error("Toggle sale error:", error);
+      setStatus("Failed to toggle sale status");
+    } finally {
+      setIsLoadiing(false);
+    }
+  }; */
+
+  return (
+    <div className="min-h-screen bg-[#0D111C] text-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-[#131A2A]/80 backdrop-blur-sm p-4 border-b border-[#1C2839]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">Monad NFT Lending</h1>
+          <ConnectWallet modalTitle="Connect Your Wallet" modalSize="wide" />
+        </div>
+      </header>
+
+      {!address ? (
+        // Show connect wallet message when no wallet is connected
+        <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
+          <div className="text-center space-y-6 max-w-lg">
+             {/* <h2 className="text-3xl font-bold text-[#F5F6FC]">
+              Welcome to Monad NFT Lending
+            </h2> */}
+            
+            <p className="text-[#98A1C0] text-lg">
+              Connect your wallet to start borrowing against your NFTs or providing liquidity to the platform.
+            </p> 
+            <div className="inline-block">
+              <ConnectWallet
+                modalTitle="Connect Your Wallet"
+                modalSize="wide"
+                className="!bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] !text-white hover:opacity-90 transition-opacity"
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Main content when wallet is connected
+        <main className="container mx-auto px-4 py-6 space-y-8">
+          {/* Add Mint Section at the top */}
+          <section className="bg-[#131A2A] rounded-[20px] p-6">
+            <MintDMONPage />
+          </section>
+
+          {/* Main Sections */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Liquidity Section */}
+            <section className="bg-[#131A2A] rounded-[20px] p-6">
+              <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">Liquidity Pool</h2>
+              <LiquidityProvider />
+            </section>
+
+            {/* NFT Collateral Section */}
+            <section className="bg-[#131A2A] rounded-[20px] p-6">
+              <h2 className="text-xl font-semibold mb-4 text-[#F5F6FC]">NFT Collateral</h2>
+              <WhitelistedNFTs
+                onNFTDeposit={handleNFTDeposit}
+                isLoading={isLoadiing}
+              />
+            </section>
+          </div>
+
+          {/* Collateral Grid */}
+          {userCollaterals.length > 0 && (
+            <CollateralList
+              collaterals={userCollaterals}
+              onSelect={(collateral) => {
+                setSelectedCollateralId(collateral.id);
+                fetchLoanDetails(collateral.id);
+              }}
+              onNFTWithdrawn={handleNFTWithdrawn}
+              onBorrow={handleBorrow}
+            />
+          )}
+
+          {/* Status Messages */}
+          {status && (
+            <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg 
+                                  shadow-lg border border-gray-700 animate-fade-in-out"
+              style={{
+                animation: 'fadeInOut 20s ease-in-out'
+              }}
+            >
+              <p className="text-sm text-[#F5F6FC]">{status}</p>
+            </div>
+          )}
+        </main>
+      )}
+    </div>
+  );
+}
+
+export default App;
+
 

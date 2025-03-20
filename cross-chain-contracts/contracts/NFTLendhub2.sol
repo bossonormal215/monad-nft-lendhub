@@ -28,6 +28,7 @@ contract NFTLendHub2 is Ownable, ReentrancyGuard {
         address loanToken;
         bool active;
         bool completed;
+        // bool isFunded;
     }
 
     Loan[] public allLoans;
@@ -179,6 +180,7 @@ contract NFTLendHub2 is Ownable, ReentrancyGuard {
             loanToken: _loanToken,
             active: false,
             completed: false
+            // isFunded: false
         });
 
         loans[_nftAddress][_nftId] = newLoan;
@@ -215,8 +217,24 @@ contract NFTLendHub2 is Ownable, ReentrancyGuard {
         loan.lender = msg.sender;
         loan.startTime = block.timestamp;
         loan.active = true;
+        // loan.isFunded = true;
 
         lenderLoans[msg.sender].push(loan);
+
+        // ✅ Update the user's loan status to reflect funding
+        Loan[] storage userLoanList = userLoans[loan.nftOwner];
+        for (uint256 i = 0; i < userLoanList.length; i++) {
+            if (
+                userLoanList[i].nftAddress == _nftAddress &&
+                userLoanList[i].nftId == _nftId
+            ) {
+                userLoanList[i].lender = msg.sender;
+                userLoanList[i].startTime = block.timestamp;
+                // userLoanList[i].isFunded = true;
+                userLoanList[i].active = true;
+                break;
+            }
+        }
 
         for (uint256 i = 0; i < allLoans.length; i++) {
             if (
@@ -279,6 +297,7 @@ contract NFTLendHub2 is Ownable, ReentrancyGuard {
         );
 
         loan.repaid = true;
+        loan.completed = true;
         // ✅ Manually create a copy and push instead of referencing mapping
         Loan memory completedLoan = Loan({
             nftOwner: loan.nftOwner,
@@ -293,6 +312,7 @@ contract NFTLendHub2 is Ownable, ReentrancyGuard {
             loanToken: loan.loanToken,
             active: loan.active,
             completed: true // ✅ Mark as completed
+            // isFunded: true
         });
 
         completedLoans.push(completedLoan);
@@ -320,6 +340,7 @@ contract NFTLendHub2 is Ownable, ReentrancyGuard {
             100;
 
         IERC20(loan.loanToken).transfer(msg.sender, repaymentAmount);
+        loan.completed = true;
 
         emit RepaymentClaimed(msg.sender, _nftAddress, _nftId, repaymentAmount);
     }

@@ -2,76 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 230 25% 7%;
+    --foreground: 0 0% 98%;
+
+    --card: 230 25% 9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 230 25% 9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 262 89% 65%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 230 25% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 230 25% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 262 89% 65%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 230 25% 15%;
+    --input: 230 25% 15%;
+    --ring: 262 89% 65%;
+
+    --radius: 0.5rem;
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  @apply bg-background text-foreground;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 @keyframes fadeInOut {
   0% {
-      opacity: 0;
-      transform: translateY(20px);
+    opacity: 0;
+    transform: translateY(20px);
   }
   5% {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
   90% {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
   100% {
-      opacity: 0;
-      transform: translateY(20px);
+    opacity: 0;
+    transform: translateY(20px);
   }
 }
 
 .animate-fade-in-out {
   animation: fadeInOut 20s ease-in-out;
-} 
+}
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 262 89% 63%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 89% 63%;
-    --radius: 0.5rem;
-  }
 
+
+  /*
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;

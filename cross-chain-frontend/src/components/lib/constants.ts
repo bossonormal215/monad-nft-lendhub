@@ -1,9 +1,11 @@
-export const NFT_LENDHUB_ADDRESS = '0x4F672C822d9a4B9cE92D247C8FC3bf1C471E2f39';
+// export const NFT_LENDHUB_ADDRESS = '0x4F672C822d9a4B9cE92D247C8FC3bf1C471E2f39';
+// export const NFT_LENDHUB_ADDRESS = '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF';
+export const NFT_LENDHUB_ADDRESS = '0xa7507707FD388989fa794372677b89494517f75C'; // contract 4
+// address: '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF',
 export const LENDING_POOL_ADDRESS =
   '0xCCec83c2e4758f0cD8C1baD23Cc66F53b1C37Fb0';
 export const LOAN_GOVERNANCE_ADDRESS =
   '0x34f08447ac38AD7ED5f2D3ac0f007f70B8B897D6';
-// export const NFT_ADDRESS = '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC';
 export const NFT_ADDRESS = '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC';
 export const WMON_ADDRESS = '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701';
 export const USDT_ADDRESS = '0x88b8E2161DEDC77EF4ab7585569D2415a1C1055D';
@@ -41,21 +43,15 @@ export const NFT_LENDHUB_ABI = [
     inputs: [
       {
         indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
         internalType: 'address',
         name: 'borrower',
         type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'nftId',
-        type: 'uint256',
       },
     ],
     name: 'LoanClaimed',
@@ -66,27 +62,15 @@ export const NFT_LENDHUB_ABI = [
     inputs: [
       {
         indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
         internalType: 'address',
         name: 'lender',
         type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'nftId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
       },
     ],
     name: 'LoanFunded',
@@ -97,27 +81,15 @@ export const NFT_LENDHUB_ABI = [
     inputs: [
       {
         indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
         internalType: 'address',
         name: 'borrower',
         type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'nftId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
       },
     ],
     name: 'LoanRepaid',
@@ -128,21 +100,15 @@ export const NFT_LENDHUB_ABI = [
     inputs: [
       {
         indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
         internalType: 'address',
         name: 'lender',
         type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'nftId',
-        type: 'uint256',
       },
     ],
     name: 'NFTClaimedByLender',
@@ -151,6 +117,12 @@ export const NFT_LENDHUB_ABI = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
       {
         indexed: true,
         internalType: 'address',
@@ -164,7 +136,7 @@ export const NFT_LENDHUB_ABI = [
         type: 'address',
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: 'uint256',
         name: 'nftId',
         type: 'uint256',
@@ -221,27 +193,15 @@ export const NFT_LENDHUB_ABI = [
     inputs: [
       {
         indexed: true,
-        internalType: 'address',
-        name: 'borrower',
-        type: 'address',
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
       },
       {
         indexed: true,
         internalType: 'address',
-        name: 'nftAddress',
+        name: 'lender',
         type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'nftId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
       },
     ],
     name: 'RepaymentClaimed',
@@ -320,67 +280,12 @@ export const NFT_LENDHUB_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'activeLoans',
+    name: 'allLoanIds',
     outputs: [
       {
-        internalType: 'address',
-        name: 'nftOwner',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: 'nftId',
+        name: '',
         type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'lender',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'interestRate',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanDuration',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'repaid',
-        type: 'bool',
-      },
-      {
-        internalType: 'address',
-        name: 'loanToken',
-        type: 'address',
-      },
-      {
-        internalType: 'bool',
-        name: 'active',
-        type: 'bool',
-      },
-      {
-        internalType: 'bool',
-        name: 'completed',
-        type: 'bool',
       },
     ],
     stateMutability: 'view',
@@ -397,6 +302,11 @@ export const NFT_LENDHUB_ABI = [
     name: 'allLoans',
     outputs: [
       {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
         internalType: 'address',
         name: 'nftOwner',
         type: 'address',
@@ -463,13 +373,8 @@ export const NFT_LENDHUB_ABI = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: '_nftId',
+        name: 'loanId',
         type: 'uint256',
       },
     ],
@@ -481,13 +386,8 @@ export const NFT_LENDHUB_ABI = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: '_nftId',
+        name: 'loanId',
         type: 'uint256',
       },
     ],
@@ -499,13 +399,8 @@ export const NFT_LENDHUB_ABI = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: '_nftId',
+        name: 'loanId',
         type: 'uint256',
       },
     ],
@@ -522,67 +417,12 @@ export const NFT_LENDHUB_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'completedLoans',
+    name: 'completedLoanIds',
     outputs: [
       {
-        internalType: 'address',
-        name: 'nftOwner',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: 'nftId',
+        name: '',
         type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'lender',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'interestRate',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanDuration',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'repaid',
-        type: 'bool',
-      },
-      {
-        internalType: 'address',
-        name: 'loanToken',
-        type: 'address',
-      },
-      {
-        internalType: 'bool',
-        name: 'active',
-        type: 'bool',
-      },
-      {
-        internalType: 'bool',
-        name: 'completed',
-        type: 'bool',
       },
     ],
     stateMutability: 'view',
@@ -591,13 +431,8 @@ export const NFT_LENDHUB_ABI = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: '_nftId',
+        name: 'loanId',
         type: 'uint256',
       },
     ],
@@ -613,6 +448,11 @@ export const NFT_LENDHUB_ABI = [
       {
         components: [
           {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
             internalType: 'address',
             name: 'nftOwner',
             type: 'address',
@@ -673,7 +513,7 @@ export const NFT_LENDHUB_ABI = [
             type: 'bool',
           },
         ],
-        internalType: 'struct NFTLendHub2.Loan[]',
+        internalType: 'struct NFTLendHub4.Loan[]',
         name: '',
         type: 'tuple[]',
       },
@@ -688,6 +528,11 @@ export const NFT_LENDHUB_ABI = [
       {
         components: [
           {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
             internalType: 'address',
             name: 'nftOwner',
             type: 'address',
@@ -748,7 +593,7 @@ export const NFT_LENDHUB_ABI = [
             type: 'bool',
           },
         ],
-        internalType: 'struct NFTLendHub2.Loan[]',
+        internalType: 'struct NFTLendHub4.Loan[]',
         name: '',
         type: 'tuple[]',
       },
@@ -769,6 +614,11 @@ export const NFT_LENDHUB_ABI = [
       {
         components: [
           {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
             internalType: 'address',
             name: 'nftOwner',
             type: 'address',
@@ -829,7 +679,87 @@ export const NFT_LENDHUB_ABI = [
             type: 'bool',
           },
         ],
-        internalType: 'struct NFTLendHub2.Loan[]',
+        internalType: 'struct NFTLendHub4.Loan[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getUnfundedLoans',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'nftOwner',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'nftAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nftId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'lender',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'interestRate',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanDuration',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'repaid',
+            type: 'bool',
+          },
+          {
+            internalType: 'address',
+            name: 'loanToken',
+            type: 'address',
+          },
+          {
+            internalType: 'bool',
+            name: 'active',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct NFTLendHub4.Loan[]',
         name: '',
         type: 'tuple[]',
       },
@@ -850,6 +780,11 @@ export const NFT_LENDHUB_ABI = [
       {
         components: [
           {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
             internalType: 'address',
             name: 'nftOwner',
             type: 'address',
@@ -910,7 +845,7 @@ export const NFT_LENDHUB_ABI = [
             type: 'bool',
           },
         ],
-        internalType: 'struct NFTLendHub2.Loan[]',
+        internalType: 'struct NFTLendHub4.Loan[]',
         name: '',
         type: 'tuple[]',
       },
@@ -931,67 +866,12 @@ export const NFT_LENDHUB_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'lenderLoans',
+    name: 'lenderLoanIds',
     outputs: [
       {
-        internalType: 'address',
-        name: 'nftOwner',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: 'nftId',
+        name: '',
         type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'lender',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'interestRate',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanDuration',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'repaid',
-        type: 'bool',
-      },
-      {
-        internalType: 'address',
-        name: 'loanToken',
-        type: 'address',
-      },
-      {
-        internalType: 'bool',
-        name: 'active',
-        type: 'bool',
-      },
-      {
-        internalType: 'bool',
-        name: 'completed',
-        type: 'bool',
       },
     ],
     stateMutability: 'view',
@@ -1036,12 +916,20 @@ export const NFT_LENDHUB_ABI = [
     type: 'function',
   },
   {
-    inputs: [
+    inputs: [],
+    name: 'loanCounter',
+    outputs: [
       {
-        internalType: 'address',
+        internalType: 'uint256',
         name: '',
-        type: 'address',
+        type: 'uint256',
       },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
       {
         internalType: 'uint256',
         name: '',
@@ -1050,6 +938,11 @@ export const NFT_LENDHUB_ABI = [
     ],
     name: 'loans',
     outputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
       {
         internalType: 'address',
         name: 'nftOwner',
@@ -1150,13 +1043,8 @@ export const NFT_LENDHUB_ABI = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: '_nftId',
+        name: 'loanId',
         type: 'uint256',
       },
     ],
@@ -1191,67 +1079,12 @@ export const NFT_LENDHUB_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'userLoans',
+    name: 'userLoanIds',
     outputs: [
       {
-        internalType: 'address',
-        name: 'nftOwner',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'nftAddress',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: 'nftId',
+        name: '',
         type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'lender',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'interestRate',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'loanDuration',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'repaid',
-        type: 'bool',
-      },
-      {
-        internalType: 'address',
-        name: 'loanToken',
-        type: 'address',
-      },
-      {
-        internalType: 'bool',
-        name: 'active',
-        type: 'bool',
-      },
-      {
-        internalType: 'bool',
-        name: 'completed',
-        type: 'bool',
       },
     ],
     stateMutability: 'view',

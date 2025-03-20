@@ -3,10 +3,8 @@
 
 import { useState } from 'react';
 import { WHITELISTED_NFTS, WhitelistedNFT } from '@/app/whitelistedNft/nft';
-// import { useAddress } from '../privy/hooks/useWallet';
 import {  useAddress } from '@thirdweb-dev/react';
-// import { ethers } from 'ethers';
-// import { NFT_VAULT_CONTRACT } from '../thirdweb/thirdwebConfig';
+import Web3Wrapper from '../Web3Wrapper';
 
 interface NFTCardProps {
     nft: WhitelistedNFT;
@@ -64,6 +62,7 @@ export function WhitelistedNFTs({ onNFTDeposit, isLoading }: WhitelistedNFTsProp
     };
 
     return (
+        <Web3Wrapper>
         <div className="container mx-auto p-4">
             <h2 className="text-2xl font-bold mb-6 text-white">Supported NFT Collections</h2>
 
@@ -115,5 +114,6 @@ export function WhitelistedNFTs({ onNFTDeposit, isLoading }: WhitelistedNFTsProp
                 </div>
             )}
         </div>
+        </Web3Wrapper>
     );
 } 

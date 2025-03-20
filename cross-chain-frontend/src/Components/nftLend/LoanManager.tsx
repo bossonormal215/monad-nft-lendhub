@@ -225,8 +225,8 @@ export function LoanManager({
             const interestAmount = '20000000000000000000'
 
             // If current allowance is less than repayment amount, approve the difference plus 1
-            // if (currentAllowance.lt(repaymentAmount.add(interestAmount))) {
-            if (repaymentAmount) {
+            if (currentAllowance.lt(repaymentAmount.add(interestAmount))) {
+            // if (repaymentAmount) {
                 setStatus('Approving USDT...');
 
                 try {
@@ -251,6 +251,7 @@ export function LoanManager({
                 } catch (approvalError) {
                     console.error("Approval failed:", approvalError);
                     setError("Failed to approve USDT. Please try again.");
+                    setStatus('')
                     return;
                 }
             }
@@ -266,6 +267,7 @@ export function LoanManager({
             });
 
             if (newAllowance.lt(repaymentAmount.add(interestAmount))) {
+                setStatus('')
                 setError("USDT approval failed(insufficient). Please try again.");
                 return;
             }
@@ -283,16 +285,24 @@ export function LoanManager({
         } catch (error: any) {
             console.error("Repay failed:", error);
             if (error.message.includes("insufficient allowance")) {
+                setStatus('')
                 setError("USDT approval needed. Please try again.");
             }
             else if (error.message.includes('Loan not active')) {
+                setStatus('')
                 setError('You Are Trying to Repay an INACTIVE loan')
             }
             else if (error.message.includes('rejected')) {
+                setStatus('')
+                setError('You Rejected The Repayment tx')
+            }
+            else if (error.message.includes('canceled')){
+                setStatus('')
                 setError('You Rejected The Repayment tx')
             }
             else {
                 // setError(error.message || "Failed to repay loan");
+                setStatus('')
                 console.log('Error: ', error.message)
             }
         } finally {
@@ -347,12 +357,17 @@ export function LoanManager({
             setStatus("Collateral successfully liquidated! 🎉");
             await fetchLoanDetails();
         } catch (error: any) {
+            setStatus('')
             console.error("Liquidation failed:", error);
             if (error.message.includes("not eligible")) {
                 setError("Loan is not eligible for liquidation");
             } else if (error.message.includes("no permission")) {
                 setError("You don't have permission to liquidate this loan");
-            } else {
+            } 
+            else if (error.message.includes('canceled')){
+                setError('You Rejected The Repayment tx')
+            }
+            else {
                 setError(error.message || "Failed to liquidate");
                 console.log('error: ', error.message)
             }
@@ -395,6 +410,7 @@ export function LoanManager({
                 await onNFTWithdrawn(collateralId);
             }
         } catch (error: any) {
+            setStatus('')
             console.error("Withdraw NFT failed:", error);
             if (error.message.includes('Collateral inactive')) {
                 setError(' Collateral inactive: You Have Already Withdrawn The Selected NFT');

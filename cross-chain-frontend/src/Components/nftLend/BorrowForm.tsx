@@ -137,6 +137,7 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
             // Call onBorrow after successful transaction
             await onBorrow(collateralId, amount, duration);
         } catch (error: any) {
+            setStatus('')
             console.error("Detailed borrow error:", error);
 
             if (error.message.includes("exceeds max loan amount")) {
@@ -218,7 +219,7 @@ export function BorrowForm({ collateralId, maxLoanAmount, onBorrow, isLoading }:
                     </button>
 
                     {error && (
-                        <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
+                        <div className="fixed bottom-4 right-4 max-w-md bg-gray-800 text-red p-4 rounded-lg shadow-lg border border-gray-700 animate-fade-in-out"
                         style={{
                             animation: 'fadInOut 20s ease-in-out'
                         }}

@@ -2,7 +2,18 @@
 
 import { AppProps } from 'next/app';
 import { PrivyProvider } from "@privy-io/react-auth";
-import { monadTestnet } from 'viem/chains';;
+import { monadTestnet } from 'viem/chains';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createConfig, http, WagmiProvider } from "wagmi";
+
+const queryClient = new QueryClient();
+
+const config = createConfig({
+  chains: [monadTestnet],
+  transports: {
+    [monadTestnet.id]: http(),
+  },
+});
 
 
 const privy_apiKey = process.env.NEXT_PUBLIC_PRIVY_API_KEY as string
@@ -23,6 +34,7 @@ const privy_apiKey = process.env.NEXT_PUBLIC_PRIVY_API_KEY as string
 
 function Provider({ Component, pageProps }: AppProps) {
   return (
+    <WagmiProvider config={config}>
     <PrivyProvider 
     appId={privy_apiKey}
     config={
@@ -43,6 +55,7 @@ function Provider({ Component, pageProps }: AppProps) {
     >
       <Component {...pageProps} />
     </PrivyProvider>
+    </WagmiProvider>
   );
 }
 
