@@ -162,14 +162,14 @@ export function DashboardTab() {
                 const isClaimed = loan.startTime > 0
                 const isAwaitingClaim = loan.active && loan.startTime === BigInt(0)
 
-                let actionText = "Waiting for Lender"
+                let actionText = "Waiting for a Lender"
                 let onAction = null
                 let actionDisabled = true
 
                 if (isCompleted === true) {
                   actionText = "Loan Completed"
                 } else if (isNotFunded) {
-                  actionText = "Waiting for Lender"
+                  actionText = "Waiting for a Lender"
                 } else if (isRepaid) {
                   actionText = "Loan Repaid"
                 } else if ( !isLoanClaimed && loan.active && !isCompleted) {
