@@ -156,6 +156,7 @@ export function DashboardTab() {
             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {myBorrowings.map((loan, index) => {
                 const isNotFunded = !loan.active
+                const isLoanClaimed = loan.loanClaimed
                 const isRepaid = loan.repaid
                 const isCompleted = loan.completed
                 const isClaimed = loan.startTime > 0
@@ -171,10 +172,10 @@ export function DashboardTab() {
                   actionText = "Waiting for Lender"
                 } else if (isRepaid) {
                   actionText = "Loan Repaid"
-                } else if (!isNotFunded && loan.active && !isCompleted) {
+                } else if ( !isLoanClaimed && loan.active && !isCompleted) {
                   actionText = "Claim Loan"
                   actionDisabled = false
-                } else if (!isNotFunded && !isRepaid && !isCompleted && loan.active) {
+                } else if (isLoanClaimed  &&  !isRepaid && !isCompleted && loan.active) {
                   actionText = "Repay Loan"
                   onAction = () => handleAction(loan, index, !loan.repaid ? "repayLoan" : "")
                   actionDisabled = false
@@ -194,6 +195,7 @@ export function DashboardTab() {
                     interestRate={Number(loan.interestRate)}
                     loanDuration={Number(loan.loanDuration)}
                     startTime={Number(loan.startTime)}
+                    loanClaimed={loan.loanClaimed}
                     repaid={loan.repaid}
                     active={loan.active}
                     completed={loan.completed}
@@ -202,7 +204,7 @@ export function DashboardTab() {
                         loan,
                         index,
                         // isClaimed && !isAwaitingClaim && !loan.completed && !loan.repaid ? "claimLoan" : "claimLoan", // claim met
-                        isClaimed && !isAwaitingClaim && !loan.completed && !loan.repaid ? "repayLoan" : "repayLoan" // repay met
+                        isLoanClaimed && !loan.completed && !loan.repaid ? "repayLoan" : "claimLoan" // repay met
                       )
                     }
                     actionText={actionText}

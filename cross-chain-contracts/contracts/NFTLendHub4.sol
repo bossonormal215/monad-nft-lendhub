@@ -28,6 +28,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         uint256 interestRate;
         uint256 loanDuration;
         uint256 startTime;
+        bool loanClaimed;
         bool repaid;
         address loanToken;
         bool active;
@@ -152,6 +153,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
             interestRate: _interestRate,
             loanDuration: _loanDuration,
             startTime: 0,
+            loanClaimed: false,
             repaid: false,
             loanToken: _loanToken,
             active: false,
@@ -205,6 +207,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
 
         IERC20(loan.loanToken).transfer(platformWallet, platformFee);
         IERC20(loan.loanToken).transfer(msg.sender, loanPayout);
+        loan.loanClaimed = true;
 
         emit LoanClaimed(loanId, msg.sender);
     }

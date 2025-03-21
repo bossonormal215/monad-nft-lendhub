@@ -15,6 +15,7 @@ export interface LoanData {
   interestRate: bigint;
   loanDuration: bigint;
   startTime: bigint;
+  loanClaimed: boolean;
   repaid: boolean;
   loanToken: string;
   active: boolean;

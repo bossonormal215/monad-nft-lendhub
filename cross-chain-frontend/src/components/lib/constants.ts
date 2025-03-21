@@ -1,6 +1,7 @@
 // export const NFT_LENDHUB_ADDRESS = '0x4F672C822d9a4B9cE92D247C8FC3bf1C471E2f39';
 // export const NFT_LENDHUB_ADDRESS = '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF';
-export const NFT_LENDHUB_ADDRESS = '0xa7507707FD388989fa794372677b89494517f75C'; // contract 4
+// export const NFT_LENDHUB_ADDRESS = '0xa7507707FD388989fa794372677b89494517f75C'; // contract 4
+export const NFT_LENDHUB_ADDRESS = '0xC0743c3C22801204245A884faaF65E3bFAD341Ca'; // contract 5
 // address: '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF',
 export const LENDING_POOL_ADDRESS =
   '0xCCec83c2e4758f0cD8C1baD23Cc66F53b1C37Fb0';
@@ -348,6 +349,11 @@ export const NFT_LENDHUB_ABI = [
       },
       {
         internalType: 'bool',
+        name: 'loanClaimed',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
         name: 'repaid',
         type: 'bool',
       },
@@ -494,6 +500,11 @@ export const NFT_LENDHUB_ABI = [
           },
           {
             internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
             name: 'repaid',
             type: 'bool',
           },
@@ -571,6 +582,11 @@ export const NFT_LENDHUB_ABI = [
             internalType: 'uint256',
             name: 'startTime',
             type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
           },
           {
             internalType: 'bool',
@@ -660,6 +676,11 @@ export const NFT_LENDHUB_ABI = [
           },
           {
             internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
             name: 'repaid',
             type: 'bool',
           },
@@ -737,6 +758,11 @@ export const NFT_LENDHUB_ABI = [
             internalType: 'uint256',
             name: 'startTime',
             type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
           },
           {
             internalType: 'bool',
@@ -823,6 +849,11 @@ export const NFT_LENDHUB_ABI = [
             internalType: 'uint256',
             name: 'startTime',
             type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
           },
           {
             internalType: 'bool',
@@ -982,6 +1013,11 @@ export const NFT_LENDHUB_ABI = [
         internalType: 'uint256',
         name: 'startTime',
         type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'loanClaimed',
+        type: 'bool',
       },
       {
         internalType: 'bool',

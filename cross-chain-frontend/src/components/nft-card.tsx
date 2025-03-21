@@ -22,7 +22,7 @@ interface NFTCardProps {
   loanToken: string
   active?: boolean
   completed?: boolean
-  claimed?: boolean
+  loanClaimed?: boolean
   repaymentClaimed?: boolean
   nftClaimed?: boolean
   onAction?: () => void
@@ -46,7 +46,7 @@ export function NFTCard({
   loanToken,
   active = false,
   completed = false,
-  claimed,
+  loanClaimed,
   repaymentClaimed,
   nftClaimed,
   onAction,
@@ -57,6 +57,7 @@ export function NFTCard({
 }: NFTCardProps) {
   const isActive = active || lender !== "0x0000000000000000000000000000000000000000"
   const isFunded = isActive && !repaid
+  const isLoanClaimed = loanClaimed
   const isRepaid = repaid
   const isCompleted = completed
   const now = Math.floor(Date.now() / 1000)
