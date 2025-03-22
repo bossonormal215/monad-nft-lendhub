@@ -36,7 +36,9 @@ function MintDMONPage() {
   const [isPublicSale, setIsPublicSale] = useState<boolean>(false)
   const { toast } = useToast()
 
-  const address = useAddress()
+  // const address = useAddress()
+  
+  const { address } = useAccount()
   const adminAddress = "0xED42844Cd35d734fec3B65dF486158C443896b41"
   const isAdmin = address === adminAddress
 
@@ -115,7 +117,8 @@ function MintDMONPage() {
   const { data: mintSimData } = useSimulateContract({
     address: DMON_NFT_CONTRACT.address as `0x${string}`,
     abi: DMON_NFT_CONTRACT.abi,
-    functionName: "whitelistMint",
+    // functionName: "whitelistMint",
+    functionName: "mint",
     args: [mintQuantity],
     value: totalPrice,
     query: {
@@ -165,8 +168,17 @@ function MintDMONPage() {
     setStatus("Processing mint...")
 
     try {
-      if (mintSimData?.request) {
-        const tx = await mintNFT(mintSimData.request)
+      if (isPresaleActive) {
+        // const tx = await mintNFT(mintSimData.request)
+        console.log('mint process starts')
+        const tx = await mintNFT({
+          address: DMON_NFT_CONTRACT.address as `0x${string}`,
+          abi: DMON_NFT_CONTRACT.abi,
+          functionName: "whitelistMint",
+          // functionName: "mint",
+          args: [mintQuantity],
+          value: totalPrice,
+        })
         setStatus(`Successfully minted ${mintQuantity} DMON NFT${mintQuantity > 1 ? "s" : ""}! 🎉`)
         toast({
           title: "Success",
@@ -174,7 +186,7 @@ function MintDMONPage() {
         })
 
         // Wait for transaction confirmation
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 6000))
 
         // Refresh total supply
         const newSupplyQuery = useReadContract({
@@ -189,7 +201,6 @@ function MintDMONPage() {
         }
       }
     } catch (error: any) {
-      setStatus("")
       if (error.message?.includes("You are not whitelisted to mint an NFT")) {
         setError("Not whitelisted for the presale mint. reach out to bossonormal1 on discord to WL your address!!")
       } else if (error.message?.includes("You have already minted an NFT")) {
@@ -212,15 +223,21 @@ function MintDMONPage() {
 
     try {
       // Simulate with the specific address
-      const { data: simData } = await useSimulateContract({
-        address: DMON_NFT_CONTRACT.address as `0x${string}`,
-        abi: DMON_NFT_CONTRACT.abi,
-        functionName: "addToWhitelist",
-        args: [[addressToWhitelist]],
-      })
+      // const { data: simData } = await useSimulateContract({
+      //   address: DMON_NFT_CONTRACT.address as `0x${string}`,
+      //   abi: DMON_NFT_CONTRACT.abi,
+      //   functionName: "addToWhitelist",
+      //   args: [[addressToWhitelist]],
+      // })
 
-      if (simData?.request) {
-        const tx = await addToWhitelist(simData.request)
+      if (addressToWhitelist) {
+        // const tx = await addToWhitelist(simData.request)
+        const tx = await addToWhitelist({
+          address: DMON_NFT_CONTRACT.address as `0x${string}`,
+          abi: DMON_NFT_CONTRACT.abi,
+          functionName: "addToWhitelist",
+          args: [[addressToWhitelist]],
+        })
         setStatus("Address added to whitelist successfully")
         toast({
           title: "Success",
@@ -228,7 +245,7 @@ function MintDMONPage() {
         })
 
         // Wait for transaction confirmation
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 6000))
       }
     } catch (error: any) {
       setStatus("")
@@ -248,7 +265,12 @@ function MintDMONPage() {
 
     try {
       if (toggleSaleSimData?.request) {
-        const tx = await togglePublicSale(toggleSaleSimData.request)
+        // const tx = await togglePublicSale(toggleSaleSimData.request)
+        const tx = await togglePublicSale({
+          address: DMON_NFT_CONTRACT.address as `0x${string}`,
+          abi: DMON_NFT_CONTRACT.abi,
+          functionName: "togglePublicSale",
+        })
         setStatus(`${isPublicSale ? "Disabled" : "Enabled"} public sale`)
         toast({
           title: "Success",
@@ -256,7 +278,7 @@ function MintDMONPage() {
         })
 
         // Wait for transaction confirmation
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 6000))
 
         setIsPublicSale(!isPublicSale)
       }
@@ -343,7 +365,8 @@ function MintDMONPage() {
 }
 
 function Main() {
-  const address = useAddress()
+  // const address = useAddress()
+  const { address } = useAccount()
   const { ready, authenticated } = usePrivy()
   const { toast } = useToast()
   const [status, setStatus] = useState<string>("")
@@ -432,30 +455,45 @@ function Main() {
 
     try {
       // First simulate approve NFT transfer
-      const { data: approveSimData } = await useSimulateContract({
-        address: nftAddress as `0x${string}`,
-        abi: DMON_NFT_CONTRACT.abi,
-        functionName: "setApprovalForAll",
-        args: [NFT_VAULT_CONTRACT, true],
-      })
+      console.log('nft address: ', nftAddress)
+      // const { data: approveSimData } = await useSimulateContract({
+      //   address: nftAddress as `0x${string}`,
+      //   abi: DMON_NFT_CONTRACT.abi,
+      //   functionName: "setApprovalForAll",
+      //   args: [NFT_VAULT_CONTRACT, true],
+      // })
 
-      if (approveSimData?.request) {
-        const approveTx = await approveNFT(approveSimData.request)
+      // if (approveSimData?.request) {
+      if(nftAddress){
+        // const approveTx = await approveNFT(approveSimData.request)
+        const approveTx = await approveNFT({
+          address: nftAddress as `0x${string}`,
+          abi: DMON_NFT_CONTRACT.abi,
+          functionName: "setApprovalForAll",
+          args: [NFT_VAULT_CONTRACT, true]
+        })
         setStatus("NFT transfer approved, depositing...")
 
         // Wait for transaction confirmation
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 6000))
 
         // Then simulate deposit NFT
-        const { data: depositSimData } = await useSimulateContract({
-          address: NFT_VAULT_CONTRACT as `0x${string}`,
-          abi: NFTCollateralVaultABI.abi,
-          functionName: "depositNFT",
-          args: [nftAddress, Number(tokenId), parseUnits(maxAmount.toString(), 18)],
-        })
+        // const { data: depositSimData } = await useSimulateContract({
+        //   address: NFT_VAULT_CONTRACT as `0x${string}`,
+        //   abi: NFTCollateralVaultABI.abi,
+        //   functionName: "depositNFT",
+        //   args: [nftAddress, Number(tokenId), parseUnits(maxAmount.toString(), 18)],
+        // })
 
-        if (depositSimData?.request) {
-          const depositTx = await depositNFT(depositSimData.request)
+        // if (depositSimData?.request) {
+        if (nftAddress && tokenId) {
+          // const depositTx = await depositNFT(depositSimData.request)
+          const depositTx = await depositNFT({
+            address: NFT_VAULT_CONTRACT as `0x${string}`,
+            abi: NFTCollateralVaultABI.abi,
+            functionName: "depositNFT",
+            args: [nftAddress, Number(tokenId), parseUnits(maxAmount.toString(), 18)],
+          })
           setStatus("NFT successfully deposited! 🎉")
           toast({
             title: "Success",
@@ -463,7 +501,7 @@ function Main() {
           })
 
           // Wait for transaction confirmation
-          await new Promise((resolve) => setTimeout(resolve, 2000))
+          await new Promise((resolve) => setTimeout(resolve, 6000))
 
           refetchCollaterals()
         }
@@ -477,7 +515,10 @@ function Main() {
         setError("You Are Not The Owner of the tokenId")
       } else if (error.message?.includes("NFT not whitelisted")) {
         setError("NFT not whitelisted")
-      } else {
+      } else if (error.message.includes('NFT not whitelisted')){
+        setError('NFT Not Yet Whitelisted In Contract..')
+      }
+      else {
         setError("Transaction failed")
       }
     } finally {
@@ -501,10 +542,17 @@ function Main() {
         abi: LoanManagerABI.abi,
         functionName: "issueLoan",
         args: [BigInt(collateralId), parseUnits(amount, 18), BigInt(durationInSeconds)],
-      })
+      }) 
 
+      // if (borrowSimData?.request) {
       if (borrowSimData?.request) {
-        const tx = await borrowLoan(borrowSimData.request)
+        // const tx = await borrowLoan(borrowSimData.request)
+        const tx = await borrowLoan({
+          address: LOAN_MANAGER_CONTRACT as `0x${string}`,
+          abi: LoanManagerABI.abi,
+          functionName: "issueLoan",
+          args: [BigInt(collateralId), parseUnits(amount, 18), BigInt(durationInSeconds)]
+        })
         setStatus("Loan successfully issued! 🎉")
         toast({
           title: "Success",
@@ -512,7 +560,7 @@ function Main() {
         })
 
         // Wait for transaction confirmation
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 6000))
 
         refetchCollaterals()
       }

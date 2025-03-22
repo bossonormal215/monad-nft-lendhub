@@ -107,6 +107,8 @@ export function DashboardTab() {
           })
           break
       }
+      // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
 
       toast({ title: "Success", description: `${action} successful` })
     } catch (error) {

@@ -31,6 +31,18 @@ async function main() {
   );
 
   console.log('\n🎉 All contracts deployed successfully!');
+
+  // Verify the contract
+  console.log('Start verifying contract...');
+  // try {
+  //   await hre.run('verify:verify', {
+  //     address: nftLendHubAddress,
+  //     constructorArguments: [MON, USDT, ETH, platformWallet],
+  //   });
+  //   console.log('Successfully verified contract.');
+  // } catch (error) {
+  //   console.log('Verify contract failed:', error);
+  // }
 }
 
 main()
@@ -39,3 +51,8 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+// npx hardhat verify \
+// --network monadTestnet \
+// 0xC0743c3C22801204245A884faaF65E3bFAD341Ca \
+// [MON, USDT, ETH, platformWallet]

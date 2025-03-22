@@ -171,95 +171,154 @@ useEffect(() => {
   const { writeContractAsync: liquidateLoan, isPending: isLiquidateLoading } = useWriteContract()
   const { writeContractAsync: withdrawNFT, isPending: isWithdrawLoading } = useWriteContract()
 
-  const handleRepay = async () => {
-    if (!collateralId || !activeLoan) return
+  // ✅ Move hooks to the component scope
+const { data: userBalance } = useReadContract({
+  address: USDT_CONTRACT as `0x${string}`,
+  abi: MockUsdtABI.abi,
+  functionName: "balanceOf",
+  args: [address],
+  query: {
+    enabled: !!address,
+  },
+});
 
-    setIsLoading(true)
-    setError("")
-    setStatus("Processing repayment...")
+const { data: userAllowance } = useReadContract({
+  address: USDT_CONTRACT as `0x${string}`,
+  abi: MockUsdtABI.abi,
+  functionName: "allowance",
+  args: [address, LOAN_MANAGER_CONTRACT],
+  query: {
+    enabled: !!address,
+  },
+});
 
-    try {
-      // First approve USDT
-      await approveUsdt({
-        address: USDT_CONTRACT as `0x${string}`,
-        abi: MockUsdtABI.abi,
-        functionName: "approve",
-        args: [LOAN_MANAGER_CONTRACT, activeLoan.totalRepayment],
-      })
+const handleRepay = async () => {
+  if (!collateralId || !activeLoan) return
 
-      setStatus("USDT approved, repaying loan...")
+  setIsLoading(true)
+  setError("")
+  setStatus("Processing repayment...")
 
-      // Wait for transaction confirmation
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+  try {
 
-      await repayLoan({
-        address: LOAN_MANAGER_CONTRACT as `0x${string}`,
-        abi: LoanManagerABI.abi,
-        functionName: "repayLoan",
-        args: [BigInt(collateralId)],
-      })
-
-      setStatus("Loan successfully repaid! 🎉")
-      toast({
-        title: "Success",
-        description: "Loan successfully repaid!",
-      })
-
-      // Wait for transaction confirmation
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      refetchLoan()
-    } catch (error: any) {
-      setStatus("")
-      if (error.message && error.message.includes("Loan not active")) {
-        setError("You Are Trying to Repay an INACTIVE loan")
-      } else {
-        setError("Failed to repay loan")
-      }
-    } finally {
-      setIsLoading(false)
+    if (canLiquidate) {
+      setStatus('')
+      setError("Loan is not eligible for repayment");
+      return;
     }
+// ✅ Use the fetched balance instead of calling useReadContract here
+console.log("USDT Balance:", userBalance);
+
+if (!userBalance || userBalance < activeLoan.totalRepayment) {
+  setError(`Insufficient USDT balance.`);
+  return;
+}
+
+if (!userAllowance || userAllowance < activeLoan.totalRepayment) {
+  setError("USDT approval is insufficient.");
+  return;
+}
+    
+    
+            const interestAmount = '20'
+            console.log('total to approve: ', formatBigNumber(activeLoan.totalRepayment+interestAmount))
+
+           // Check current allowance
+    if (!userAllowance || userAllowance < activeLoan.totalRepayment + interestAmount) {
+      setStatus("Approving USDT...");
+
+      // Approve the necessary USDT amount
+    await approveUsdt({
+      address: USDT_CONTRACT as `0x${string}`,
+      abi: MockUsdtABI.abi,
+      functionName: "approve",
+      args: [LOAN_MANAGER_CONTRACT, BigInt((activeLoan.totalRepayment+interestAmount))],
+    })
+
+    setStatus("USDT approved, repaying loan...")
+
+    // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
   }
 
+    await repayLoan({
+      address: LOAN_MANAGER_CONTRACT as `0x${string}`,
+      abi: LoanManagerABI.abi,
+      functionName: "repayLoan",
+      args: [BigInt(collateralId)],
+    })
+
+    setStatus("Loan successfully repaid! 🎉")
+    toast({
+      title: "Success",
+      description: "Loan successfully repaid!",
+    })
+
+    // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
+
+    refetchLoan()
+  } catch (error: any) {
+    setStatus("")
+    if (error.message && error.message.includes("Loan not active")) {
+      setError("You Are Trying to Repay an INACTIVE loan")
+    }  else if(error.message.includes('User denied')){
+      setStatus("")
+      setError('User denied tx')
+    } else {
+      setError("Failed to repay loan")
+    }
+  } finally {
+    setStatus('')
+    setIsLoading(false)
+    setError('')
+  }
+}
+
+
+  const { data: canLiquidate } = useReadContract({
+    address: LOAN_MANAGER_CONTRACT as `0x${string}`,
+    abi: LoanManagerABI.abi,
+    functionName: "isLoanOverdue",
+    args: [collateralId],
+    query: {
+      enabled: !!address,
+    },
+  });
+  
   const handleLiquidate = async () => {
-    if (!collateralId || !activeLoan) return
-
-    setIsLoading(true)
-    setError("")
-    setStatus("Processing liquidation...")
-
+    if (!collateralId || !activeLoan) return;
+  
+    setIsLoading(true);
+    setError("");
+    setStatus("Processing liquidation...");
+  
     try {
+      if (!canLiquidate) {
+        setStatus('')
+        setError("Loan is not eligible for liquidation");
+        return;
+      }
+  
       await liquidateLoan({
         address: LOAN_MANAGER_CONTRACT as `0x${string}`,
         abi: LoanManagerABI.abi,
         functionName: "liquidateOverdueLoan",
         args: [BigInt(collateralId)],
-      })
-
-      setStatus("Collateral successfully liquidated! 🎉")
-      toast({
-        title: "Success",
-        description: "Collateral successfully liquidated!",
-      })
-
-      // Wait for transaction confirmation
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      refetchLoan()
+      });
+  
+      setStatus("Loan successfully liquidated!");
     } catch (error: any) {
-      setStatus("")
-      if (error.message && error.message.includes("not eligible")) {
-        setError("Loan is not eligible for liquidation")
-      } else if (error.message && error.message.includes("no permission")) {
-        setError("You don't have permission to liquidate this loan")
-      } else {
-        setError("Failed to liquidate loan")
+      if (error.message.includes('User denied')){
+      setStatus('')
+      setError("User denied the liquidate tx");
       }
+      console.log("Error:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
+  
   const handleWithdrawNFT = async () => {
     if (!collateralId) return
 
@@ -272,7 +331,7 @@ useEffect(() => {
         address: NFT_VAULT_CONTRACT as `0x${string}`,
         abi: NFTCollateralVaultABI.abi,
         functionName: "withdrawNFT",
-        args: [BigInt(collateralId)],
+        args: [collateralId],
       })
 
       setStatus("NFT successfully withdrawn! 🎉")
@@ -282,7 +341,7 @@ useEffect(() => {
       })
 
       // Wait for transaction confirmation
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 4000))
 
       if (onNFTWithdrawn && collateralId) {
         await onNFTWithdrawn(collateralId)
@@ -293,6 +352,9 @@ useEffect(() => {
         setError("Collateral inactive: You Have Already Withdrawn The Selected NFT")
       } else if (error.message && error.message.includes("Loan not repaid")) {
         setError("Active Loan is yet to be repaid")
+      } else if(error.message.includes('User denied')){
+        setStatus("")
+        setError('User denied tx')
       } else {
         setError("Failed to withdraw NFT")
       }

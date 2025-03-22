@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { WHITELISTED_NFTS, type WhitelistedNFT } from "@/app/whitelistedNft/nft"
 import { useAddress } from "@/Components/privy/hooks/useWallet"
+import { useAccount } from "wagmi"
 
 interface NFTCardProps {
   nft: WhitelistedNFT
@@ -39,7 +40,8 @@ interface WhitelistedNFTsProps {
 export function WhitelistedNFTs({ onNFTDeposit, isLoading }: WhitelistedNFTsProps) {
   const [selectedNFT, setSelectedNFT] = useState<WhitelistedNFT | null>(null)
   const [tokenId, setTokenId] = useState<string>("")
-  const address = useAddress()
+  // const address = useAddress()
+    const { address } = useAccount()
 
   const handleNFTSelect = (nft: WhitelistedNFT) => {
     setSelectedNFT(nft)
@@ -47,6 +49,7 @@ export function WhitelistedNFTs({ onNFTDeposit, isLoading }: WhitelistedNFTsProp
 
   const handleDeposit = async () => {
     if (!selectedNFT || !tokenId || !address) return
+    console.log('selected nft address: ', selectedNFT.address, tokenId)
     await onNFTDeposit(selectedNFT.address, tokenId, selectedNFT.maxLoanAmount)
     // Reset form on success
     setTokenId("")

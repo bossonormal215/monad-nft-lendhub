@@ -56,6 +56,9 @@ const BorrowTab = () => {
         args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)],
       })
 
+      // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
+
       toast({ title: "Success", description: "NFT approved for lending" })
     } catch (error) {
       console.error("❌ Error approving NFT:", error)
@@ -94,6 +97,9 @@ const BorrowTab = () => {
           loanToken,
         ],
       })
+
+      // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
 
       toast({ title: "Success", description: "NFT listed for loan" })
 

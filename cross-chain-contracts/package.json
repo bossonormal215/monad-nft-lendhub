@@ -5,6 +5,7 @@
     "deploy-p2pLendingContracts": "npx hardhat run scripts/p2pLending/deploy.ts --network monadTestnet",
     "open-sale": "npx hardhat run scripts/interaction/open-sale.ts --network monadTestnet",
     "check-status": "npx hardhat run scripts/interaction/status.ts --network monadTestnet",
+    "whitelistNft": "npx hardhat run scripts/interaction/whitelistNFTForNftLendhub.ts --network monadTestnet",
     "deploy-bd-contracts": "npx hardhat run scripts/deploy-bd.ts --network monadTestnet",
     "deploy-p2pLendingContracts2": "npx hardhat run scripts/p2pLending2/deploy.ts --network monadTestnet",
     "deploy-p2pLendingContracts4": "npx hardhat run scripts/p2pLending4/deploy.ts --network monadTestnet",

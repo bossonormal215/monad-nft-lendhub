@@ -21,6 +21,28 @@ export const WHITELISTED_NFTS: WhitelistedNFT[] = [
     maxLoanAmount: 1000, // 1000 USDT
     ltvRatio: 70,
   },
+  {
+    address: '0x4ed897f597890ac80f6da0f1ba3240c193bdc1f5', // testnet 2
+    name: 'AnimeLady',
+    // symbol: 'DMON',
+    description: 'Nft for AI Collection for Entertainment Purposes',
+    image:
+      'https://img-cdn.magiceden.dev/rs:fill:800:0:0/plain/https%3A%2F%2Fimg.reservoir.tools%2Fimages%2Fv2%2Fmonad-testnet%2Fi9YO%252F4yHXUdJsWcTqhqvf2zIqWHEHeAEFw449ngomCALF1JfIZNs6gwCEwg1YSMFWo5yubb5pYMAIwL2B1HiGynacXCzBPDrstAVb2D1wzr3804e4v%252FyYX9vYlpdhoEzKoqvTysPQUN0GU7Oi1Ue7A%253D%253D.jpg',
+
+    maxLoanAmount: 50, // 1000 MON
+    ltvRatio: 70,
+  },
+  {
+    address: '0x9ae8e3c5B2a0Bc9c7d0FD9ABE56c8D80DAcdbA34', // testnet 2
+    name: '4221',
+    // symbol: 'DMON',
+    description: 'Nft for AI Collection for Entertainment Purposes',
+    image:
+      'https://img-cdn.magiceden.dev/rs:fill:800:0:0/plain/https%3A%2F%2Fimg.reservoir.tools%2Fimages%2Fv2%2Fmonad-testnet%2Fi9YO%252F4yHXUdJsWcTqhqvf2zIqWHEHeAEFw449ngomCALF1JfIZNs6gwCEwg1YSMFWo5yubb5pYMAIwL2B1HiGynacXCzBPDrstAVb2D1wzr3804e4v%252FyYX9vYlpdhoEzKoqvTysPQUN0GU7Oi1Ue7A%253D%253D.jpg',
+
+    maxLoanAmount: 50, // 1000 MON
+    ltvRatio: 70,
+  },
   // Add more whitelisted NFTs here
 ];
 

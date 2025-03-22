@@ -62,6 +62,8 @@ export function LendTab() {
         functionName: "approve",
         args: [NFT_LENDHUB_ADDRESS, loan.loanAmount],
       })
+      // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
 
       toast({
         title: "Success",
@@ -75,10 +77,12 @@ export function LendTab() {
         functionName: "fundLoan",
         args: [loan.loanId],
       })
+      // Wait for transaction confirmation
+    await new Promise((resolve) => setTimeout(resolve, 4000))
 
       toast({
         title: "Success",
-        description: "Loan funded successfully",
+        description: "Loan fund tx sent successfully",
       })
 
       // Update the loan status in the UI
