@@ -293,7 +293,7 @@ export function DashboardTab() {
                     actionText={actionText}
                     actionDisabled={actionDisabled}
                     isProcessing={isProcessing && processingLoanIndex === index}
-                    showLender={true}
+                    showLender={false}
                   />
                 )
               })}

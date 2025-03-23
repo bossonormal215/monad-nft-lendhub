@@ -167,7 +167,7 @@ export function NFTCard({
               </span>
             </div>
           )}
-          {showLender && isActive && (
+          {/* {showLender && isActive && (
            <div className="flex justify-between">
              <span className="text-muted-foreground">Collection Address:</span>
                <a
@@ -180,7 +180,7 @@ export function NFTCard({
                   {nftAddress.slice(0, 4)}...{nftAddress.slice(-4)}
                </a>
             </div>
-           )}
+           )} */}
 
           
            <div className="flex justify-between">
