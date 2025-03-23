@@ -3,6 +3,7 @@
 import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI } from './constants';
 import { createPublicClient, http } from 'viem';
 import { monadTestnet } from 'viem/chains';
+import { erc721Abi } from 'viem';
 
 // Define the loan data structure to match the contract's enhanced structure
 export interface LoanData {
@@ -20,13 +21,14 @@ export interface LoanData {
   loanToken: string;
   active: boolean;
   completed: boolean;
+  imageUrl?: string;
 }
 
 // Create a public client for reading from the Monad testnet
 const publicClient = createPublicClient({
   chain: monadTestnet,
   transport: http('https://testnet-rpc.monad.xyz'),
-  cacheTime: 0,
+  cacheTime: 60,
   batch: { multicall: false },
   pollingInterval: 5000,
 });
@@ -42,7 +44,14 @@ export async function getPendingListings(): Promise<LoanData[]> {
     })) as LoanData[];
 
     console.log(`Found ${allLoans.length} pending listings`);
-    return allLoans;
+    // return allLoans;
+
+    const enriched: LoanData[] = [];
+    for (const loan of allLoans.filter((l) => !l.active)) {
+      const enrichedLoan = await enrichLoanWithImage(loan);
+      enriched.push(enrichedLoan);
+    }
+    return enriched;
   } catch (error) {
     console.error('Error fetching pending listings:', error);
     return [];
@@ -164,7 +173,7 @@ export async function loanExists(loanId: bigint): Promise<boolean> {
 }
 
 // Get all loans for a user (both as borrower and lender)
-export async function getAllUserLoans(
+/*export async function getAllUserLoans(
   userAddress: string
 ): Promise<{ borrowings: LoanData[]; lendings: LoanData[] }> {
   try {
@@ -175,7 +184,104 @@ export async function getAllUserLoans(
     console.error(`Error fetching all loans for user ${userAddress}:`, error);
     return { borrowings: [], lendings: [] };
   }
+}*/
+
+// fetch nft image
+export async function getTokenImage(
+  nftAddress: string,
+  nftId: bigint
+): Promise<string | null> {
+  try {
+    const tokenURI = await publicClient.readContract({
+      address: nftAddress as `0x${string}`,
+      abi: erc721Abi,
+      functionName: 'tokenURI',
+      args: [nftId],
+    });
+
+    let uri = tokenURI as string;
+    if (uri.startsWith('ipfs://')) {
+      uri = uri.replace('ipfs://', 'https://ipfs.io/ipfs/');
+    }
+
+    const res = await fetch(uri);
+    const metadata = await res.json();
+
+    let imageUrl = metadata.image;
+    if (imageUrl.startsWith('ipfs://')) {
+      imageUrl = imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
+    }
+
+    return imageUrl;
+  } catch (error) {
+    console.error(`Error fetching image for ${nftAddress} #${nftId}:`, error);
+    return null;
+  }
 }
+
+export async function getAllUserLoans(
+  userAddress: string
+): Promise<{ borrowings: LoanData[]; lendings: LoanData[] }> {
+  try {
+    const borrowings = (await publicClient.readContract({
+      address: NFT_LENDHUB_ADDRESS,
+      abi: NFT_LENDHUB_ABI,
+      functionName: 'getUserLoans',
+      args: [userAddress],
+    })) as LoanData[];
+
+    const lendings = (await publicClient.readContract({
+      address: NFT_LENDHUB_ADDRESS,
+      abi: NFT_LENDHUB_ABI,
+      functionName: 'getLenderLoans',
+      args: [userAddress],
+    })) as LoanData[];
+
+    const enrichedBorrowings = await Promise.all(
+      borrowings.map(enrichLoanWithImage)
+    );
+    const enrichedLendings = await Promise.all(
+      lendings.map(enrichLoanWithImage)
+    );
+
+    return { borrowings: enrichedBorrowings, lendings: enrichedLendings };
+  } catch (error) {
+    console.error(`Error fetching all loans for user ${userAddress}:`, error);
+    return { borrowings: [], lendings: [] };
+  }
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function enrichLoanWithImage(
+  loan: LoanData,
+  delayMs = 250
+): Promise<LoanData> {
+  // Delay before calling to respect rate limit (250ms = max 4/sec)
+  await delay(delayMs);
+  const rawImageUrl = await getTokenImage(loan.nftAddress, loan.nftId);
+  const imageUrl = rawImageUrl ?? undefined;
+  return { ...loan, imageUrl };
+}
+
+/*export async function getPendingListings(): Promise<LoanData[]> {
+  try {
+    const allLoans = (await publicClient.readContract({
+      address: NFT_LENDHUB_ADDRESS,
+      abi: NFT_LENDHUB_ABI,
+      functionName: 'getAllLoans',
+    })) as LoanData[];
+
+    const enriched = await Promise.all(allLoans.filter(l => !l.active).map(enrichLoanWithImage));
+    return enriched;
+  } catch (error) {
+    console.error('Error fetching pending listings:', error);
+    return [];
+  }
+}
+*/
 
 // import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI } from './constants';
 // import { createPublicClient, http } from 'viem';

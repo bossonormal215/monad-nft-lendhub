@@ -7,6 +7,7 @@
     "check-status": "npx hardhat run scripts/interaction/status.ts --network monadTestnet",
     "whitelistNft": "npx hardhat run scripts/interaction/whitelistNFTForNftLendhub.ts --network monadTestnet",
     "deploy-bd-contracts": "npx hardhat run scripts/deploy-bd.ts --network monadTestnet",
+    "deploy-multi-token": "npx hardhat run scripts/multiNftLend/deploy.ts --network monadTestnet", 
     "deploy-p2pLendingContracts2": "npx hardhat run scripts/p2pLending2/deploy.ts --network monadTestnet",
     "deploy-p2pLendingContracts4": "npx hardhat run scripts/p2pLending4/deploy.ts --network monadTestnet",
     "test-nftlending": "npx hardhat run test/testNftLending.ts --network monadTestnet",

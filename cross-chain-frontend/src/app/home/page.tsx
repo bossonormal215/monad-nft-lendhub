@@ -41,9 +41,11 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[300px] w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px]">
                   <Image
-                    src="/hero-image.png"
-                    alt="NFT Lending"
+                    src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
+                    alt="Monad Logo"
                     fill
+                    // width={200}
+                    // height={80}
                     className="object-contain"
                   />
                 </div>
@@ -158,7 +160,7 @@ export default function Home() {
               <div className="mx-auto w-full max-w-sm space-y-2">
                 <div className="flex justify-center">
                   <Image
-                    src="/monad-logo.png"
+                    src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
                     alt="Monad Logo"
                     width={200}
                     height={80}

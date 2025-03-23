@@ -25,6 +25,7 @@ interface NFTCardProps {
   loanClaimed?: boolean
   repaymentClaimed?: boolean
   nftClaimed?: boolean
+  imageUrl?: string
   onAction?: () => void
   actionText: string
   actionDisabled?: boolean
@@ -49,6 +50,7 @@ export function NFTCard({
   loanClaimed,
   repaymentClaimed,
   nftClaimed,
+  imageUrl,
   onAction,
   actionText,
   actionDisabled = false,
@@ -86,12 +88,21 @@ export function NFTCard({
     <Card className="overflow-hidden border border-monad-border bg-card hover:shadow-md hover:shadow-monad-500/10 transition-all duration-300">
       <CardHeader className="p-0">
         <div className="relative h-32 w-full bg-muted">
-          <Image
-            src={`/placeholder.svg?height=128&width=200&text=NFT%20${nftId}`}
+        <Image
+          // src={imageUrl || `/placeholder.svg?height=200&width=400&text=NFT%20ID%20${nftId}`}
+          src={`https://api.nad.domains/nft-metadata/10143/image/Ym9zc28`}
+          alt={`NFT #${nftId}`}
+          fill
+          className="object-cover"
+          unoptimized
+        />
+
+          {/* <Image
+            // src={`/placeholder.svg?height=128&width=200&text=NFT%20${nftId}`}
             alt={`NFT ID ${nftId}`}
             fill
             className="object-cover"
-          />
+          /> */}
           <div className="absolute top-2 right-2">
             {isCompleted ? (
               <Badge className="bg-green-600 hover:bg-green-700 text-xs py-0 px-2">Completed</Badge>
@@ -101,7 +112,7 @@ export function NFTCard({
               <Badge className="bg-monad-500 hover:bg-monad-600 text-xs py-0 px-2">Active</Badge>
             ) : (
               <Badge variant="secondary" className="text-xs py-0 px-2">
-                Pending
+                Waiting for lender
               </Badge>
             )}
           </div>
@@ -109,11 +120,21 @@ export function NFTCard({
       </CardHeader>
       <CardContent className="p-3 bg-gradient-to-b from-card to-card/90 space-y-2">
         <div className="flex justify-between items-center">
-          <p className="text-sm font-semibold text-monad-500">NFT #{nftId}</p>
+          {/* <p className="text-sm font-semibold text-monad-500">NFT #{nftId}</p> */}
+          <a
+             href={`https://testnet.monadexplorer.com/nft/${nftAddress}/${nftId}`}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="text-sm font-semibold text-monad-500 hover:underline"
+             title={`View NFT #${nftId} on Monad Explorer`}
+           >
+              NFT #{nftId}
+          </a>
           <p className="text-xs text-muted-foreground">ID: {loanId.toString()}</p>
         </div>
 
         <div className="space-y-1 text-xs">
+        
           <div className="flex justify-between">
             <span className="text-muted-foreground">Amount:</span>
             <span className="font-medium text-foreground">
@@ -138,10 +159,44 @@ export function NFTCard({
             <div className="flex justify-between">
               <span className="text-muted-foreground">Lender:</span>
               <span className="font-medium truncate text-foreground max-w-[80px]">
-                {lender.slice(0, 4)}...{lender.slice(-4)}
+                {/* {lender.slice(0, 4)}...{lender.slice(-4)} */}
+                <a href={`/user/${lender}`} className="hover:underline text-blue-400" target="_blank">
+                   {lender.slice(0, 4)}...{lender.slice(-4)}
+                 </a>
+
               </span>
             </div>
           )}
+          {showLender && isActive && (
+           <div className="flex justify-between">
+             <span className="text-muted-foreground">Collection Address:</span>
+               <a
+                 href={`https://testnet.monadexplorer.com/address/${nftAddress}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="font-medium text-monad-300 hover:underline max-w-[80px] truncate"
+                 title={nftAddress}
+               >
+                  {nftAddress.slice(0, 4)}...{nftAddress.slice(-4)}
+               </a>
+            </div>
+           )}
+
+          
+           <div className="flex justify-between">
+             <span className="text-muted-foreground">Collection Address:</span>
+               <a
+                 href={`https://testnet.monadexplorer.com/address/${nftAddress}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="font-medium text-monad-300 hover:underline max-w-[80px] truncate"
+                 title={nftAddress}
+               >
+                  {nftAddress.slice(0, 4)}...{nftAddress.slice(-4)}
+               </a>
+            </div>
+          
+
         </div>
       </CardContent>
       <CardFooter className="p-3 pt-0 bg-card">

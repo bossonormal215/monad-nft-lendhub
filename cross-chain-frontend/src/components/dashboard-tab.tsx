@@ -123,7 +123,7 @@ export function DashboardTab() {
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground">Your Dashboard</h1>
+        <h1 className="text-3xl font-bold text-foreground">Loan Dashboard</h1>
         <p className="text-muted-foreground mt-2">Manage your borrowings and lendings</p>
       </div>
 

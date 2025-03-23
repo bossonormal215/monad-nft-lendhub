@@ -1,106 +1,317 @@
-"use client"
+// "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/Components/privy/ui/card"
-import { usePrivy } from "@privy-io/react-auth"
-import { useToast } from "@/Components/privy/ui/use-toast"
-import { useAccount, useWriteContract } from "wagmi"
-import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI, ERC20_ABI } from "./lib/constants"
-import { getPendingListings, type LoanData } from "./lib/contract-utils"
-import { Loader2 } from "lucide-react"
-import { NFTCard } from "@/components/nft-card"
+// import { useState, useEffect } from "react"
+// import { Card, CardContent } from "@/Components/privy/ui/card"
+// import { usePrivy } from "@privy-io/react-auth"
+// import { useToast } from "@/Components/privy/ui/use-toast"
+// import { useAccount, useWriteContract } from "wagmi"
+// import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI, ERC20_ABI } from "./lib/constants"
+// import { getPendingListings, type LoanData } from "./lib/contract-utils"
+// import { Loader2 } from "lucide-react"
+// import { NFTCard } from "@/components/nft-card"
+
+// export function LendTab() {
+//   const { authenticated, login } = usePrivy()
+//   const { address } = useAccount()
+//   const { toast } = useToast()
+//   const [pendingLoans, setPendingLoans] = useState<LoanData[]>([])
+//   const [isLoading, setIsLoading] = useState(true)
+//   const [isFunding, setIsFunding] = useState(false)
+//   const [selectedLoanIndex, setSelectedLoanIndex] = useState<number | null>(null)
+
+//   const { writeContractAsync: approveToken } = useWriteContract()
+//   const { writeContractAsync: fundLoan } = useWriteContract()
+
+//   // Fetch pending loan listings from the blockchain
+//   useEffect(() => {
+//     const fetchLoans = async () => {
+//       setIsLoading(true)
+//       try {
+//         // Using the new utility function that leverages the enhanced contract
+//         const listings = await getPendingListings()
+//         setPendingLoans(listings)
+//       } catch (error) {
+//         console.error("Error fetching loans:", error)
+//         toast({
+//           title: "Error",
+//           description: "Failed to fetch available loans",
+//           variant: "destructive",
+//         })
+//       } finally {
+//         setIsLoading(false)
+//       }
+//     }
+
+//     fetchLoans()
+//   }, [toast])
+
+//   const handleFundLoan = async (loan: LoanData, index: number) => {
+//     if (!authenticated) {
+//       login()
+//       return
+//     }
+
+//     try {
+//       setIsFunding(true)
+//       setSelectedLoanIndex(index)
+
+//       // First approve the token transfer
+//       await approveToken({
+//         address: loan.loanToken as `0x${string}`, // Use the loan token from the loan data
+//         abi: ERC20_ABI,
+//         functionName: "approve",
+//         args: [NFT_LENDHUB_ADDRESS, loan.loanAmount],
+//       })
+//       // Wait for transaction confirmation
+//     await new Promise((resolve) => setTimeout(resolve, 4000))
+
+//       toast({
+//         title: "Success",
+//         description: "Token approval successful",
+//       })
+
+//       // Then fund the loan
+//       await fundLoan({
+//         address: NFT_LENDHUB_ADDRESS,
+//         abi: NFT_LENDHUB_ABI,
+//         functionName: "fundLoan",
+//         args: [loan.loanId],
+//       })
+//       // Wait for transaction confirmation
+//     await new Promise((resolve) => setTimeout(resolve, 4000))
+
+//       toast({
+//         title: "Success",
+//         description: "Loan fund tx sent successfully",
+//       })
+
+//       // Update the loan status in the UI
+//       const updatedLoans = [...pendingLoans]
+//       updatedLoans.splice(index, 1) // Remove the funded loan from the list
+//       setPendingLoans(updatedLoans)
+//     } catch (error) {
+//       console.error("Error funding loan:", error)
+//       toast({
+//         title: "Error",
+//         description: "Failed to fund loan",
+//         variant: "destructive",
+//       })
+//     } finally {
+//       setIsFunding(false)
+//       setSelectedLoanIndex(null)
+//     }
+//   }
+
+//   return (
+//     <div className="mx-auto max-w-7xl">
+//       <div className="mb-8 text-center">
+//         <h1 className="text-3xl font-bold text-foreground">Lend to NFT Owners</h1>
+//         <p className="text-muted-foreground mt-2">
+//           Browse available NFT loan requests and earn interest by funding loans
+//         </p>
+//       </div>
+
+//       {isLoading ? (
+//         <div className="flex justify-center items-center py-12">
+//           <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
+//         </div>
+//       ) : pendingLoans.length === 0 ? (
+//         <Card className="text-center py-12 border-monad-border bg-card">
+//           <CardContent>
+//             <p className="text-foreground">No active loan requests available at the moment.</p>
+//           </CardContent>
+//         </Card>
+//       ) : (
+//         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+//           {pendingLoans.map((loan, index) => {
+//             const isLenderForThisLoan = loan.lender === address
+
+//             let actionText = "Fund Loan"
+//             if (isLenderForThisLoan) {
+//               actionText = "You Funded This Loan"
+//             }
+
+//             return (
+//               <NFTCard
+//                 loanId={loan.loanId}
+//                 key={`${loan.nftAddress}-${Number(loan.nftId)}`}
+//                 nftId={Number(loan.nftId)}
+//                 nftAddress={loan.nftAddress}
+//                 nftOwner={loan.nftOwner}
+//                 loanAmount={loan.loanAmount}
+//                 interestRate={Number(loan.interestRate)}
+//                 loanDuration={Number(loan.loanDuration)}
+//                 startTime={Number(loan.startTime)}
+//                 repaid={loan.repaid}
+//                 lender={loan.lender}
+//                 loanToken={loan.loanToken}
+//                 active={loan.active}
+//                 completed={loan.completed}
+//                 onAction={() => handleFundLoan(loan, index)}
+//                 actionText={actionText}
+//                 actionDisabled={isLenderForThisLoan}
+//                 isProcessing={isFunding && selectedLoanIndex === index}
+//                 showLender={false}
+//               />
+//             )
+//           })}
+//         </div>
+//       )}
+
+//       <div className="mt-12">
+//         <Card className="border-monad-border bg-card">
+//           <CardContent className="pt-6">
+//             <h3 className="text-lg font-semibold mb-4 text-foreground">How Lending Works</h3>
+//             <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+//               <li>Browse available NFT loan requests</li>
+//               <li>Fund a loan by approving and transferring the requested amount</li>
+//               <li>If the borrower repays on time, you'll receive the principal plus interest</li>
+//               <li>If the borrower defaults, you can claim their NFT after the grace period</li>
+//             </ol>
+//           </CardContent>
+//         </Card>
+//       </div>
+//     </div>
+//   )
+// }
+
+
+
+/////////////////////////////////-----------------------------------//////////////////////
+"use client";
+
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/Components/privy/ui/card";
+import { usePrivy } from "@privy-io/react-auth";
+import { useToast } from "@/Components/privy/ui/use-toast";
+import { useAccount, useWriteContract } from "wagmi";
+import {
+  NFT_LENDHUB_ADDRESS,
+  NFT_LENDHUB_ABI,
+  ERC20_ABI,
+} from "./lib/constants";
+import { getPendingListings, type LoanData } from "./lib/contract-utils";
+import { Loader2 } from "lucide-react";
+import { NFTCard } from "@/components/nft-card";
 
 export function LendTab() {
-  const { authenticated, login } = usePrivy()
-  const { address } = useAccount()
-  const { toast } = useToast()
-  const [pendingLoans, setPendingLoans] = useState<LoanData[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isFunding, setIsFunding] = useState(false)
-  const [selectedLoanIndex, setSelectedLoanIndex] = useState<number | null>(null)
+  const { authenticated, login } = usePrivy();
+  const { address } = useAccount();
+  const { toast } = useToast();
+  const [pendingLoans, setPendingLoans] = useState<LoanData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFunding, setIsFunding] = useState(false);
+  const [selectedLoanIndex, setSelectedLoanIndex] = useState<number | null>(null);
 
-  const { writeContractAsync: approveToken } = useWriteContract()
-  const { writeContractAsync: fundLoan } = useWriteContract()
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState<
+    "amountAsc" | "amountDesc" | "interestAsc" | "interestDesc" | "durationAsc" | "durationDesc"
+  >("amountAsc");
 
-  // Fetch pending loan listings from the blockchain
+  const { writeContractAsync: approveToken } = useWriteContract();
+  const { writeContractAsync: fundLoan } = useWriteContract();
+
   useEffect(() => {
     const fetchLoans = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        // Using the new utility function that leverages the enhanced contract
-        const listings = await getPendingListings()
-        setPendingLoans(listings)
+        const listings = await getPendingListings();
+        setPendingLoans(listings);
       } catch (error) {
-        console.error("Error fetching loans:", error)
+        console.error("Error fetching loans:", error);
         toast({
           title: "Error",
           description: "Failed to fetch available loans",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchLoans()
-  }, [toast])
+    fetchLoans();
+  }, [toast]);
+
+  const filteredLoans = pendingLoans
+    .filter((loan) => {
+      const query = searchQuery.toLowerCase();
+      return (
+        loan.nftId.toString().includes(query) ||
+        loan.nftAddress.toLowerCase().includes(query)
+      );
+    })
+    .sort((a, b) => {
+      switch (sortOption) {
+        case "amountAsc":
+          return Number(a.loanAmount) - Number(b.loanAmount);
+        case "amountDesc":
+          return Number(b.loanAmount) - Number(a.loanAmount);
+        case "interestAsc":
+          return Number(a.interestRate) - Number(b.interestRate);
+        case "interestDesc":
+          return Number(b.interestRate) - Number(a.interestRate);
+        case "durationAsc":
+          return Number(a.loanDuration) - Number(b.loanDuration);
+        case "durationDesc":
+          return Number(b.loanDuration) - Number(a.loanDuration);
+        default:
+          return 0;
+      }
+    });
 
   const handleFundLoan = async (loan: LoanData, index: number) => {
     if (!authenticated) {
-      login()
-      return
+      login();
+      return;
     }
 
     try {
-      setIsFunding(true)
-      setSelectedLoanIndex(index)
+      setIsFunding(true);
+      setSelectedLoanIndex(index);
 
-      // First approve the token transfer
       await approveToken({
-        address: loan.loanToken as `0x${string}`, // Use the loan token from the loan data
+        address: loan.loanToken as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [NFT_LENDHUB_ADDRESS, loan.loanAmount],
-      })
-      // Wait for transaction confirmation
-    await new Promise((resolve) => setTimeout(resolve, 4000))
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 4000));
 
       toast({
         title: "Success",
         description: "Token approval successful",
-      })
+      });
 
-      // Then fund the loan
       await fundLoan({
         address: NFT_LENDHUB_ADDRESS,
         abi: NFT_LENDHUB_ABI,
         functionName: "fundLoan",
         args: [loan.loanId],
-      })
-      // Wait for transaction confirmation
-    await new Promise((resolve) => setTimeout(resolve, 4000))
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 4000));
 
       toast({
         title: "Success",
         description: "Loan fund tx sent successfully",
-      })
+      });
 
-      // Update the loan status in the UI
-      const updatedLoans = [...pendingLoans]
-      updatedLoans.splice(index, 1) // Remove the funded loan from the list
-      setPendingLoans(updatedLoans)
+      const updatedLoans = [...pendingLoans];
+      updatedLoans.splice(index, 1);
+      setPendingLoans(updatedLoans);
     } catch (error) {
-      console.error("Error funding loan:", error)
+      console.error("Error funding loan:", error);
       toast({
         title: "Error",
         description: "Failed to fund loan",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsFunding(false)
-      setSelectedLoanIndex(null)
+      setIsFunding(false);
+      setSelectedLoanIndex(null);
     }
-  }
+  };
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -111,24 +322,47 @@ export function LendTab() {
         </p>
       </div>
 
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search by Collection Address"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full sm:w-1/2 p-2 border border-monad-border rounded bg-card text-sm"
+        />
+
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value as any)}
+          className="p-2 border border-monad-border rounded bg-card text-sm"
+        >
+          <option value="amountAsc">Loan Amount ↑</option>
+          <option value="amountDesc">Loan Amount ↓</option>
+          <option value="interestAsc">Interest Rate ↑</option>
+          <option value="interestDesc">Interest Rate ↓</option>
+          <option value="durationAsc">Duration ↑</option>
+          <option value="durationDesc">Duration ↓</option>
+        </select>
+      </div>
+
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
         </div>
-      ) : pendingLoans.length === 0 ? (
+      ) : filteredLoans.length === 0 ? (
         <Card className="text-center py-12 border-monad-border bg-card">
           <CardContent>
-            <p className="text-foreground">No active loan requests available at the moment.</p>
+            <p className="text-foreground">No active loan requests match your filters.</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {pendingLoans.map((loan, index) => {
-            const isLenderForThisLoan = loan.lender === address
+          {filteredLoans.map((loan, index) => {
+            const isLenderForThisLoan = loan.lender === address;
 
-            let actionText = "Fund Loan"
+            let actionText = "Fund Loan";
             if (isLenderForThisLoan) {
-              actionText = "You Funded This Loan"
+              actionText = "You Funded This Loan";
             }
 
             return (
@@ -153,25 +387,10 @@ export function LendTab() {
                 isProcessing={isFunding && selectedLoanIndex === index}
                 showLender={false}
               />
-            )
+            );
           })}
         </div>
       )}
-
-      <div className="mt-12">
-        <Card className="border-monad-border bg-card">
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4 text-foreground">How Lending Works</h3>
-            <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-              <li>Browse available NFT loan requests</li>
-              <li>Fund a loan by approving and transferring the requested amount</li>
-              <li>If the borrower repays on time, you'll receive the principal plus interest</li>
-              <li>If the borrower defaults, you can claim their NFT after the grace period</li>
-            </ol>
-          </CardContent>
-        </Card>
-      </div>
     </div>
-  )
+  );
 }
-

@@ -2,6 +2,9 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    domains: ['storage.googleapis.com'], // Add the hostname here
+  },
 };
 
 export default nextConfig;

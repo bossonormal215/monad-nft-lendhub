@@ -27,6 +27,7 @@ interface LoanCardProps {
   claimed?: boolean
   repaymentClaimed?: boolean
   nftClaimed?: boolean
+  imageUrl?: string;
   onRepay?: () => void
   onClaim?: () => void
   onClaimRepayment?: () => void
@@ -53,6 +54,7 @@ export function LoanCard({
   repaid,
   active,
   completed,
+  imageUrl,
   claimed,
   repaymentClaimed,
   nftClaimed,
@@ -133,12 +135,21 @@ export function LoanCard({
       <div className="relative">
         <div className="relative h-32 w-full">
           <Image
+            // src={imageUrl || `/placeholder.svg?height=200&width=400&text=NFT%20ID%20${nftId}`}
+            
+          src={`https://api.nad.domains/nft-metadata/10143/image/Ym9zc28`}
+            alt={`NFT #${nftId}`}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+          {/* <Image
             src={`/placeholder.svg?height=200&width=400&text=NFT%20ID%20${nftId}`}
             // src='src/app/favicon.ico'
             alt={`NFT ID ${nftId}`}
             fill
             className="object-cover"
-          />
+          /> */}
           <div className="absolute top-2 right-2">{getStatusBadge()}</div>
         </div>
         <div className="p-4">

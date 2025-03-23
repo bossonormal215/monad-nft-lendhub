@@ -4,20 +4,24 @@ import { useState, useEffect } from "react"
 import { formatUnits, parseUnits } from "viem"
 import { useAccount, useReadContract, useWriteContract, useSimulateContract } from "wagmi"
 import { WhitelistedNFTs } from "@/Components/nftLend/WhitelistedNFTs2"
-import { LiquidityProvider } from "@/Components/nftLend/LiquidityProvider2"
+// import { LiquidityProvider } from "@/Components/nftLend/LiquidityProvider2"
+import { LiquidityProvider } from "@/Components/nftLend/LiquidityProvider3"
 import { DMON_NFT_CONTRACT } from "@/contracts/interfaces/dmonNftAbi"
 import { AdminPanel } from "@/Components/nftLend/AdminPanel2"
-import { CollateralList } from "@/Components/nftLend/CollateralList2"
+// import { CollateralList } from "@/Components/nftLend/CollateralList2"
+import { CollateralList } from "@/Components/nftLend/CollateralList3"
 import { ConnectWallet } from "@/Components/privy/ConnectWallet"
 import { usePrivy } from "@privy-io/react-auth"
 import { useAddress } from "@/Components/privy/hooks/useWallet"
 import { useToast } from "@/Components/privy/ui/use-toast"
 import { NFTCollateralVaultABI } from "@/contracts/interfaces/NFTCollateralVault"
 import { MockUsdtABI } from "@/contracts/interfaces/mocUsdt"
-import { LoanManagerABI } from "@/contracts/interfaces/LoanManager"
+// import { LoanManagerABI } from "@/contracts/interfaces/LoanManager"
+import { LoanManagerABI2 } from "@/contracts/interfaces/LoanManager2"
 
 import { NFT_VAULT_CONTRACT } from "@/contracts/contracts"
-import { USDT_CONTRACT, LOAN_MANAGER_CONTRACT } from "@/contracts/contracts"
+import { USDT_CONTRACT/*, LOAN_MANAGER_CONTRACT*/ } from "@/contracts/contracts"
+import {  LOAN_MANAGER_CONTRACT } from "@/contracts/contracts2"
 
 // Move App component here
 function App() {
@@ -539,7 +543,8 @@ function Main() {
       // Simulate borrow transaction
       const { data: borrowSimData } = await useSimulateContract({
         address: LOAN_MANAGER_CONTRACT as `0x${string}`,
-        abi: LoanManagerABI.abi,
+        // abi: LoanManagerABI.abi,
+        abi: LoanManagerABI2.abi,
         functionName: "issueLoan",
         args: [BigInt(collateralId), parseUnits(amount, 18), BigInt(durationInSeconds)],
       }) 
@@ -549,7 +554,7 @@ function Main() {
         // const tx = await borrowLoan(borrowSimData.request)
         const tx = await borrowLoan({
           address: LOAN_MANAGER_CONTRACT as `0x${string}`,
-          abi: LoanManagerABI.abi,
+          abi: LoanManagerABI2.abi,
           functionName: "issueLoan",
           args: [BigInt(collateralId), parseUnits(amount, 18), BigInt(durationInSeconds)]
         })
