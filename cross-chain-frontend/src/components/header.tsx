@@ -14,7 +14,6 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            {/* Show abbreviated logo on mobile, full logo on sm and up */}
             <span className="font-bold text-lg text-monad-500 sm:hidden">MLH</span>
             <span className="hidden font-bold sm:inline-block text-xl text-monad-500">NFT LendHub</span>
           </Link>

@@ -1,4 +1,3 @@
-// lib/nftCache.ts
 import { fetchNFTMetadata } from './fetchUserNfts';
 
 const metadataCache = new Map<string, { name: string; imageUrl: string }>();
@@ -25,7 +24,6 @@ export async function getCachedNFTMetadata(
       meta?.imageUrl || 'https://via.placeholder.com/300x300.png?text=No+Image';
     const data = {
       name: meta?.name || `NFT #${tokenId}`,
-      //   imageUrl: meta?.imageUrl || '/placeholder.svg',
       imageUrl: normalizeImageUrl(rawImage),
     };
     metadataCache.set(key, data);

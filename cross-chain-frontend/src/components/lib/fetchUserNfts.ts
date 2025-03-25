@@ -10,39 +10,6 @@ export interface NFT {
   name: string;
 }
 
-/*export async function fetchUserNFTs(address: string): Promise<NFT[]> {
-  try {
-    console.log('📦 Fetching NFTs for:', address);
-    console.log('🔑 Alchemy key:', ALCHEMY_API_KEY);
-    console.log('🌐 API URL:', `${BASE_URL}/getNFTs/`);
-
-    const response = await axios.get(`${BASE_URL}/getNFTs/`, {
-      params: {
-        owner: address,
-        withMetadata: true,
-      },
-    });
-
-    console.log('✅ Alchemy raw response:', response.data);
-
-    const ownedNfts = response.data?.ownedNfts || [];
-
-    console.log('🖼️ Parsed NFTs:', ownedNfts);
-
-    return ownedNfts.map((nft: any) => ({
-      tokenId: nft.id.tokenId,
-      contractAddress: nft.contract.address,
-      imageUrl: nft.media[0]?.gateway || '/placeholder.svg',
-      name: nft.metadata?.name || `Token #${nft.id.tokenId}`,
-    }));
-  } catch (err) {
-    console.error('Error fetching NFTs from Alchemy:', err);
-    console.error('❌ Error fetching NFTs from Alchemy:', err);
-    return [];
-  }
-}
-*/
-
 export async function fetchUserNFTs(address: string): Promise<NFT[]> {
   try {
     const response = await axios.get(`${BASE_URL}/getNFTs/`, {
@@ -101,10 +68,6 @@ export async function fetchNFTMetadata(
     const imageUrl = normalizeImageUrl(rawImage);
 
     return { name, imageUrl };
-    // return {
-    //   name: json.metadata?.name || `NFT #${tokenId}`,
-    //   imageUrl: json.metadata?.image || '/placeholder.svg',
-    // };
   } catch {
     return { name: `NFT #${tokenId}`, imageUrl: '/placeholder.svg' };
   }

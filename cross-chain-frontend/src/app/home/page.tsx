@@ -43,7 +43,6 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[300px] w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px]">
                   <Image
-                    // src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
                     src='https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid3blc55ixcdd4w2d22rmbecqnju7255pznqutfj2szxje5axvllq'
                     alt="Monad Logo"
                     fill
@@ -180,7 +179,6 @@ export default function Home() {
               <div className="mx-auto w-full max-w-sm space-y-2">
                 <div className="flex justify-center">
                   <Image
-                    // src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
                     src='https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid3blc55ixcdd4w2d22rmbecqnju7255pznqutfj2szxje5axvllq'
                     alt="Monad Logo"
                     width={200}
