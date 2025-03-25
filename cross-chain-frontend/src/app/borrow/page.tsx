@@ -15,6 +15,7 @@ import { parseAmount } from "@/components/lib/utils"
 import { Loader2 } from "lucide-react"
 import { Toaster } from "@/Components/privy/ui/toaster"
 import { WagmiConfig } from "@/providers/wagmi-provider"
+import { SelectNFTModal, NFT } from "@/components/SelectNFTModal"
 
 export default function BorrowPage() {
   const { user, authenticated, login } = usePrivy()
@@ -28,6 +29,15 @@ export default function BorrowPage() {
   const [isApproving, setIsApproving] = useState(false)
   const [isListing, setIsListing] = useState(false)
   const [nftAddress, setNftAddress] = useState("")
+  const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
+
+  const handleNFTSelect = (nft: NFT) => {
+    setSelectedNFT(nft);
+    setNftAddress(nft.contractAddress);
+    setNftId(nft.tokenId);
+  };
+  
+
 
   const { data: nftOwner, isSuccess: nftOwnerSuccess } = useReadContract({
     address: nftAddress as `0x${string}`,
@@ -216,7 +226,7 @@ export default function BorrowPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 px-4">
-                  <div className="space-y-1">
+                  {/* <div className="space-y-1">
                     <Label htmlFor="nft-address" className="text-xs text-foreground">
                       NFT Collection Address
                     </Label>
@@ -239,7 +249,24 @@ export default function BorrowPage() {
                       onChange={(e) => setNftId(e.target.value)}
                       className="h-8 text-sm bg-muted border-monad-border"
                     />
-                  </div>
+                  </div> */}
+
+                   <div className="space-y-1">
+                    <Label className="text-xs text-foreground">Select NFT From Wallet</Label>
+                     <SelectNFTModal onSelect={handleNFTSelect} />
+                   </div>
+
+                    {selectedNFT && (
+                      <div className="flex gap-4 items-center p-2 mt-2 rounded-md border border-monad-border bg-muted">
+                         <div className="flex-1 space-y-1 text-xs">
+                           <p className="font-semibold text-foreground">NFT ID: {selectedNFT.tokenId}</p>
+                           <p className="text-muted-foreground break-all text-[10px]">
+                             Address: {selectedNFT.contractAddress}
+                           </p>
+                         </div>
+                      </div>
+                    )}
+
                   {nftId && nftAddress && nftOwner !== undefined && (
                     <div className="pt-1">
                       <p className="text-xs text-foreground">

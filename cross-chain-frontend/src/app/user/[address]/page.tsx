@@ -8,6 +8,7 @@ import { LoanData } from "@/components/lib/contract-utils";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/privy/ui/tabs";
 import { NFTCard } from "@/components/nft-card";
+import { UserStatsCard } from "@/components/UserStatsCard";
 
 export default function UserHistoryPage() {
   const params = useParams();
@@ -37,10 +38,11 @@ export default function UserHistoryPage() {
     fetchUserLoans();
   }, [userAddress]);
 
-  const filteredLoans = (status: "active" | "pending" | "completed") => {
+  const filteredLoans = (status: "active" | "pending" | "completed" | "stat") => {
     if (status === "active") return loans.filter((l) => l.active && !l.completed);
     if (status === "pending") return loans.filter((l) => !l.active && !l.completed);
     if (status === "completed") return loans.filter((l) => l.completed);
+    if (status === "stat") return loans.filter((l) => l.completed);
     return [];
   };
 
@@ -54,6 +56,7 @@ export default function UserHistoryPage() {
           <TabsTrigger value="active">Active</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="stat">Stat</TabsTrigger>
         </TabsList>
 
         {isLoading ? (
@@ -61,7 +64,7 @@ export default function UserHistoryPage() {
             <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
           </div>
         ) : (
-          ["active", "pending", "completed"].map((status) => (
+          ["active", "pending", "completed", "stat"].map((status) => (
             <TabsContent key={status} value={status}>
               {filteredLoans(status as any).length === 0 ? (
                 <p className="text-muted-foreground text-center">No {status} loans found for this user.</p>

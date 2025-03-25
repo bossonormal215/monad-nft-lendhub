@@ -13,6 +13,8 @@ import { usePrivy } from "@privy-io/react-auth"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/privy/ui/select"
 import { parseAmount } from "./lib/utils"
 import { Loader2 } from "lucide-react"
+import { SelectNFTModal, NFT } from "./SelectNFTModal"
+
 
 const BorrowTab = () => {
   const { address } = useAccount()
@@ -117,6 +119,12 @@ const BorrowTab = () => {
     }
   }
 
+  const handleNFTSelect = (nft: NFT) => {
+    setNftAddress(nft.contractAddress);
+    setNftId(nft.tokenId);
+  };
+  
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card className="border border-monad-border bg-card">
@@ -124,8 +132,9 @@ const BorrowTab = () => {
           <CardTitle className="text-base text-foreground">NFT Information</CardTitle>
           <CardDescription className="text-xs text-muted-foreground">Enter your NFT details</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 pt-3 px-4">
-          <div className="space-y-1">
+
+        {/* <CardContent className="grid gap-3 pt-3 px-4">
+           <div className="space-y-1">
             <Label className="text-xs text-foreground">NFT Collection Address</Label>
             <Input
               placeholder="Enter NFT contract address"
@@ -146,8 +155,28 @@ const BorrowTab = () => {
               onChange={(e) => setNftId(e.target.value)}
               className="bg-muted border-monad-border focus:border-monad-500 focus:ring-monad-500/20 h-8 text-sm"
             />
+          </div> 
+        </CardContent> */}
+
+        <CardContent className="grid gap-3 pt-3 px-4">
+          <div className="space-y-1">
+             <Label className="text-xs text-foreground">Select NFT From Wallet</Label>
+               <SelectNFTModal onSelect={handleNFTSelect} />
           </div>
-        </CardContent>
+
+         {nftId && nftAddress && (
+            <div className="flex gap-4 items-center p-2 mt-2 rounded-md border border-monad-border bg-muted">
+             <div className="flex-1 space-y-1 text-xs">
+              <p className="font-semibold text-foreground">NFT ID: {nftId}</p>
+              <p className="text-muted-foreground break-all text-[10px]">
+                 Address: {nftAddress}
+              </p>
+            </div>
+           </div>
+          )}
+       </CardContent>
+
+
         <CardFooter className="border-t border-monad-border pt-3 px-4 pb-4">
           <Button
             disabled={isApproving || isListing}

@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Toaster } from "@/Components/privy/ui/toaster";
 import { WagmiConfig } from "@/providers/wagmi-provider";
+import { LendingStatsCard } from "@/components/LendingStatsCard";
+
 
 export default function Home() {
   return (
@@ -41,7 +43,8 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[300px] w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px]">
                   <Image
-                    src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
+                    // src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
+                    src='https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid3blc55ixcdd4w2d22rmbecqnju7255pznqutfj2szxje5axvllq'
                     alt="Monad Logo"
                     fill
                     // width={200}
@@ -53,6 +56,23 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Lending Stats Card Section */}
+         <section className="w-full py-12 md:py-24 lg:py-32">
+           <div className="container px-4 md:px-6">
+              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-6">
+                  <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+                      Lending Activity Stats
+                  </h2>
+                  <p className="max-w-[800px] text-muted-foreground md:text-xl">
+                    Real-time metrics showing total loan volume, number of loans, and top lenders on the platform.
+                  </p>
+              </div>
+                <LendingStatsCard />
+          </div>
+        </section>
+
+
         <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -160,7 +180,8 @@ export default function Home() {
               <div className="mx-auto w-full max-w-sm space-y-2">
                 <div className="flex justify-center">
                   <Image
-                    src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
+                    // src="https://storage.googleapis.com/influencer-272204.appspot.com/public/internal-tools/1732175511490/54777.png"
+                    src='https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid3blc55ixcdd4w2d22rmbecqnju7255pznqutfj2szxje5axvllq'
                     alt="Monad Logo"
                     width={200}
                     height={80}

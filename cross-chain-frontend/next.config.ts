@@ -3,7 +3,13 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['storage.googleapis.com'], // Add the hostname here
+    domains: [
+      'storage.googleapis.com',
+      'https://api.zora.co/graphql',
+      'nft-cdn.alchemy.com',
+      'ipfs.io',
+      'amethyst-conscious-vole-978.mypinata.cloud',
+    ], // Add the hostname here
   },
 };
 
