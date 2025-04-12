@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,6 +13,10 @@ import {
 import { getPendingListings, type LoanData } from "./lib/contract-utils";
 import { Loader2 } from "lucide-react";
 import { NFTCard } from "@/components/nft-card";
+import { createPublicClient, formatEther, http } from "viem";
+import { readContract } from "viem/actions";
+import { monadTestnet } from "viem/chains";
+import { LoanDetailsModal } from "./LoanDetailsModal";
 
 export function LendTab() {
   const { authenticated, login } = usePrivy();
@@ -22,15 +25,33 @@ export function LendTab() {
   const [pendingLoans, setPendingLoans] = useState<LoanData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFunding, setIsFunding] = useState(false);
-  const [selectedLoanIndex, setSelectedLoanIndex] = useState<number | null>(null);
+  const [selectedLoanIndex, setSelectedLoanIndex] = useState<number | null>(
+    null
+  );
+
+  const [modalLoan, setModalLoan] = useState<LoanData | null>(null);
+  const [isBorrowing, setIsBorrowing] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<
-    "amountAsc" | "amountDesc" | "interestAsc" | "interestDesc" | "durationAsc" | "durationDesc"
+    | "amountAsc"
+    | "amountDesc"
+    | "interestAsc"
+    | "interestDesc"
+    | "durationAsc"
+    | "durationDesc"
   >("amountAsc");
 
   const { writeContractAsync: approveToken } = useWriteContract();
   const { writeContractAsync: fundLoan } = useWriteContract();
+
+  const client = createPublicClient({
+    chain: monadTestnet,
+    transport: http(
+      process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC ||
+        "https://testnet-rpc.monad.xyz"
+    ),
+  });
 
   useEffect(() => {
     const fetchLoans = async () => {
@@ -90,6 +111,27 @@ export function LendTab() {
       setIsFunding(true);
       setSelectedLoanIndex(index);
 
+      // ✅ Get user's balance dynamically
+      const rawBalance = await readContract(client, {
+        address: loan.loanToken as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: "balanceOf",
+        args: [address],
+      });
+
+      const userBalance = rawBalance as bigint;
+
+      if (userBalance < loan.loanAmount) {
+        const balanceFormatted = Number(formatEther(userBalance)).toFixed(2);
+        const neededFormatted = Number(formatEther(loan.loanAmount)).toFixed(2);
+        toast({
+          title: "Insufficient Balance",
+          description: `You have ${balanceFormatted} wMON but need ${neededFormatted} wMON`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       await approveToken({
         address: loan.loanToken as `0x${string}`,
         abi: ERC20_ABI,
@@ -134,10 +176,31 @@ export function LendTab() {
     }
   };
 
+  const handleModalAction = async (action: string) => {
+    if (!modalLoan) return;
+
+    if (action === "fundLoan") {
+      const index = pendingLoans.findIndex(
+        (l) => l.loanId === modalLoan.loanId
+      );
+      if (index !== -1) {
+        await handleFundLoan(modalLoan, index);
+      }
+    } else {
+      toast({
+        title: "Not Available",
+        description: `Action "${action}" is not supported here.`,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground">Lend to NFT Owners</h1>
+        <h1 className="text-3xl font-bold text-foreground">
+          Lend to NFT Owners
+        </h1>
         <p className="text-muted-foreground mt-2">
           Browse available NFT loan requests and earn interest by funding loans
         </p>
@@ -173,7 +236,9 @@ export function LendTab() {
       ) : filteredLoans.length === 0 ? (
         <Card className="text-center py-12 border-monad-border bg-card">
           <CardContent>
-            <p className="text-foreground">No active loan requests match your filters.</p>
+            <p className="text-foreground">
+              No active loan requests match your filters.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -207,10 +272,25 @@ export function LendTab() {
                 actionDisabled={isLenderForThisLoan}
                 isProcessing={isFunding && selectedLoanIndex === index}
                 showLender={false}
+                onClick={() => {
+                  setModalLoan(loan);
+                  setIsBorrowing(false);
+                }}
               />
             );
           })}
         </div>
+      )}
+
+      {modalLoan && (
+        <LoanDetailsModal
+          isOpen={!!modalLoan}
+          onClose={() => setModalLoan(null)}
+          loan={modalLoan}
+          onAction={handleModalAction}
+          isProcessing={isFunding}
+          isBorrowing={isBorrowing}
+        />
       )}
     </div>
   );

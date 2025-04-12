@@ -53,6 +53,7 @@ import "./globals.css";
 import Web3Wrapper from "@/Components/privy/Web3Wrapper"; // this for privy
 import { Toaster } from "@/Components/privy/ui/toaster";
 import { WagmiConfig } from "@/providers/wagmi-provider";
+import { Header } from "@/components/header";
 
 import { Inter } from 'next/font/google';
 
@@ -82,6 +83,7 @@ export default function RootLayout({ children,}: { children: React.ReactNode;}) 
         <main className="min-h-screen bg-gray-900">
           <Web3Wrapper>
           <WagmiConfig>
+          <Header />
             {children}
             <Toaster />
             </WagmiConfig>

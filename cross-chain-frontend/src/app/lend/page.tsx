@@ -1,6 +1,6 @@
 "use client"
 
-import { Header } from "@/components/header"
+// import { Header } from "@/components/header"
 import { LendTab } from "@/components/lend-tab"
 import { WagmiConfig } from "@/providers/wagmi-provider";
 
@@ -9,7 +9,7 @@ export default function LendPage() {
     
     <WagmiConfig >
     <div className="flex min-h-screen flex-col">
-      <Header />
+      {/* <Header /> */}
       <main className="flex-1 container py-8">
         <LendTab />
       </main>

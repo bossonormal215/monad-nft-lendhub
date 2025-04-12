@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       'nft-cdn.alchemy.com',
       'ipfs.io',
       'amethyst-conscious-vole-978.mypinata.cloud',
+      'cdn.prod.website-files.com',
+      'hebbkx1anhila5yf.public.blob.vercel-storage.com',
+      'https://img-cdn.magiceden.dev',
+      'img-cdn.magiceden.dev',
     ], // Add the hostname here
   },
 };

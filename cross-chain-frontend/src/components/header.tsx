@@ -33,6 +33,9 @@ export function Header() {
           <Link href="/lend" className="text-sm font-medium transition-colors hover:text-monad-500">
             Lend
           </Link>
+          <Link href="/collections" className="text-sm font-medium transition-colors hover:text-monad-500">
+            Collections
+          </Link>
         </nav>
 
         {/* Mobile navigation */}
@@ -56,6 +59,9 @@ export function Header() {
               </Link>
               <Link href="/lend" className="text-sm font-medium transition-colors hover:text-monad-500">
                 Lend
+              </Link>
+              <Link href="/collections" className="text-sm font-medium transition-colors hover:text-monad-500">
+                Collections
               </Link>
             </nav>
           </SheetContent>

@@ -12,10 +12,19 @@ export interface NFT {
 
 export async function fetchUserNFTs(address: string): Promise<NFT[]> {
   try {
+    /*const url = `${BASE_URL}/getNFTs/?owner=${address}&excludeFilters=SPAM`;
+
+    const config = {
+      method: 'get',
+      url: url,
+  };
+  */
+
     const response = await axios.get(`${BASE_URL}/getNFTs/`, {
       params: {
         owner: address,
         withMetadata: true,
+        excludeFilters: 'SPAM',
       },
     });
 
@@ -25,7 +34,9 @@ export async function fetchUserNFTs(address: string): Promise<NFT[]> {
       .map((nft: any) => {
         const mediaUrl = nft.media?.[0]?.gateway || nft.media?.[0]?.raw || null;
         const imageUrl =
-          mediaUrl && mediaUrl !== '' ? mediaUrl : '/placeholder.svg';
+          mediaUrl && mediaUrl !== ''
+            ? mediaUrl
+            : 'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg'; // placeholder
 
         return {
           tokenId: BigInt(nft.id.tokenId).toString(), // normalize tokenId from hex
@@ -45,7 +56,8 @@ export async function fetchUserNFTs(address: string): Promise<NFT[]> {
 }
 
 export function normalizeImageUrl(url?: string): string {
-  if (!url) return '/placeholder.svg';
+  if (!url)
+    return 'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg'; // placeholder
   if (url.startsWith('ipfs://')) {
     return `https://ipfs.io/ipfs/${url.replace('ipfs://', '')}`;
   }
@@ -69,6 +81,10 @@ export async function fetchNFTMetadata(
 
     return { name, imageUrl };
   } catch {
-    return { name: `NFT #${tokenId}`, imageUrl: '/placeholder.svg' };
+    return {
+      name: `NFT #${tokenId}`,
+      imageUrl:
+        'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg',
+    }; // placeholder
   }
 }

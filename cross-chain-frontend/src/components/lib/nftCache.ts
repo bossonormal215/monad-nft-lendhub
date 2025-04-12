@@ -3,7 +3,8 @@ import { fetchNFTMetadata } from './fetchUserNfts';
 const metadataCache = new Map<string, { name: string; imageUrl: string }>();
 
 export function normalizeImageUrl(url?: string): string {
-  if (!url) return 'https://via.placeholder.com/300x300.png?text=No+Image';
+  if (!url)
+    return 'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg'; // placeholder
   if (url.startsWith('ipfs://')) {
     return `https://ipfs.io/ipfs/${url.replace('ipfs://', '')}`;
   }
@@ -21,7 +22,8 @@ export async function getCachedNFTMetadata(
   try {
     const meta = await fetchNFTMetadata(contractAddress, tokenId);
     const rawImage =
-      meta?.imageUrl || 'https://via.placeholder.com/300x300.png?text=No+Image';
+      meta?.imageUrl ||
+      'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg'; // placeholder
     const data = {
       name: meta?.name || `NFT #${tokenId}`,
       imageUrl: normalizeImageUrl(rawImage),
@@ -31,7 +33,8 @@ export async function getCachedNFTMetadata(
   } catch {
     return {
       name: `NFT #${tokenId}`,
-      imageUrl: 'https://via.placeholder.com/300x300.png?text=No+Image',
+      imageUrl:
+        'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg', // placeholder
     };
   }
 }
