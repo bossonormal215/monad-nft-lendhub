@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -18,6 +18,14 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
     uint256 public loanCounter; // Unique loan ID counter
     uint256[] public allLoanIds; // Store all loan IDs
 
+    // struct loanTimeStamps {
+    //     uint256 startTime;
+    //     uint256 fundedAt;
+    //     uint256 claimedAt;
+    //     uint256 repaidAt;
+    //     uint256 completedAt;
+    // }
+
     struct Loan {
         uint256 loanId;
         address nftOwner;
@@ -28,11 +36,13 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         uint256 interestRate;
         uint256 loanDuration;
         uint256 startTime;
+        // loanTimeStamps loanTime;
         bool loanClaimed;
         bool repaid;
         address loanToken;
         bool active;
         bool completed;
+        bool cancelled;
     }
 
     Loan[] public allLoans;
@@ -40,6 +50,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
     mapping(address => uint256[]) public userLoanIds;
     mapping(address => uint256[]) public lenderLoanIds;
     uint256[] public completedLoanIds;
+    uint256[] public cancelledLoanIds;
 
     event NFTListed(
         uint256 indexed loanId,
@@ -56,6 +67,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
     event LoanRepaid(uint256 indexed loanId, address indexed borrower);
     event RepaymentClaimed(uint256 indexed loanId, address indexed lender);
     event NFTClaimedByLender(uint256 indexed loanId, address indexed lender);
+    event NFTWithdrawn(uint256 indexed loanId, address indexed owner);
 
     constructor(
         address _MON,
@@ -153,11 +165,19 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
             interestRate: _interestRate,
             loanDuration: _loanDuration,
             startTime: 0,
+            // loanTime: loanTimeStamps({
+            //     startTime: block.timestamp,
+            //     fundedAt: 0,
+            //     claimedAt: 0,
+            //     repaidAt: 0,
+            //     completedAt: 0
+            // }),
             loanClaimed: false,
             repaid: false,
             loanToken: _loanToken,
             active: false,
-            completed: false
+            completed: false,
+            cancelled: false
         });
 
         loans[loanId] = newLoan;
@@ -189,7 +209,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         );
 
         loan.lender = msg.sender;
-        loan.startTime = block.timestamp;
+        // loan.loanTime.fundedAt = block.timestamp;
         loan.active = true;
 
         lenderLoanIds[msg.sender].push(loanId);
@@ -208,37 +228,10 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         IERC20(loan.loanToken).transfer(platformWallet, platformFee);
         IERC20(loan.loanToken).transfer(msg.sender, loanPayout);
         loan.loanClaimed = true;
+        // loan.loanTime.claimedAt = block.timestamp;
 
         emit LoanClaimed(loanId, msg.sender);
     }
-
-    /*
-    function repayLoan(
-        uint256 loanId
-    )
-        external
-        onlyNFTLister(loanId)
-        loanFunded(loanId)
-        withinRepaymentPeriod(loanId)
-        notRepaid(loanId)
-        nonReentrant
-    {
-        Loan storage loan = loans[loanId];
-
-        uint256 interest = (loan.loanAmount * loan.interestRate) / 100;
-        uint256 repaymentAmount = loan.loanAmount + interest;
-
-        IERC20(loan.loanToken).transferFrom(
-            msg.sender,
-            address(this),
-            repaymentAmount
-        );
-
-        loan.repaid = true;
-
-        emit LoanRepaid(loanId, msg.sender);
-    }
-    */
 
     function repayLoan(
         uint256 loanId
@@ -264,6 +257,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         // ✅ Update Borrower's Loan Status Only
         loan.repaid = true; // Borrower has repaid
         loan.active = true;
+        // loan.loanTime.repaidAt = block.timestamp;
 
         // ✅ Update Borrower's `userLoanIds` to reflect their perspective
         uint256[] storage loanIds = userLoanIds[msg.sender];
@@ -291,23 +285,6 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         emit LoanRepaid(loanId, msg.sender);
     }
 
-    /* function claimRepayment(
-        uint256 loanId
-    ) external onlyLender(loanId) nonReentrant loanRepaid(loanId) {
-        Loan storage loan = loans[loanId];
-
-        uint256 repaymentAmount = loan.loanAmount +
-            (loan.loanAmount * loan.interestRate) /
-            100;
-        IERC20(loan.loanToken).transfer(msg.sender, repaymentAmount);
-
-        loan.completed = true;
-        loan.active = false;
-        completedLoanIds.push(loanId);
-
-        emit RepaymentClaimed(loanId, msg.sender);
-    } */
-
     function claimRepayment(
         uint256 loanId
     ) external onlyLender(loanId) nonReentrant loanRepaid(loanId) {
@@ -320,9 +297,11 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
 
         // ✅ Now mark loan as COMPLETED from the Lender's Perspective
         loan.completed = true;
-        loan.active = false; // ✅ NOW we can mark the loan as inactive!
+        // loan.loanTime.completedAt = block.timestamp;
+        loan.active = false; // ✅ NOW mark the loan as inactive!
+        loan.cancelled = false;
 
-        // ✅ Update Lender's `lenderLoanIds`
+        // ✅ Updating Lender's `lenderLoanIds`
         uint256[] storage loanIds = lenderLoanIds[msg.sender];
         for (uint256 i = 0; i < loanIds.length; i++) {
             if (loanIds[i] == loanId) {
@@ -356,6 +335,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
 
         loan.completed = true;
         loan.active = false;
+        // loan.loanTime.completedAt = block.timestamp;
         completedLoanIds.push(loanId);
 
         emit NFTClaimedByLender(loanId, msg.sender);
@@ -372,7 +352,9 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         uint256 count = 0;
         for (uint256 i = 0; i < allLoanIds.length; i++) {
             Loan storage loan = loans[allLoanIds[i]];
-            if (loan.lender == address(0) && !loan.completed) {
+            if (
+                loan.lender == address(0) && !loan.completed && !loan.cancelled
+            ) {
                 count++;
             }
         }
@@ -381,7 +363,9 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         uint256 index = 0;
         for (uint256 i = 0; i < allLoanIds.length; i++) {
             Loan storage loan = loans[allLoanIds[i]];
-            if (loan.lender == address(0) && !loan.completed) {
+            if (
+                loan.lender == address(0) && !loan.completed && !loan.cancelled
+            ) {
                 unfundedLoans[index] = loan;
                 index++;
             }
@@ -434,5 +418,33 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
             (bool success, ) = payable(owner()).call{value: balance}("");
             require(success, "Withdraw failed");
         }
+    }
+
+    function cancelLoanAndWithdrawNFT(
+        uint256 loanId
+    )
+        external
+        loanExists(loanId)
+        onlyNFTLister(loanId)
+        loanNotFunded(loanId)
+        nonReentrant
+    {
+        Loan storage loan = loans[loanId];
+
+        require(!loan.completed, "Loan already completed");
+
+        // Transfer NFT back to the owner
+        IERC721(loan.nftAddress).safeTransferFrom(
+            address(this),
+            loan.nftOwner,
+            loan.nftId
+        );
+
+        loan.cancelled = true;
+        loan.active = false;
+
+        cancelledLoanIds.push(loanId);
+
+        emit NFTWithdrawn(loanId, loan.nftOwner);
     }
 }

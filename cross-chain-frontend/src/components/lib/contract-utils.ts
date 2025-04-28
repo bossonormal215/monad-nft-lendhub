@@ -21,6 +21,7 @@ export interface LoanData {
   loanToken: string;
   active: boolean;
   completed: boolean;
+  cancelled: boolean;
   imageUrl?: string;
 }
 
@@ -69,6 +70,7 @@ export async function getActiveLoans(): Promise<LoanData[]> {
     })) as LoanData[];
 
     console.log(`Found ${activeLoans.length} active loans`);
+    console.log(`Found ${activeLoans} active loans`);
     return activeLoans;
   } catch (error) {
     console.error('Error fetching active loans:', error);

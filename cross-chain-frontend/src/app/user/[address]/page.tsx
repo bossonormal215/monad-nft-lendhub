@@ -6,7 +6,12 @@ import { useParams } from "next/navigation";
 import { getAllUserLoans, getUserLoans } from "@/components/lib/contract-utils";
 import { LoanData } from "@/components/lib/contract-utils";
 import { Loader2 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/privy/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/Components/privy/ui/tabs";
 import { NFTCard } from "@/components/nft-card";
 import { UserStatsCard } from "@/components/UserStatsCard";
 
@@ -38,24 +43,34 @@ export default function UserHistoryPage() {
     fetchUserLoans();
   }, [userAddress]);
 
-  const filteredLoans = (status: "active" | "pending" | "completed" | "stat") => {
-    if (status === "active") return loans.filter((l) => l.active && !l.completed);
-    if (status === "pending") return loans.filter((l) => !l.active && !l.completed);
+  const filteredLoans = (
+    status: "active" | "pending" | "completed" | "Cancelled" | "stat"
+  ) => {
+    if (status === "active")
+      return loans.filter((l) => l.active && !l.completed);
+    if (status === "pending")
+      return loans.filter((l) => !l.active && !l.completed && !l.cancelled);
     if (status === "completed") return loans.filter((l) => l.completed);
+    if (status === "Cancelled") return loans.filter((l) => l.cancelled);
     if (status === "stat") return loans.filter((l) => l.completed);
     return [];
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-foreground text-center">User History</h1>
-      <p className="text-center text-muted-foreground break-words mb-6 text-sm">{userAddress}</p>
+      <h1 className="text-3xl font-bold mb-6 text-foreground text-center">
+        User History
+      </h1>
+      <p className="text-center text-muted-foreground break-words mb-6 text-sm">
+        {userAddress}
+      </p>
 
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="flex justify-center gap-4 mb-6">
           <TabsTrigger value="active">Active</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="Cancelled">Cancelled</TabsTrigger>
           <TabsTrigger value="stat">Stat</TabsTrigger>
         </TabsList>
 
@@ -64,39 +79,43 @@ export default function UserHistoryPage() {
             <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
           </div>
         ) : (
-          ["active", "pending", "completed", "stat"].map((status) => (
-            <TabsContent key={status} value={status}>
-              {filteredLoans(status as any).length === 0 ? (
-                <p className="text-muted-foreground text-center">No {status} loans found for this user.</p>
-              ) : (
-                <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                  {filteredLoans(status as any).map((loan) => (
-                    <NFTCard
-                      key={loan.loanId}
-                      nftId={Number(loan.nftId)}
-                      nftAddress={loan.nftAddress}
-                      loanId={loan.loanId}
-                      nftOwner={loan.nftOwner}
-                      lender={loan.lender}
-                      loanToken={loan.loanToken}
-                      loanAmount={loan.loanAmount}
-                      interestRate={Number(loan.interestRate)}
-                      loanDuration={Number(loan.loanDuration)}
-                      startTime={Number(loan.startTime)}
-                      loanClaimed={loan.loanClaimed}
-                      repaid={loan.repaid}
-                      active={loan.active}
-                      completed={loan.completed}
-                      imageUrl={loan.imageUrl}
-                      actionText={"View Only"}
-                      actionDisabled={true}
-                      showLender={true}
-                    />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          ))
+          ["active", "pending", "completed", "Cancelled", "stat"].map(
+            (status) => (
+              <TabsContent key={status} value={status}>
+                {filteredLoans(status as any).length === 0 ? (
+                  <p className="text-muted-foreground text-center">
+                    No {status} loans found for this user.
+                  </p>
+                ) : (
+                  <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    {filteredLoans(status as any).map((loan) => (
+                      <NFTCard
+                        key={loan.loanId}
+                        nftId={Number(loan.nftId)}
+                        nftAddress={loan.nftAddress}
+                        loanId={loan.loanId}
+                        nftOwner={loan.nftOwner}
+                        lender={loan.lender}
+                        loanToken={loan.loanToken}
+                        loanAmount={loan.loanAmount}
+                        interestRate={Number(loan.interestRate)}
+                        loanDuration={Number(loan.loanDuration)}
+                        startTime={Number(loan.startTime)}
+                        loanClaimed={loan.loanClaimed}
+                        repaid={loan.repaid}
+                        active={loan.active}
+                        completed={loan.completed}
+                        imageUrl={loan.imageUrl}
+                        actionText={"View Only"}
+                        actionDisabled={true}
+                        showLender={true}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            )
+          )
         )}
       </Tabs>
     </div>

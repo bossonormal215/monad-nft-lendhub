@@ -2,6 +2,7 @@
 // export const NFT_LENDHUB_ADDRESS = '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF';
 // export const NFT_LENDHUB_ADDRESS = '0xa7507707FD388989fa794372677b89494517f75C'; // contract 4
 export const NFT_LENDHUB_ADDRESS = '0xC0743c3C22801204245A884faaF65E3bFAD341Ca'; // contract 5
+// export const NFT_LENDHUB_ADDRESS = '0xAaa13C99Cd25b782C46930a72BCCD26654479e76'; // contract 6
 // address: '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF',
 export const LENDING_POOL_ADDRESS =
   '0xCCec83c2e4758f0cD8C1baD23Cc66F53b1C37Fb0';
@@ -11,6 +12,1232 @@ export const NFT_ADDRESS = '0xCC133Be7950d9c00B78BCbFa470A8E63c3DD7BfC';
 export const WMON_ADDRESS = '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701';
 export const USDT_ADDRESS = '0x88b8E2161DEDC77EF4ab7585569D2415a1C1055D';
 export const ETH_ADDRESS = '0xf817257fed379853cDe0fa4F97AB987181B1E5Ea';
+
+//
+// export const ILockAddress = '0xC840DA9957d641684Fc05565A9756df872879889';
+export const ILockAddress = '0x92B6222e22C114fA11985F1173a423b8Ab0059E6'; // with new unlock and transfer function
+
+/* export const NFT_LENDHUB_ABI = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_MON',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_USDT',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_ETH',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_platformWallet',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'borrower',
+        type: 'address',
+      },
+    ],
+    name: 'LoanClaimed',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+    ],
+    name: 'LoanFunded',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'borrower',
+        type: 'address',
+      },
+    ],
+    name: 'LoanRepaid',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+    ],
+    name: 'NFTClaimedByLender',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'nftOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'nftAddress',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'nftId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'loanAmount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'interestRate',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'duration',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'loanToken',
+        type: 'address',
+      },
+    ],
+    name: 'NFTListed',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'NFTWithdrawn',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+    ],
+    name: 'RepaymentClaimed',
+    type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'ETH',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'GRACE_PERIOD',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MON',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'PLATFORM_FEE',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'USDT',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'allLoanIds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'allLoans',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'nftOwner',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'nftAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'nftId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'loanAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'interestRate',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'loanDuration',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'loanClaimed',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'repaid',
+        type: 'bool',
+      },
+      {
+        internalType: 'address',
+        name: 'loanToken',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'active',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'completed',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'cancelled',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'cancelLoanAndWithdrawNFT',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'cancelledLoanIds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'claimLoan',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'claimNFT',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'claimRepayment',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'completedLoanIds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'fundLoan',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getAllLoans',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'nftOwner',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'nftAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nftId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'lender',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'interestRate',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanDuration',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'repaid',
+            type: 'bool',
+          },
+          {
+            internalType: 'address',
+            name: 'loanToken',
+            type: 'address',
+          },
+          {
+            internalType: 'bool',
+            name: 'active',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'cancelled',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct NFTLendHub4.Loan[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getCompletedLoans',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'nftOwner',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'nftAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nftId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'lender',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'interestRate',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanDuration',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'repaid',
+            type: 'bool',
+          },
+          {
+            internalType: 'address',
+            name: 'loanToken',
+            type: 'address',
+          },
+          {
+            internalType: 'bool',
+            name: 'active',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'cancelled',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct NFTLendHub4.Loan[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+    ],
+    name: 'getLenderLoans',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'nftOwner',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'nftAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nftId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'lender',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'interestRate',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanDuration',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'repaid',
+            type: 'bool',
+          },
+          {
+            internalType: 'address',
+            name: 'loanToken',
+            type: 'address',
+          },
+          {
+            internalType: 'bool',
+            name: 'active',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'cancelled',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct NFTLendHub4.Loan[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getUnfundedLoans',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'nftOwner',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'nftAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nftId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'lender',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'interestRate',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanDuration',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'repaid',
+            type: 'bool',
+          },
+          {
+            internalType: 'address',
+            name: 'loanToken',
+            type: 'address',
+          },
+          {
+            internalType: 'bool',
+            name: 'active',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'cancelled',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct NFTLendHub4.Loan[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'getUserLoans',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'loanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'nftOwner',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'nftAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nftId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'lender',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'interestRate',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'loanDuration',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'loanClaimed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'repaid',
+            type: 'bool',
+          },
+          {
+            internalType: 'address',
+            name: 'loanToken',
+            type: 'address',
+          },
+          {
+            internalType: 'bool',
+            name: 'active',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'cancelled',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct NFTLendHub4.Loan[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'lenderLoanIds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_nftAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_nftId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_loanAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_interestRate',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_loanDuration',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_loanToken',
+        type: 'address',
+      },
+    ],
+    name: 'listNFTForLoan',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'loanCounter',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'loans',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'nftOwner',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'nftAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'nftId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'loanAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'interestRate',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'loanDuration',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'loanClaimed',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'repaid',
+        type: 'bool',
+      },
+      {
+        internalType: 'address',
+        name: 'loanToken',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'active',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'completed',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'cancelled',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'platformWallet',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'repayLoan',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'userLoanIds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_tokenAddress',
+        type: 'address',
+      },
+    ],
+    name: 'withdrawERC20',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+]; */
 
 export const NFT_LENDHUB_ABI = [
   {
@@ -1178,6 +2405,758 @@ export const ERC20_ABI = [
     name: 'symbol',
     outputs: [{ internalType: 'string', name: '', type: 'string' }],
     stateMutability: 'view',
+    type: 'function',
+  },
+];
+
+export const ILockABI = [
+  {
+    inputs: [],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    inputs: [],
+    name: 'ERC721EnumerableForbiddenBatchMint',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'ERC721IncorrectOwner',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'ERC721InsufficientApproval',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'approver',
+        type: 'address',
+      },
+    ],
+    name: 'ERC721InvalidApprover',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+    ],
+    name: 'ERC721InvalidOperator',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'ERC721InvalidOwner',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+    ],
+    name: 'ERC721InvalidReceiver',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
+      },
+    ],
+    name: 'ERC721InvalidSender',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'ERC721NonexistentToken',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'index',
+        type: 'uint256',
+      },
+    ],
+    name: 'ERC721OutOfBoundsIndex',
+    type: 'error',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'approved',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Approval',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+    ],
+    name: 'ApprovalForAll',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'triggeredBy',
+        type: 'address',
+      },
+    ],
+    name: 'EmergencyUnlocked',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'manager',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'duration',
+        type: 'uint256',
+      },
+    ],
+    name: 'Locked',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Unlocked',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'borrower',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'lender',
+        type: 'address',
+      },
+    ],
+    name: 'UnlockedAndTransfered',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'balanceOf',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'emergencyUnlock',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getApproved',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLockInfo',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: 'locked',
+        type: 'bool',
+      },
+      {
+        internalType: 'address',
+        name: 'manager',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lockTimestamp',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'duration',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'isLocked',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'manager',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'durationInSeconds',
+        type: 'uint256',
+      },
+    ],
+    name: 'lock',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+    ],
+    name: 'mint',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'name',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'nextTokenId',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'ownerOf',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
+      },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes4',
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
+    name: 'supportsInterface',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'symbol',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'index',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokenByIndex',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'index',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokenOfOwnerByIndex',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokenURI',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'unlock',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'unlockAndTransfer',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ];

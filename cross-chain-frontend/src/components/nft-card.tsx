@@ -28,6 +28,7 @@ interface NFTCardProps {
   loanToken: string;
   active?: boolean;
   completed?: boolean;
+  cancelled?: boolean;
   loanClaimed?: boolean;
   repaymentClaimed?: boolean;
   nftClaimed?: boolean;
@@ -53,6 +54,7 @@ export function NFTCard({
   loanToken,
   active = false,
   completed = false,
+  cancelled = false,
   loanClaimed,
   onAction,
   actionText,
@@ -78,6 +80,10 @@ export function NFTCard({
       : "Expired";
   const isExpired: boolean =
     !completed && active && startTime > 0 && loanEnd < now;
+  const isCancelled =
+    cancelled &&
+    startTime == 0 &&
+    lender == "0x0000000000000000000000000000000000000000";
 
   const formattedLoanAmount = formatEther(loanAmount);
   const tokenSymbol = getTokenSymbol(loanToken);
@@ -114,9 +120,13 @@ export function NFTCard({
               <Badge className="bg-monad-500 hover:bg-monad-600 text-xs py-0 px-2">
                 Expired
               </Badge>
+            ) : cancelled ? (
+              <Badge variant="secondary" className="text-xs py-0 px-2">
+                Cancelled
+              </Badge>
             ) : (
               <Badge variant="secondary" className="text-xs py-0 px-2">
-                Pending
+                Awaiting Funding
               </Badge>
             )}
           </div>

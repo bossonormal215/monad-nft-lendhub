@@ -24,7 +24,7 @@ import { NFTCard } from "@/components/nft-card";
 import { LoanDetailsModal } from "@/components/LoanDetailsModal";
 
 export function DashboardTab() {
-  const { authenticated, login } = usePrivy();
+  const { authenticated, login, user } = usePrivy();
   const { address } = useAccount();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +43,7 @@ export function DashboardTab() {
   const { writeContractAsync: claimLoan } = useWriteContract();
   const { writeContractAsync: claimRepayment } = useWriteContract();
   const { writeContractAsync: claimNFT } = useWriteContract();
+  const { writeContractAsync: withdrawLoan } = useWriteContract();
 
   useEffect(() => {
     if (!authenticated || !address) {
@@ -89,6 +90,15 @@ export function DashboardTab() {
       setProcessingLoanIndex(index);
 
       switch (action) {
+        case "withdrawLoan":
+          await withdrawLoan({
+            address: NFT_LENDHUB_ADDRESS,
+            abi: NFT_LENDHUB_ABI,
+            functionName: "cancelLoanAndWithdrawNFT",
+            args: [loan.loanId],
+          });
+          break;
+
         case "claimLoan":
           await claimLoan({
             address: NFT_LENDHUB_ADDRESS,
@@ -202,16 +212,23 @@ export function DashboardTab() {
                 const isCompleted = loan.completed;
                 const isClaimed = loan.startTime > 0;
                 const isAwaitingClaim =
-                  loan.active && loan.startTime === BigInt(0);
+                  // loan.active && loan.startTime === BigInt(0);
+                  loan.active &&
+                  loan.lender != "0x0000000000000000000000000000000000000000";
+                const isCancelled = loan.cancelled;
 
-                let actionText = "Waiting for a Lender";
+                // let actionText = "Waiting for a Lender";
+                let actionText = "Cancel Loan";
                 let onAction = null;
                 let actionDisabled = true;
 
                 if (isCompleted === true) {
                   actionText = "Loan Completed";
+                } else if (isCancelled) {
+                  actionText = "Loan Cancelled";
                 } else if (isNotFunded) {
-                  actionText = "Waiting for a Lender";
+                  // actionText = "Waiting for a Lender";
+                  actionText = "Cancel Loan";
                 } else if (isRepaid) {
                   actionText = "Loan Repaid";
                 } else if (!isLoanClaimed && loan.active && !isCompleted) {
@@ -247,22 +264,40 @@ export function DashboardTab() {
                     repaid={loan.repaid}
                     active={loan.active}
                     completed={loan.completed}
-                    onAction={() =>
-                      handleAction(
-                        loan,
-                        index,
-                        // isClaimed && !isAwaitingClaim && !loan.completed && !loan.repaid ? "claimLoan" : "claimLoan", // claim met
-                        isLoanClaimed && !loan.completed && !loan.repaid
-                          ? "repayLoan"
-                          : "claimLoan" // repay met
-                      )
-                    }
+                    // onAction={() =>
+                    //   handleAction(
+                    //     loan,
+                    //     index,
+                    //     isLoanClaimed && !loan.completed && !loan.repaid
+                    //       ? "repayLoan"
+                    //       : "claimLoan" // repay met
+                    //   )
+                    // }
+                    onAction={() => {
+                      if (
+                        !loan.active &&
+                        !loan.repaid &&
+                        !loan.loanClaimed &&
+                        !loan.completed
+                      ) {
+                        handleAction(loan, index, "withdrawLoan");
+                      } else if (
+                        isLoanClaimed &&
+                        !loan.completed &&
+                        !loan.repaid
+                      ) {
+                        handleAction(loan, index, "repayLoan");
+                      } else {
+                        handleAction(loan, index, "claimLoan");
+                      }
+                    }}
                     actionText={actionText}
                     actionDisabled={actionDisabled}
                     isProcessing={isProcessing && processingLoanIndex === index}
                     showLender={true}
                     onClick={() => {
                       setModalLoan(loan);
+                      // setIsBorrowing(user?.wallet?.address === loan.nftOwner);
                       setIsBorrowing(address === loan.nftOwner);
                     }}
                   />

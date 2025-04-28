@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@account-kit/core": "^4.26.0",
+    "@account-kit/infra": "^4.26.0",
+    "@account-kit/react": "^4.26.0",
     "@heroicons/react": "^2.2.0",
     "@privy-io/react-auth": "^2.6.2",
     "@privy-io/wagmi": "^1.0.3",
@@ -38,6 +41,7 @@
     "wagmi": "^2.14.13"
   },
   "devDependencies": {
+    "@radix-ui/react-dialog": "^1.1.11",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

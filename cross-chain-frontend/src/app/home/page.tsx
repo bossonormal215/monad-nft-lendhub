@@ -906,13 +906,13 @@ export default function Home() {
                     <Image
                       // src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/monad%20lendhub%20bradning%203-vi0PeD6DQ9eLlQGKTnxMeFTs9DSPOj.png"
                       src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
-                      alt="MonadLendHub Logo"
+                      alt="LendHub Logo"
                       width={60}
                       height={60}
                       className="object-contain"
                     />
                     <h2 className="text-2xl font-bold tracking-tight">
-                      MonadLendHub
+                      LendHub
                     </h2>
                   </div>
 
@@ -1041,8 +1041,8 @@ export default function Home() {
           </section>
 
           {/* How It Works Section */}
-          <section className="w-full py-16 md:py-24 bg-monad-100/20">
-            {/* <section className="w-full py-16 md:py-24 bg-white"> */}
+          {/* <section className="w-full py-16 md:py-24 bg-monad-100/20"> */}
+          <section className="bg-[#1C2839] p-4 border border-[#2C3545] rounded-2xl p-8 mb-12">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="inline-block rounded-full bg-monad-100 px-3 py-1 text-sm font-medium text-monad-800 mb-2">
@@ -1187,7 +1187,7 @@ export default function Home() {
                     Built on the Fastest Blockchain
                   </h2>
                   <p className="text-muted-foreground text-lg">
-                    MonadLendHub leverages the speed and efficiency of the Monad
+                    LendHub leverages the speed and efficiency of the Monad
                     blockchain for a seamless lending experience with:
                   </p>
 
@@ -1224,7 +1224,7 @@ export default function Home() {
                     <Image
                       // src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/monad%20lendhub%20bradning%203-vi0PeD6DQ9eLlQGKTnxMeFTs9DSPOj.png"
                       src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
-                      alt="MonadLendHub Logo"
+                      alt="LendHub Logo"
                       width={40}
                       height={40}
                       className="object-contain"
@@ -1317,12 +1317,12 @@ export default function Home() {
                   <Image
                     // src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/monad%20lendhub%20bradning%203-vi0PeD6DQ9eLlQGKTnxMeFTs9DSPOj.png"
                     src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
-                    alt="MonadLendHub Logo"
+                    alt="LendHub Logo"
                     width={40}
                     height={40}
                     className="object-contain"
                   />
-                  <h3 className="text-lg font-bold">MonadLendHub</h3>
+                  <h3 className="text-lg font-bold">LendHub</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   The premier NFT lending platform on the Monad blockchain.
@@ -1422,7 +1422,7 @@ export default function Home() {
 
             <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
               <p className="text-xs text-muted-foreground">
-                © 2024 MonadLendHub. All rights reserved.
+                © 2025 LendHub. All rights reserved.
               </p>
               <div className="flex gap-4">
                 <Link

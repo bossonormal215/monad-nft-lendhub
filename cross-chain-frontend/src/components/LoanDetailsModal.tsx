@@ -298,6 +298,7 @@ export function LoanDetailsModal({
   const gracePeriodEnd = loanEnd + 7 * 86400; // 7 days grace period
   const isExpired = now > loanEnd && Number(loan.startTime) > 0;
   const isInGracePeriod = isExpired && now <= gracePeriodEnd;
+  const isCancelled = loan.cancelled;
   const canClaimNFT =
     !loan.repaid &&
     now > gracePeriodEnd &&
@@ -350,8 +351,22 @@ export function LoanDetailsModal({
   if (isBorrowing) {
     if (loan.completed) {
       actionText = "Loan Completed";
-    } else if (!loan.active) {
-      actionText = "Waiting for a Lender";
+    } else if (!loan.active && !isCancelled) {
+      actionText = "Cancel Loan";
+      actionHandler = () => onAction("withdrawLoan");
+      actionDisabled = false;
+    } else if (loan.isCancelled) {
+      actionText = "Loan Cancelled";
+    } else if (
+      !loan.active &&
+      !loan.repaid &&
+      !loan.loanClaimed &&
+      !loan.completed &&
+      isBorrowing
+    ) {
+      actionText = "Cancel Loan";
+      actionHandler = () => onAction("withdrawLoan");
+      actionDisabled = false;
     } else if (loan.repaid) {
       actionText = "Loan Repaid";
     } else if (!loan.loanClaimed && loan.active && !loan.completed) {
@@ -405,6 +420,7 @@ export function LoanDetailsModal({
               active={loan.active}
               isExpired={isExpired}
               isInGracePeriod={isInGracePeriod}
+              isCancelled={isCancelled}
             />
           </DialogTitle>
           <DialogDescription>
@@ -469,7 +485,8 @@ export function LoanDetailsModal({
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Lender:</span>
                       <a
-                        href={`https://testnet.monadexplorer.com/address/${loan.lender}`}
+                        // href={`https://testnet.monadexplorer.com/address/${loan.lender}`}
+                        href={`/user/${loan.lender}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-monad-500 hover:underline"
@@ -482,7 +499,8 @@ export function LoanDetailsModal({
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Borrower:</span>
                       <a
-                        href={`https://testnet.monadexplorer.com/address/${loan.nftOwner}`}
+                        // href={`https://testnet.monadexplorer.com/address/${loan.nftOwner}`}
+                        href={`/user/${loan.nftOwner}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-monad-500 hover:underline"
@@ -683,12 +701,14 @@ function LoanStatusBadge({
   active,
   isExpired,
   isInGracePeriod,
+  isCancelled,
 }: {
   completed: boolean;
   repaid: boolean;
   active: boolean;
   isExpired: boolean;
   isInGracePeriod: boolean;
+  isCancelled: boolean;
 }) {
   if (completed) {
     return <Badge className="bg-green-600 hover:bg-green-700">Completed</Badge>;
@@ -711,9 +731,11 @@ function LoanStatusBadge({
     }
 
     return <Badge className="bg-monad-500 hover:bg-monad-600">Active</Badge>;
+  } else if (isCancelled) {
+    return <Badge className="bg-red-500 hover:bg-red-600">Cancelled</Badge>;
   }
 
-  return <Badge variant="secondary">Pending</Badge>;
+  return <Badge variant="secondary">Awaiting Funding</Badge>;
 }
 
 function TimelineItem({
