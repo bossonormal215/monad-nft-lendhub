@@ -14,6 +14,7 @@ import {
 } from "@/Components/privy/ui/tabs";
 import { NFTCard } from "@/components/nft-card";
 import { UserStatsCard } from "@/components/UserStatsCard";
+import { LoanStatus } from "@/components/lib/LoanStatus";
 
 export default function UserHistoryPage() {
   const params = useParams();
@@ -48,10 +49,25 @@ export default function UserHistoryPage() {
   ) => {
     if (status === "active")
       return loans.filter((l) => l.active && !l.completed);
+    // return loans.filter(
+    //   (l) =>
+    //     l.status !== LoanStatus.Completed && l.status === LoanStatus.active
+    // );
+
     if (status === "pending")
       return loans.filter((l) => !l.active && !l.completed && !l.cancelled);
+    // return loans.filter(
+    //   (l) =>
+    //     l.status !== LoanStatus.Completed &&
+    //     l.status !== LoanStatus.active &&
+    //     l.status !== LoanStatus.cancelled
+    // );
     if (status === "completed") return loans.filter((l) => l.completed);
+    // if (status === "completed")
+    //   return loans.filter((l) => l.status === LoanStatus.Completed);
     if (status === "Cancelled") return loans.filter((l) => l.cancelled);
+    // if (status === "Cancelled")
+    //   return loans.filter((l) => l.status === LoanStatus.cancelled);
     if (status === "stat") return loans.filter((l) => l.completed);
     return [];
   };
@@ -92,19 +108,22 @@ export default function UserHistoryPage() {
                       <NFTCard
                         key={loan.loanId}
                         nftId={Number(loan.nftId)}
-                        nftAddress={loan.nftAddress}
+                        nftAddress={loan.loanAddDetails.nftAddress}
                         loanId={loan.loanId}
-                        nftOwner={loan.nftOwner}
-                        lender={loan.lender}
-                        loanToken={loan.loanToken}
+                        nftOwner={loan.loanAddDetails.nftOwner}
+                        lender={loan.loanAddDetails.lender}
+                        loanToken={loan.loanAddDetails.loanToken}
                         loanAmount={loan.loanAmount}
                         interestRate={Number(loan.interestRate)}
                         loanDuration={Number(loan.loanDuration)}
-                        startTime={Number(loan.startTime)}
+                        startTime={Number(loan.milestones.startTime)}
                         loanClaimed={loan.loanClaimed}
                         repaid={loan.repaid}
+                        // repaid={loan.status === LoanStatus.repaid}
                         active={loan.active}
+                        // active={loan.status === LoanStatus.active}
                         completed={loan.completed}
+                        // completed={loan.status === LoanStatus.Completed}
                         imageUrl={loan.imageUrl}
                         actionText={"View Only"}
                         actionDisabled={true}

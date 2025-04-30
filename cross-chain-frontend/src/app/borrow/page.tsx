@@ -20,8 +20,10 @@ import { useAccount, useWalletClient } from "wagmi";
 import {
   NFT_LENDHUB_ADDRESS,
   NFT_LENDHUB_ABI,
+  NFT_LENDHUB_ABI_V2,
   ERC721_ABI,
   WMON_ADDRESS,
+  NFT_LENDHUB_ADDRESS_V2,
 } from "@/components/lib/constants";
 import { parseAmount } from "@/components/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -188,7 +190,8 @@ export default function BorrowPage() {
       return;
     }
 
-    const isAlreadyApproved = approvedAddress === NFT_LENDHUB_ADDRESS;
+    // const isAlreadyApproved = approvedAddress === NFT_LENDHUB_ADDRESS; // version 1
+    const isAlreadyApproved = approvedAddress === NFT_LENDHUB_ADDRESS_V2; // version 2
 
     try {
       if (!isAlreadyApproved) {
@@ -198,7 +201,8 @@ export default function BorrowPage() {
           address: nftAddress as `0x${string}`,
           abi: ERC721_ABI,
           functionName: "approve",
-          args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)],
+          // args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)], // version 1
+          args: [NFT_LENDHUB_ADDRESS_V2, BigInt(nftId)],
         });
         await refetchApproval(); // ✅ Re-check approval after tx
         toast({
@@ -210,8 +214,10 @@ export default function BorrowPage() {
       setIsListing(true);
       setTxMessage("Listing NFT For Loan ...");
       await listNft({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
+        // address: NFT_LENDHUB_ADDRESS, // version 1
+        address: NFT_LENDHUB_ADDRESS_V2, // version 2
+        // abi: NFT_LENDHUB_ABI, // version 1
+        abi: NFT_LENDHUB_ABI_V2, // version 2
         functionName: "listNFTForLoan",
         args: [
           nftAddress,
@@ -314,7 +320,8 @@ export default function BorrowPage() {
         address: nftAddress as `0x${string}`,
         abi: ERC721_ABI,
         functionName: "approve",
-        args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)],
+        // args: [NFT_LENDHUB_ADDRESS, BigInt(nftId)], // version 1
+        args: [NFT_LENDHUB_ADDRESS_V2, BigInt(nftId)], // version 2
       });
 
       toast({
@@ -369,8 +376,10 @@ export default function BorrowPage() {
     try {
       setIsListing(true);
       await listNft({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
+        // address: NFT_LENDHUB_ADDRESS, // version 1
+        address: NFT_LENDHUB_ADDRESS_V2, // version 2
+        // abi: NFT_LENDHUB_ABI, // version 1
+        abi: NFT_LENDHUB_ABI_V2, // version 2
         functionName: "listNFTForLoan",
         args: [
           nftAddress,

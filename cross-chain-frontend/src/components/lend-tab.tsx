@@ -9,6 +9,8 @@ import {
   NFT_LENDHUB_ADDRESS,
   NFT_LENDHUB_ABI,
   ERC20_ABI,
+  NFT_LENDHUB_ADDRESS_V2,
+  NFT_LENDHUB_ABI_V2,
 } from "./lib/constants";
 import { getPendingListings, type LoanData } from "./lib/contract-utils";
 import { Loader2 } from "lucide-react";
@@ -17,6 +19,7 @@ import { createPublicClient, formatEther, http } from "viem";
 import { readContract } from "viem/actions";
 import { monadTestnet } from "viem/chains";
 import { LoanDetailsModal } from "./LoanDetailsModal";
+import { LoanStatus } from "./lib/LoanStatus";
 
 export function LendTab() {
   const { authenticated, login } = usePrivy();
@@ -79,7 +82,7 @@ export function LendTab() {
       const query = searchQuery.toLowerCase();
       return (
         loan.nftId.toString().includes(query) ||
-        loan.nftAddress.toLowerCase().includes(query)
+        loan.loanAddDetails.nftAddress.toLowerCase().includes(query)
       );
     })
     .sort((a, b) => {
@@ -113,7 +116,7 @@ export function LendTab() {
 
       // ✅ Get user's balance dynamically
       const rawBalance = await readContract(client, {
-        address: loan.loanToken as `0x${string}`,
+        address: loan.loanAddDetails.loanToken as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "balanceOf",
         args: [address],
@@ -133,10 +136,11 @@ export function LendTab() {
       }
 
       await approveToken({
-        address: loan.loanToken as `0x${string}`,
+        address: loan.loanAddDetails.loanToken as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [NFT_LENDHUB_ADDRESS, loan.loanAmount],
+        // args: [NFT_LENDHUB_ADDRESS, loan.loanAmount], // version 1
+        args: [NFT_LENDHUB_ADDRESS_V2, BigInt(loan.loanAmount)], // version 2
       });
 
       await new Promise((resolve) => setTimeout(resolve, 4000));
@@ -147,8 +151,10 @@ export function LendTab() {
       });
 
       await fundLoan({
-        address: NFT_LENDHUB_ADDRESS,
-        abi: NFT_LENDHUB_ABI,
+        // address: NFT_LENDHUB_ADDRESS, // version 1
+        address: NFT_LENDHUB_ADDRESS_V2, // version 2
+        // abi: NFT_LENDHUB_ABI, // Version 2 ABI
+        abi: NFT_LENDHUB_ABI_V2, // version 2 ABI
         functionName: "fundLoan",
         args: [loan.loanId],
       });
@@ -244,7 +250,7 @@ export function LendTab() {
       ) : (
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filteredLoans.map((loan, index) => {
-            const isLenderForThisLoan = loan.lender === address;
+            const isLenderForThisLoan = loan.loanAddDetails.lender === address;
 
             let actionText = "Fund Loan";
             if (isLenderForThisLoan) {
@@ -254,19 +260,24 @@ export function LendTab() {
             return (
               <NFTCard
                 loanId={loan.loanId}
-                key={`${loan.nftAddress}-${Number(loan.nftId)}`}
+                key={`${loan.loanAddDetails.nftAddress}-${Number(loan.nftId)}`}
                 nftId={Number(loan.nftId)}
-                nftAddress={loan.nftAddress}
-                nftOwner={loan.nftOwner}
+                nftAddress={loan.loanAddDetails.nftAddress}
+                nftOwner={loan.loanAddDetails.nftOwner}
                 loanAmount={loan.loanAmount}
                 interestRate={Number(loan.interestRate)}
                 loanDuration={Number(loan.loanDuration)}
-                startTime={Number(loan.startTime)}
+                startTime={Number(loan.milestones.startTime)}
                 repaid={loan.repaid}
-                lender={loan.lender}
-                loanToken={loan.loanToken}
+                // repaid={loan.status === LoanStatus.repaid}
+                lender={loan.loanAddDetails.lender}
+                loanToken={loan.loanAddDetails.loanToken}
                 active={loan.active}
+                // active={loan.status === LoanStatus.active}
                 completed={loan.completed}
+                // completed={loan.status === LoanStatus.Completed}
+                cancelled={loan.cancelled}
+                // cancelled={loan.status === LoanStatus.cancelled}
                 onAction={() => handleFundLoan(loan, index)}
                 actionText={actionText}
                 actionDisabled={isLenderForThisLoan}

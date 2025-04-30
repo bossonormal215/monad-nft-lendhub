@@ -14,7 +14,9 @@ import { useToast } from "@/Components/privy/ui/use-toast";
 import { useAccount, useWriteContract } from "wagmi";
 import {
   NFT_LENDHUB_ADDRESS,
+  NFT_LENDHUB_ADDRESS_V2,
   NFT_LENDHUB_ABI,
+  NFT_LENDHUB_ABI_V2,
   ERC20_ABI,
 } from "./lib/constants";
 import { calculateRepaymentAmount } from "./lib/utils";
@@ -22,6 +24,7 @@ import { getAllUserLoans, type LoanData } from "./lib/contract-utils";
 import { Loader2 } from "lucide-react";
 import { NFTCard } from "@/components/nft-card";
 import { LoanDetailsModal } from "@/components/LoanDetailsModal";
+import { LoanStatus } from "./lib/LoanStatus";
 
 export function DashboardTab() {
   const { authenticated, login, user } = usePrivy();
@@ -92,8 +95,10 @@ export function DashboardTab() {
       switch (action) {
         case "withdrawLoan":
           await withdrawLoan({
-            address: NFT_LENDHUB_ADDRESS,
-            abi: NFT_LENDHUB_ABI,
+            // address: NFT_LENDHUB_ADDRESS, // version 1
+            address: NFT_LENDHUB_ADDRESS_V2, // version 2
+            // abi: NFT_LENDHUB_ABI, // version 1 ABI
+            abi: NFT_LENDHUB_ABI_V2, // version 2 ABI
             functionName: "cancelLoanAndWithdrawNFT",
             args: [loan.loanId],
           });
@@ -101,8 +106,10 @@ export function DashboardTab() {
 
         case "claimLoan":
           await claimLoan({
-            address: NFT_LENDHUB_ADDRESS,
-            abi: NFT_LENDHUB_ABI,
+            // address: NFT_LENDHUB_ADDRESS, // version 1 address
+            address: NFT_LENDHUB_ADDRESS_V2, // version 2 address
+            // abi: NFT_LENDHUB_ABI, // version 1 ABI
+            abi: NFT_LENDHUB_ABI_V2, // version 2 ABI
             functionName: "claimLoan",
             args: [loan.loanId],
           });
@@ -113,30 +120,37 @@ export function DashboardTab() {
             Number(loan.interestRate)
           );
           await approveToken({
-            address: loan.loanToken as `0x${string}`,
+            address: loan.loanAddDetails.loanToken as `0x${string}`,
             abi: ERC20_ABI,
             functionName: "approve",
-            args: [NFT_LENDHUB_ADDRESS, repaymentAmount],
+            // args: [NFT_LENDHUB_ADDRESS, repaymentAmount], // version 1
+            args: [NFT_LENDHUB_ADDRESS_V2, repaymentAmount], // version 2
           });
           await repayLoan({
-            address: NFT_LENDHUB_ADDRESS,
-            abi: NFT_LENDHUB_ABI,
+            // address: NFT_LENDHUB_ADDRESS, // version 1
+            address: NFT_LENDHUB_ADDRESS_V2, // version 2
+            // abi: NFT_LENDHUB_ABI, // version 1 ABI
+            abi: NFT_LENDHUB_ABI_V2, // version 2 ABI
             functionName: "repayLoan",
             args: [loan.loanId],
           });
           break;
         case "claimRepayment":
           await claimRepayment({
-            address: NFT_LENDHUB_ADDRESS,
-            abi: NFT_LENDHUB_ABI,
+            // address: NFT_LENDHUB_ADDRESS, // version 1 address
+            address: NFT_LENDHUB_ADDRESS_V2, // version 2 address
+            // abi: NFT_LENDHUB_ABI, // version 1 ABI
+            abi: NFT_LENDHUB_ABI_V2, // version 2 ABI
             functionName: "claimRepayment",
             args: [loan.loanId],
           });
           break;
         case "claimNFT":
           await claimNFT({
-            address: NFT_LENDHUB_ADDRESS,
-            abi: NFT_LENDHUB_ABI,
+            // address: NFT_LENDHUB_ADDRESS, // version 1 address
+            address: NFT_LENDHUB_ADDRESS_V2, // version 2 address
+            // abi: NFT_LENDHUB_ABI, // version 1 ABI
+            abi: NFT_LENDHUB_ABI_V2, // version 2 ABI
             functionName: "claimNFT",
             args: [loan.loanId],
           });
@@ -206,15 +220,16 @@ export function DashboardTab() {
           ) : (
             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {myBorrowings.map((loan, index) => {
-                const isNotFunded = !loan.active;
+                const isNotFunded = !loan.active; // !loan.status === LoanStatus.active;
                 const isLoanClaimed = loan.loanClaimed;
                 const isRepaid = loan.repaid;
                 const isCompleted = loan.completed;
-                const isClaimed = loan.startTime > 0;
+                const isClaimed = loan.milestones.startTime > 0;
                 const isAwaitingClaim =
-                  // loan.active && loan.startTime === BigInt(0);
-                  loan.active &&
-                  loan.lender != "0x0000000000000000000000000000000000000000";
+                  loan.active && loan.milestones.startTime === BigInt(0);
+                loan.active &&
+                  loan.loanAddDetails.lender !=
+                    "0x0000000000000000000000000000000000000000";
                 const isCancelled = loan.cancelled;
 
                 // let actionText = "Waiting for a Lender";
@@ -227,8 +242,7 @@ export function DashboardTab() {
                 } else if (isCancelled) {
                   actionText = "Loan Cancelled";
                 } else if (isNotFunded) {
-                  // actionText = "Waiting for a Lender";
-                  actionText = "Cancel Loan";
+                  actionText = "Waiting for a Lender";
                 } else if (isRepaid) {
                   actionText = "Loan Repaid";
                 } else if (!isLoanClaimed && loan.active && !isCompleted) {
@@ -243,6 +257,7 @@ export function DashboardTab() {
                   actionText = "Repay Loan";
                   onAction = () =>
                     handleAction(loan, index, !loan.repaid ? "repayLoan" : "");
+
                   actionDisabled = false;
                 } else {
                 }
@@ -251,19 +266,17 @@ export function DashboardTab() {
                   <NFTCard
                     key={loan.loanId}
                     nftId={Number(loan.nftId)}
-                    nftAddress={loan.nftAddress}
+                    nftAddress={loan.loanAddDetails.nftAddress}
                     loanId={loan.loanId}
-                    nftOwner={loan.nftOwner}
-                    lender={loan.lender}
-                    loanToken={loan.loanToken}
+                    nftOwner={loan.loanAddDetails.nftOwner}
+                    lender={loan.loanAddDetails.lender}
+                    loanToken={loan.loanAddDetails.loanToken}
                     loanAmount={loan.loanAmount}
                     interestRate={Number(loan.interestRate)}
                     loanDuration={Number(loan.loanDuration)}
-                    startTime={Number(loan.startTime)}
+                    startTime={Number(loan.milestones.startTime)}
                     loanClaimed={loan.loanClaimed}
                     repaid={loan.repaid}
-                    active={loan.active}
-                    completed={loan.completed}
                     // onAction={() =>
                     //   handleAction(
                     //     loan,
@@ -278,7 +291,8 @@ export function DashboardTab() {
                         !loan.active &&
                         !loan.repaid &&
                         !loan.loanClaimed &&
-                        !loan.completed
+                        !loan.completed &&
+                        !loan.cancelled
                       ) {
                         handleAction(loan, index, "withdrawLoan");
                       } else if (
@@ -297,8 +311,8 @@ export function DashboardTab() {
                     showLender={true}
                     onClick={() => {
                       setModalLoan(loan);
-                      // setIsBorrowing(user?.wallet?.address === loan.nftOwner);
-                      setIsBorrowing(address === loan.nftOwner);
+                      // setIsBorrowing(user?.wallet?.address === loan.loanAddDetails.nftOwner);
+                      setIsBorrowing(address === loan.loanAddDetails.nftOwner);
                     }}
                   />
                 );
@@ -331,7 +345,7 @@ export function DashboardTab() {
               {myLendings.map((loan, index) => {
                 const now = Math.floor(Date.now() / 1000);
                 const loanEnd =
-                  Number(loan.startTime) + Number(loan.loanDuration);
+                  Number(loan.milestones.startTime) + Number(loan.loanDuration);
                 const gracePeriodEnd = loanEnd + 7 * 86400; // 7 days grace period
                 const canClaimNFT =
                   !loan.repaid && now > gracePeriodEnd && !loan.completed;
@@ -360,9 +374,7 @@ export function DashboardTab() {
                     handleAction(
                       loan,
                       index,
-                      loan.repaid && !loan.completed && canClaimNFT
-                        ? "claimNFT"
-                        : ""
+                      !loan.repaid && canClaimNFT ? "claimNFT" : ""
                     );
                   actionDisabled = false;
                 } else if (canClaimNFT && loan.completed) {
@@ -373,18 +385,19 @@ export function DashboardTab() {
                   <NFTCard
                     key={loan.loanId}
                     nftId={Number(loan.nftId)}
-                    nftAddress={loan.nftAddress}
+                    nftAddress={loan.loanAddDetails.nftAddress}
                     loanId={loan.loanId}
-                    nftOwner={loan.nftOwner}
-                    lender={loan.lender}
-                    loanToken={loan.loanToken}
+                    nftOwner={loan.loanAddDetails.nftOwner}
+                    lender={loan.loanAddDetails.lender}
+                    loanToken={loan.loanAddDetails.loanToken}
                     loanAmount={loan.loanAmount}
                     interestRate={Number(loan.interestRate)}
                     loanDuration={Number(loan.loanDuration)}
-                    startTime={Number(loan.startTime)}
+                    startTime={Number(loan.milestones.startTime)}
                     repaid={loan.repaid}
                     active={loan.active}
                     completed={loan.completed}
+                    cancelled={loan.cancelled}
                     onAction={() =>
                       handleAction(
                         loan,

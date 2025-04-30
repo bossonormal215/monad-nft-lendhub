@@ -1,29 +1,63 @@
-//////////////////////////////////--------------------------------////////////////
-
-import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI } from './constants';
+// import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI } from './constants'; // version 1
+import { NFT_LENDHUB_ADDRESS_V2, NFT_LENDHUB_ABI_V2 } from './constants'; // version 2
+import { LoanStatus } from './LoanStatus';
 import { createPublicClient, http } from 'viem';
 import { monadTestnet } from 'viem/chains';
 import { erc721Abi } from 'viem';
 
 // Define the loan data structure to match the contract's enhanced structure
-export interface LoanData {
-  loanId: bigint;
+// contract-utils.ts
+export interface Milestone {
+  startTime: bigint;
+  claimedAt: bigint;
+  fundedAt: bigint;
+  repaidAt: bigint;
+  completedAt: bigint;
+}
+
+export interface LoanDAddressDetails {
   nftOwner: string;
   nftAddress: string;
-  nftId: bigint;
   lender: string;
+  loanToken: string;
+}
+
+export interface LoanData {
+  loanAddDetails: LoanDAddressDetails;
+  loanId: bigint;
+  nftId: bigint;
   loanAmount: bigint;
   interestRate: bigint;
   loanDuration: bigint;
-  startTime: bigint;
+  isLockable: boolean;
   loanClaimed: boolean;
   repaid: boolean;
-  loanToken: string;
   active: boolean;
   completed: boolean;
   cancelled: boolean;
+  milestones: Milestone;
   imageUrl?: string;
 }
+// export interface LoanData {
+//   loanId: bigint;
+//   nftOwner: string;
+//   nftAddress: string;
+//   nftId: bigint;
+//   lender: string;
+//   loanAmount: bigint;
+//   interestRate: bigint;
+//   loanDuration: bigint;
+//   startTime: bigint;
+//   loanClaimed: boolean;
+//   repaid: boolean;
+//   loanToken: string;
+//   isLockable: boolean;
+//   // status: number; // maps to LoanStatus enum
+//   active: boolean;
+//   completed: boolean;
+//   cancelled: boolean;
+//   imageUrl?: string;
+// }
 
 // Create a public client for reading from the Monad testnet
 const publicClient = createPublicClient({
@@ -39,8 +73,10 @@ export async function getPendingListings(): Promise<LoanData[]> {
   try {
     console.log('Fetching pending listings');
     const allLoans = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getUnfundedLoans',
     })) as LoanData[];
 
@@ -49,6 +85,12 @@ export async function getPendingListings(): Promise<LoanData[]> {
 
     const enriched: LoanData[] = [];
     for (const loan of allLoans.filter((l) => !l.active)) {
+      // filter out active loans
+      // for (const loan of allLoans.filter(
+      //   (l) => l.status === LoanStatus.pending
+      // )) {
+      // filter out active loans
+
       const enrichedLoan = await enrichLoanWithImage(loan);
       enriched.push(enrichedLoan);
     }
@@ -64,8 +106,10 @@ export async function getActiveLoans(): Promise<LoanData[]> {
   try {
     console.log('Fetching active loans');
     const activeLoans = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getAllLoans',
     })) as LoanData[];
 
@@ -83,8 +127,10 @@ export async function getCompletedLoans(): Promise<LoanData[]> {
   try {
     console.log('Fetching completed loans');
     const completedLoans = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getCompletedLoans',
     })) as LoanData[];
 
@@ -101,8 +147,10 @@ export async function getUserLoans(userAddress: string): Promise<LoanData[]> {
   try {
     console.log(`Fetching loans for user ${userAddress}`);
     const userLoans = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getUserLoans',
       args: [userAddress],
     })) as LoanData[];
@@ -122,8 +170,10 @@ export async function getLenderLoans(
   try {
     console.log(`Fetching loans for lender ${lenderAddress}`);
     const lenderLoans = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getLenderLoans',
       args: [lenderAddress],
     })) as LoanData[];
@@ -143,8 +193,10 @@ export async function getLoanDetails(loanId: bigint): Promise<LoanData | null> {
   try {
     console.log(`Fetching loan details for Loan ID ${loanId}`);
     const loanData = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'loans',
       args: [loanId],
     })) as LoanData;
@@ -163,7 +215,8 @@ export async function loanExists(loanId: bigint): Promise<boolean> {
     const loanData = await getLoanDetails(loanId);
     return (
       loanData !== null &&
-      loanData.nftOwner !== '0x0000000000000000000000000000000000000000'
+      loanData.loanAddDetails.nftOwner !==
+        '0x0000000000000000000000000000000000000000'
     );
   } catch (error) {
     console.error(
@@ -173,20 +226,6 @@ export async function loanExists(loanId: bigint): Promise<boolean> {
     return false;
   }
 }
-
-// Get all loans for a user (both as borrower and lender)
-/*export async function getAllUserLoans(
-  userAddress: string
-): Promise<{ borrowings: LoanData[]; lendings: LoanData[] }> {
-  try {
-    const borrowings = await getUserLoans(userAddress);
-    const lendings = await getLenderLoans(userAddress);
-    return { borrowings, lendings };
-  } catch (error) {
-    console.error(`Error fetching all loans for user ${userAddress}:`, error);
-    return { borrowings: [], lendings: [] };
-  }
-}*/
 
 // fetch nft image
 export async function getTokenImage(
@@ -226,15 +265,19 @@ export async function getAllUserLoans(
 ): Promise<{ borrowings: LoanData[]; lendings: LoanData[] }> {
   try {
     const borrowings = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getUserLoans',
       args: [userAddress],
     })) as LoanData[];
 
     const lendings = (await publicClient.readContract({
-      address: NFT_LENDHUB_ADDRESS,
-      abi: NFT_LENDHUB_ABI,
+      // address: NFT_LENDHUB_ADDRESS, // version 1
+      address: NFT_LENDHUB_ADDRESS_V2, // version 2
+      // abi: NFT_LENDHUB_ABI, // version 1
+      abi: NFT_LENDHUB_ABI_V2, // version 2
       functionName: 'getLenderLoans',
       args: [userAddress],
     })) as LoanData[];
@@ -263,7 +306,10 @@ async function enrichLoanWithImage(
 ): Promise<LoanData> {
   // Delay before calling to respect rate limit (250ms = max 4/sec)
   await delay(delayMs);
-  const rawImageUrl = await getTokenImage(loan.nftAddress, loan.nftId);
+  const rawImageUrl = await getTokenImage(
+    loan.loanAddDetails.nftAddress,
+    loan.nftId
+  );
   const imageUrl = rawImageUrl ?? undefined;
   return { ...loan, imageUrl };
 }

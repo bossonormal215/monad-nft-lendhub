@@ -81,7 +81,8 @@ export default function CollectionDetailPage() {
         const allLoans = await getPendingListings();
         const matchingLoans = allLoans.filter(
           (loan) =>
-            loan.nftAddress.toLowerCase() === collectionAddress.toLowerCase()
+            loan.loanAddDetails.nftAddress.toLowerCase() ===
+            collectionAddress.toLowerCase()
         );
         setLoans(matchingLoans);
       } catch (err) {
@@ -124,7 +125,7 @@ export default function CollectionDetailPage() {
       setSelectedLoanIndex(index);
 
       const rawBalance = await readContract(client, {
-        address: loan.loanToken as `0x${string}`,
+        address: loan.loanAddDetails.loanToken as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "balanceOf",
         args: [userAddress],
@@ -143,7 +144,7 @@ export default function CollectionDetailPage() {
       }
 
       await approveToken({
-        address: loan.loanToken as `0x${string}`,
+        address: loan.loanAddDetails.loanToken as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [NFT_LENDHUB_ADDRESS, loan.loanAmount],
@@ -238,15 +239,15 @@ export default function CollectionDetailPage() {
                   key={loan.loanId.toString()}
                   loanId={loan.loanId}
                   nftId={Number(loan.nftId)}
-                  nftAddress={loan.nftAddress}
-                  nftOwner={loan.nftOwner}
+                  nftAddress={loan.loanAddDetails.nftAddress}
+                  nftOwner={loan.loanAddDetails.nftOwner}
                   loanAmount={loan.loanAmount}
                   interestRate={Number(loan.interestRate)}
                   loanDuration={Number(loan.loanDuration)}
-                  startTime={Number(loan.startTime)}
+                  startTime={Number(loan.milestones.startTime)}
                   repaid={loan.repaid}
-                  lender={loan.lender}
-                  loanToken={loan.loanToken}
+                  lender={loan.loanAddDetails.lender}
+                  loanToken={loan.loanAddDetails.loanToken}
                   active={loan.active}
                   completed={loan.completed}
                   onAction={() => handleFund(loan, i)}
