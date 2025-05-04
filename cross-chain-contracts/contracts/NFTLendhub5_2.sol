@@ -47,6 +47,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
     uint256 public loanCounter;
     uint256[] public allLoanIds;
+    uint256 public totalLoanVolume;
 
     /** 🔵 Loan Status Mapping */
     // enum LoanStatus {
@@ -251,8 +252,36 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
             "Interest rate must be less than or equal to 100"
         );
 
+        // Determine if the NFT contract supports ILockable
+        bool isLockable = false;
+        try
+            IERC165(_nftAddress).supportsInterface(type(ILockable).interfaceId)
+        returns (bool supported) {
+            isLockable = supported;
+        } catch {
+            isLockable = false; // If supportsInterface fails, assume the NFT is not Lockable
+        }
+
         loanCounter++;
         uint256 loanId = loanCounter;
+
+        /* try
+            ILockable(_nftAddress).lock(
+                _nftId,
+                address(this),
+                _loanDuration + GRACE_PERIOD
+            )
+        {
+            isLockable = true;
+        } catch {
+            // ❗If lock() fails, manually transfer NFT to contract
+            IERC721(_nftAddress).transferFrom(
+                msg.sender,
+                address(this),
+                _nftId
+            );
+            loan.isLockable = false;
+        } */
 
         Loan memory newLoan = Loan({
             loanId: loanId,
@@ -270,7 +299,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
             interestRate: _interestRate,
             loanDuration: _loanDuration,
             // loanToken: _loanToken,
-            isLockable: false,
+            isLockable: isLockable,
             active: false,
             completed: false,
             cancelled: false,
@@ -317,16 +346,28 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
             "Borrower no longer owns the NFT"
         );
 
-        require(
-            ILockable(loan.loanAddDetails.nftAddress).isLocked(loan.nftId) ==
-                false,
-            "NFT already locked"
-        );
+        // Check if NFT is lockable and handle accordingly
+        try ILockable(loan.loanAddDetails.nftAddress).isLocked(loan.nftId) {
+            require(
+                ILockable(loan.loanAddDetails.nftAddress).isLocked(
+                    loan.nftId
+                ) == false,
+                "NFT already locked"
+            );
+            loan.isLockable = true;
+        } catch {
+            loan.isLockable = false;
+        }
 
+        // Check approval before transfer
         require(
             IERC721(loan.loanAddDetails.nftAddress).getApproved(loan.nftId) ==
-                address(this),
-            "Loan contract is not approved"
+                address(this) ||
+                IERC721(loan.loanAddDetails.nftAddress).isApprovedForAll(
+                    msg.sender,
+                    address(this)
+                ),
+            "Contract not approved to transfer NFT"
         );
 
         require(
@@ -354,32 +395,33 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
             loan.loanAmount
         );
 
+        // Update total loan volume
+        totalLoanVolume += loan.loanAmount;
+
         loan.loanAddDetails.lender = msg.sender;
-        // loan.status = LoanStatus.Active;
         loan.active = true;
         loan.milestones.startTime = block.timestamp;
         loan.milestones.fundedAt = block.timestamp;
 
         lenderLoanIds[msg.sender].push(loanId);
 
-        // 🔥 Now dynamically detect Lockable at funding
-        try
+        // Handle NFT locking/transfer based on type
+        if (loan.isLockable) {
             ILockable(loan.loanAddDetails.nftAddress).lock(
                 loan.nftId,
                 address(this),
                 loan.loanDuration + GRACE_PERIOD
-            )
-        {
-            loan.isLockable = true;
-        } catch {
-            // ❗If lock() fails, manually transfer NFT to contract
+            );
+        } else {
             IERC721(loan.loanAddDetails.nftAddress).transferFrom(
                 loan.loanAddDetails.nftOwner,
                 address(this),
                 loan.nftId
             );
-            loan.isLockable = false;
         }
+
+        // Update allLoans array
+        _updateAllLoans(loanId, loan);
 
         emit LoanFunded(loanId, msg.sender);
     }
@@ -412,6 +454,16 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
     }
     */
 
+    // Helper function to update allLoans array
+    function _updateAllLoans(uint256 loanId, Loan memory updatedLoan) internal {
+        for (uint256 i = 0; i < allLoans.length; i++) {
+            if (allLoans[i].loanId == loanId) {
+                allLoans[i] = updatedLoan;
+                break; // Exit the loop once found and updated
+            }
+        }
+    }
+
     function claimLoan(
         uint256 loanId
     ) external onlyNFTLister(loanId) loanFunded(loanId) nonReentrant {
@@ -428,6 +480,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         );
         IERC20(loan.loanAddDetails.loanToken).transfer(msg.sender, payout);
         loan.loanClaimed = true;
+        loan.milestones.claimedAt = block.timestamp;
+        // Update allLoans array
+        _updateAllLoans(loanId, loan);
 
         emit LoanClaimed(loanId, msg.sender);
     }
@@ -466,6 +521,8 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // loan.status = LoanStatus.Repaid;
         loan.repaid = true;
         loan.milestones.repaidAt = block.timestamp;
+        // Update allLoans array
+        _updateAllLoans(loanId, loan);
 
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
@@ -491,8 +548,11 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         // loan.status = LoanStatus.Completed;
         loan.completed = true;
+        loan.active = false;
         loan.milestones.completedAt = block.timestamp;
         completedLoanIds.push(loanId);
+        // Update allLoans array
+        _updateAllLoans(loanId, loan);
 
         emit RepaymentClaimed(loanId, msg.sender);
     }
@@ -530,9 +590,12 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         // loan.status = LoanStatus.Completed;
         loan.completed = true;
+        loan.active = false;
         loan.milestones.completedAt = block.timestamp;
 
         completedLoanIds.push(loanId);
+        // Update allLoans array
+        _updateAllLoans(loanId, loan);
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
         emit NFTClaimedByLender(loanId, msg.sender);
@@ -548,27 +611,41 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         nonReentrant
     {
         Loan storage loan = loans[loanId];
-        // require(loan.status == LoanStatus.Pending, "Already active");
-        require(loan.active == false, "Loan already active");
-
-        require(!loan.completed, "Loan already active");
+        require(!loan.active, "Loan already active");
+        require(!loan.completed, "Loan already completed");
         require(!loan.cancelled, "Loan already cancelled");
 
-        if (loan.isLockable) {
-            ILockable(loan.loanAddDetails.nftAddress).unlock(loan.nftId);
+        // Handle NFT withdrawal based on type
+        /*   if (loan.isLockable) {
+            // If unlock succeeds, unlock the NFT back
+            try
+                ILockable(loan.loanAddDetails.nftAddress).unlock(loan.nftId)
+            {} catch {
+                // If unlock fails, still try to transfer the NFT back
+                IERC721(loan.loanAddDetails.nftAddress).safeTransferFrom(
+                    address(this),
+                    loan.loanAddDetails.nftOwner,
+                    loan.nftId
+                );
+            }
         } else {
+            // For regular NFTs, just transfer back
             IERC721(loan.loanAddDetails.nftAddress).safeTransferFrom(
                 address(this),
                 loan.loanAddDetails.nftOwner,
                 loan.nftId
             );
         }
+        */
 
-        // loan.status = LoanStatus.Cancelled;
+        // Mark as cancelled
         loan.cancelled = true;
-
+        loan.active = false;
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
         cancelledLoanIds.push(loanId);
+
+        // Update allLoans array
+        _updateAllLoans(loanId, loan);
 
         emit NFTWithdrawn(loanId, loan.loanAddDetails.nftOwner);
     }

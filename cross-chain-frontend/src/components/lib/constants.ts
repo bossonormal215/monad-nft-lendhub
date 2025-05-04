@@ -5,8 +5,11 @@ export const NFT_LENDHUB_ADDRESS = '0xC0743c3C22801204245A884faaF65E3bFAD341Ca';
 // export const NFT_LENDHUB_ADDRESS_V2 ='0x756272Db280D974652243e86050129f9B2A57833'; // version 2 contract 1
 // export const NFT_LENDHUB_ADDRESS_V2 = '0x801fe0fFAb9eAB0003ba4b3BeB3230C26107CAEf'; // version 2 contract 2
 // export const NFT_LENDHUB_ADDRESS_V2 ='0x4794aED85DbD87bc7AF67e163d4c27e5b63F40cc'; // version 2 contract 3
+// export const NFT_LENDHUB_ADDRESS_V2 ='0x47a00eE030c4200431995b7C7c2c6926F2DCA1C1'; // version 2 contract 4
+// export const NFT_LENDHUB_ADDRESS_V2 = '0xe176d225433d1eb258Ed7f25C2e3133a15d26631'; // version 2 contract 5
+// export const NFT_LENDHUB_ADDRESS_V2 ='0x7D572e92aE7b7B903aeDFEa1ddCe65B411067A51'; // version 2 contract 6
 export const NFT_LENDHUB_ADDRESS_V2 =
-  '0x47a00eE030c4200431995b7C7c2c6926F2DCA1C1'; // version 2 contract 4
+  '0x9578f8b8885eDB70A9905f57186f7A1585903b1a'; // version 2 contract 7
 // export const NFT_LENDHUB_ADDRESS = '0xAaa13C99Cd25b782C46930a72BCCD26654479e76'; // contract 6
 // address: '0x7c4d115891d401888dd54a7a7f27ff4bB5DD25cF',
 export const LENDING_POOL_ADDRESS =
@@ -1480,6 +1483,19 @@ export const NFT_LENDHUB_ABI_V2 = [
     name: 'repayLoan',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'totalLoanVolume',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {

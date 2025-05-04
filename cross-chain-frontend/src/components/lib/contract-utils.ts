@@ -1,12 +1,12 @@
 // import { NFT_LENDHUB_ADDRESS, NFT_LENDHUB_ABI } from './constants'; // version 1
 import { NFT_LENDHUB_ADDRESS_V2, NFT_LENDHUB_ABI_V2 } from './constants'; // version 2
 import { LoanStatus } from './LoanStatus';
+import { Address } from 'viem';
 import { createPublicClient, http } from 'viem';
 import { monadTestnet } from 'viem/chains';
 import { erc721Abi } from 'viem';
 
 // Define the loan data structure to match the contract's enhanced structure
-// contract-utils.ts
 export interface Milestone {
   startTime: bigint;
   claimedAt: bigint;
@@ -68,6 +68,34 @@ const publicClient = createPublicClient({
   pollingInterval: 5000,
 });
 
+// helpeer function
+// contract-utils.ts
+
+export function formatBigNumberWithDecimals(
+  value: bigint,
+  decimals: number
+): bigint | string {
+  if (decimals < 0) {
+    throw new Error('Decimals cannot be negative');
+  }
+  const divisor = 10n ** BigInt(decimals);
+  const integerPart = value / divisor;
+  const remainder = value % divisor;
+  const fractionalPartPadded = remainder.toString().padStart(decimals, '0');
+
+  if (decimals === 0) {
+    return integerPart.toString();
+  }
+
+  const fractionalPartToShow = fractionalPartPadded.slice(0, 2); // Take only the first 2 decimal places
+
+  if (fractionalPartToShow === '00') {
+    return integerPart.toString();
+  }
+
+  return `${integerPart}.${fractionalPartToShow}`;
+}
+
 // Get all pending loan listings (loans that haven't been funded yet)
 export async function getPendingListings(): Promise<LoanData[]> {
   try {
@@ -114,11 +142,27 @@ export async function getActiveLoans(): Promise<LoanData[]> {
     })) as LoanData[];
 
     console.log(`Found ${activeLoans.length} active loans`);
-    console.log(`Found ${activeLoans} active loans`);
+    console.log(` ${activeLoans} active loans`);
     return activeLoans;
   } catch (error) {
     console.error('Error fetching active loans:', error);
     return [];
+  }
+}
+
+// Get the total loan volume from the contract
+export async function getTotalLoanVolume(): Promise<bigint> {
+  try {
+    const volume = (await publicClient.readContract({
+      address: NFT_LENDHUB_ADDRESS_V2,
+      abi: NFT_LENDHUB_ABI_V2,
+      functionName: 'totalLoanVolume',
+    })) as bigint;
+    const formartedVolume = formatBigNumberWithDecimals(volume, 18);
+    return formartedVolume as bigint;
+  } catch (error) {
+    console.error('Error fetching total loan volume:', error);
+    return 0n; // Or handle the error as appropriate
   }
 }
 

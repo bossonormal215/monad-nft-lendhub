@@ -39,7 +39,6 @@ export async function fetchSupportedCollections(): Promise<Collection[]> {
         imageUrl:
           col.image ||
           'https://next.cdn.magiceden.dev/_next/static/media/nft_fallback.f889df8f.svg', // placeholder
-        // contractAddress: col.contracts?.[0]?.contract || '',
         contractAddress: col.id || '',
         floorPrice: parseFloat(col.floorAsk?.price?.amount?.decimal || '0'),
         verified: col.magicedenVerificationStatus === 'verified',

@@ -46,7 +46,7 @@ export function DashboardTab() {
   const { writeContractAsync: claimLoan } = useWriteContract();
   const { writeContractAsync: claimRepayment } = useWriteContract();
   const { writeContractAsync: claimNFT } = useWriteContract();
-  const { writeContractAsync: withdrawLoan } = useWriteContract();
+  const { writeContractAsync: cancelLoan } = useWriteContract();
 
   useEffect(() => {
     if (!authenticated || !address) {
@@ -93,8 +93,8 @@ export function DashboardTab() {
       setProcessingLoanIndex(index);
 
       switch (action) {
-        case "withdrawLoan":
-          await withdrawLoan({
+        case "cancelLoan":
+          await cancelLoan({
             // address: NFT_LENDHUB_ADDRESS, // version 1
             address: NFT_LENDHUB_ADDRESS_V2, // version 2
             // abi: NFT_LENDHUB_ABI, // version 1 ABI
@@ -294,7 +294,7 @@ export function DashboardTab() {
                         !loan.completed &&
                         !loan.cancelled
                       ) {
-                        handleAction(loan, index, "withdrawLoan");
+                        handleAction(loan, index, "cancelLoan");
                       } else if (
                         isLoanClaimed &&
                         !loan.completed &&

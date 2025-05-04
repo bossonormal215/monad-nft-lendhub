@@ -249,7 +249,8 @@ export function LoanDetailsModal({
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-monad-500 hover:underline"
                       >
-                        {truncateAddress(loan.loanAddDetails.lender)}
+                        {/* {truncateAddress(loan.loanAddDetails.lender)} */}
+                        View Lender Profile
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     </div>
@@ -262,7 +263,8 @@ export function LoanDetailsModal({
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-monad-500 hover:underline"
                       >
-                        {truncateAddress(loan.loanAddDetails.nftOwner)}
+                        {/* {truncateAddress(loan.loanAddDetails.nftOwner)} */}
+                        View Borrower Profile
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     </div>
