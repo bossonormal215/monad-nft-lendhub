@@ -3951,7 +3951,23 @@ export const ERC20_ABI = [
 
 export const ILockABI = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_symbol',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_TokenURI',
+        type: 'string',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
@@ -4080,6 +4096,28 @@ export const ILockABI = [
     type: 'error',
   },
   {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnableInvalidOwner',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -4133,6 +4171,25 @@ export const ILockABI = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_fromTokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_toTokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'BatchMetadataUpdate',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: 'uint256',
         name: 'tokenId',
@@ -4171,6 +4228,38 @@ export const ILockABI = [
       },
     ],
     name: 'Locked',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'MetadataUpdate',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
     type: 'event',
   },
   {
@@ -4235,6 +4324,32 @@ export const ILockABI = [
     ],
     name: 'UnlockedAndTransfered',
     type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'MAX_SUPPLY',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: '_tokenURI',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
@@ -4451,6 +4566,19 @@ export const ILockABI = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'uint256',
@@ -4467,6 +4595,13 @@ export const ILockABI = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -4642,7 +4777,7 @@ export const ILockABI = [
         type: 'uint256',
       },
     ],
-    stateMutability: 'view',
+    stateMutability: 'pure',
     type: 'function',
   },
   {
@@ -4664,6 +4799,19 @@ export const ILockABI = [
       },
     ],
     name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
