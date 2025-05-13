@@ -102,11 +102,23 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         uint256 duration,
         address loanToken
     );
-    event LoanFunded(uint256 indexed loanId, address indexed lender);
+    event LoanFunded(
+        uint256 indexed loanId,
+        address indexed lender,
+        address indexed borrower
+    );
     event LoanClaimed(uint256 indexed loanId, address indexed borrower);
-    event LoanRepaid(uint256 indexed loanId, address indexed borrower);
+    event LoanRepaid(
+        uint256 indexed loanId,
+        address indexed borrower,
+        address indexed lender
+    );
     event RepaymentClaimed(uint256 indexed loanId, address indexed lender);
-    event NFTClaimedByLender(uint256 indexed loanId, address indexed lender);
+    event NFTClaimedByLender(
+        uint256 indexed loanId,
+        address indexed lender,
+        address indexed borrower
+    );
     event NFTWithdrawn(uint256 indexed loanId, address indexed owner);
 
     constructor(
@@ -373,7 +385,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
-        emit LoanFunded(loanId, msg.sender);
+        emit LoanFunded(loanId, msg.sender, loan.loanAddDetails.nftOwner);
     }
 
     // Helper function to update allLoans array
@@ -447,7 +459,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
-        emit LoanRepaid(loanId, msg.sender);
+        emit LoanRepaid(loanId, msg.sender, loan.loanAddDetails.lender);
     }
 
     function claimRepayment(
@@ -516,7 +528,11 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         _updateAllLoans(loanId, loan);
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
-        emit NFTClaimedByLender(loanId, msg.sender);
+        emit NFTClaimedByLender(
+            loanId,
+            msg.sender,
+            loan.loanAddDetails.nftOwner
+        );
     }
 
     function cancelLoanAndWithdrawNFT(
