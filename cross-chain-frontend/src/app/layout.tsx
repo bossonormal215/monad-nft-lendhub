@@ -70,8 +70,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NFT LendHub",
-  description: "P2P NFT Lending on Monad",
+  title: "LendHub",
+  description: "Peer-2-Peer NFT Lending on Monad",
 };
 
 export default function RootLayout({
