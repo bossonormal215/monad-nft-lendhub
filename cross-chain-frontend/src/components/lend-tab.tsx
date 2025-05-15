@@ -20,6 +20,7 @@ import { readContract } from "viem/actions";
 import { monadTestnet } from "viem/chains";
 import { LoanDetailsModal } from "./LoanDetailsModal";
 import { LoanStatus } from "./lib/LoanStatus";
+import { AuthWrapper } from "@/Components/privy/auth-wrapper";
 
 export function LendTab() {
   const { authenticated, login } = usePrivy();
@@ -202,107 +203,113 @@ export function LendTab() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground">
-          Lend to NFT Owners
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Browse available NFT loan requests and earn interest by funding loans
-        </p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search by Collection Address"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full sm:w-1/2 p-2 border border-monad-border rounded bg-card text-sm"
-        />
-
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value as any)}
-          className="p-2 border border-monad-border rounded bg-card text-sm"
-        >
-          <option value="amountAsc">Loan Amount ↑</option>
-          <option value="amountDesc">Loan Amount ↓</option>
-          <option value="interestAsc">Interest Rate ↑</option>
-          <option value="interestDesc">Interest Rate ↓</option>
-          <option value="durationAsc">Duration ↑</option>
-          <option value="durationDesc">Duration ↓</option>
-        </select>
-      </div>
-
-      {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
+    <AuthWrapper>
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-foreground">
+            Lend to NFT Owners
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Browse available NFT loan requests and earn interest by funding
+            loans
+          </p>
         </div>
-      ) : filteredLoans.length === 0 ? (
-        <Card className="text-center py-12 border-monad-border bg-card">
-          <CardContent>
-            <p className="text-foreground">
-              No active loan requests match your filters.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filteredLoans.map((loan, index) => {
-            const isLenderForThisLoan = loan.loanAddDetails.lender === address;
 
-            let actionText = "Fund Loan";
-            if (isLenderForThisLoan) {
-              actionText = "You Funded This Loan";
-            }
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+          <input
+            type="text"
+            placeholder="Search by Collection Address"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full sm:w-1/2 p-2 border border-monad-border rounded bg-card text-sm"
+          />
 
-            return (
-              <NFTCard
-                loanId={loan.loanId}
-                key={`${loan.loanAddDetails.nftAddress}-${Number(loan.nftId)}`}
-                nftId={Number(loan.nftId)}
-                nftAddress={loan.loanAddDetails.nftAddress}
-                nftOwner={loan.loanAddDetails.nftOwner}
-                loanAmount={loan.loanAmount}
-                interestRate={Number(loan.interestRate)}
-                loanDuration={Number(loan.loanDuration)}
-                startTime={Number(loan.milestones.startTime)}
-                repaid={loan.repaid}
-                // repaid={loan.status === LoanStatus.repaid}
-                lender={loan.loanAddDetails.lender}
-                loanToken={loan.loanAddDetails.loanToken}
-                active={loan.active}
-                // active={loan.status === LoanStatus.active}
-                completed={loan.completed}
-                // completed={loan.status === LoanStatus.Completed}
-                cancelled={loan.cancelled}
-                // cancelled={loan.status === LoanStatus.cancelled}
-                onAction={() => handleFundLoan(loan, index)}
-                actionText={actionText}
-                actionDisabled={isLenderForThisLoan}
-                isProcessing={isFunding && selectedLoanIndex === index}
-                showLender={false}
-                onClick={() => {
-                  setModalLoan(loan);
-                  setIsBorrowing(false);
-                }}
-              />
-            );
-          })}
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as any)}
+            className="p-2 border border-monad-border rounded bg-card text-sm"
+          >
+            <option value="amountAsc">Loan Amount ↑</option>
+            <option value="amountDesc">Loan Amount ↓</option>
+            <option value="interestAsc">Interest Rate ↑</option>
+            <option value="interestDesc">Interest Rate ↓</option>
+            <option value="durationAsc">Duration ↑</option>
+            <option value="durationDesc">Duration ↓</option>
+          </select>
         </div>
-      )}
 
-      {modalLoan && (
-        <LoanDetailsModal
-          isOpen={!!modalLoan}
-          onClose={() => setModalLoan(null)}
-          loan={modalLoan}
-          onAction={handleModalAction}
-          isProcessing={isFunding}
-          isBorrowing={isBorrowing}
-        />
-      )}
-    </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
+          </div>
+        ) : filteredLoans.length === 0 ? (
+          <Card className="text-center py-12 border-monad-border bg-card">
+            <CardContent>
+              <p className="text-foreground">
+                No active loan requests match your filters.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {filteredLoans.map((loan, index) => {
+              const isLenderForThisLoan =
+                loan.loanAddDetails.lender === address;
+
+              let actionText = "Fund Loan";
+              if (isLenderForThisLoan) {
+                actionText = "You Funded This Loan";
+              }
+
+              return (
+                <NFTCard
+                  loanId={loan.loanId}
+                  key={`${loan.loanAddDetails.nftAddress}-${Number(
+                    loan.nftId
+                  )}`}
+                  nftId={Number(loan.nftId)}
+                  nftAddress={loan.loanAddDetails.nftAddress}
+                  nftOwner={loan.loanAddDetails.nftOwner}
+                  loanAmount={loan.loanAmount}
+                  interestRate={Number(loan.interestRate)}
+                  loanDuration={Number(loan.loanDuration)}
+                  startTime={Number(loan.milestones.startTime)}
+                  repaid={loan.repaid}
+                  // repaid={loan.status === LoanStatus.repaid}
+                  lender={loan.loanAddDetails.lender}
+                  loanToken={loan.loanAddDetails.loanToken}
+                  active={loan.active}
+                  // active={loan.status === LoanStatus.active}
+                  completed={loan.completed}
+                  // completed={loan.status === LoanStatus.Completed}
+                  cancelled={loan.cancelled}
+                  // cancelled={loan.status === LoanStatus.cancelled}
+                  onAction={() => handleFundLoan(loan, index)}
+                  actionText={actionText}
+                  actionDisabled={isLenderForThisLoan}
+                  isProcessing={isFunding && selectedLoanIndex === index}
+                  showLender={false}
+                  onClick={() => {
+                    setModalLoan(loan);
+                    setIsBorrowing(false);
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {modalLoan && (
+          <LoanDetailsModal
+            isOpen={!!modalLoan}
+            onClose={() => setModalLoan(null)}
+            loan={modalLoan}
+            onAction={handleModalAction}
+            isProcessing={isFunding}
+            isBorrowing={isBorrowing}
+          />
+        )}
+      </div>
+    </AuthWrapper>
   );
 }
