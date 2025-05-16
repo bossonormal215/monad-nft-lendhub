@@ -17,6 +17,8 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useToast } from "@/Components/privy/ui/use-toast";
 import { useReadContract, useWriteContract } from "wagmi";
 import { useAccount, useWalletClient } from "wagmi";
+
+import { createPublicClient, http } from "viem";
 import {
   NFT_LENDHUB_ADDRESS,
   NFT_LENDHUB_ABI,
@@ -30,6 +32,7 @@ import { Loader2 } from "lucide-react";
 import { Toaster } from "@/Components/privy/ui/toaster";
 import { WagmiConfig } from "@/providers/wagmi-provider";
 import { SelectNFTModal, NFT } from "@/components/SelectNFTModal";
+import { monadTestnet } from "viem/chains";
 
 export default function BorrowPage() {
   const { user, authenticated, login } = usePrivy();
@@ -90,6 +93,14 @@ export default function BorrowPage() {
 
   const { writeContractAsync: approveNft } = useWriteContract();
   const { writeContractAsync: listNft } = useWriteContract();
+
+  const client = createPublicClient({
+    chain: monadTestnet,
+    transport: http(
+      process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC ||
+        "https://testnet-rpc.monad.xyz"
+    ),
+  });
 
   const handleActionClick = async () => {
     // if (!authenticated) return login();
@@ -195,6 +206,25 @@ export default function BorrowPage() {
 
     try {
       if (!isAlreadyApproved) {
+        // Simulate the transaction
+        try {
+          await client.simulateContract({
+            address: nftAddress as `0x${string}`,
+            abi: ERC721_ABI,
+            functionName: "approve",
+            args: [NFT_LENDHUB_ADDRESS_V2, BigInt(nftId)], // version 2
+            account: address,
+          });
+        } catch (error: any) {
+          console.log("❌ Simulation Error:", error);
+          toast({
+            title: "Nft Approval Error",
+            description: error?.message || "This transaction will fail.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         setIsApproving(true);
         setTxMessage("Approving NFT for Listing ...");
         await approveNft({
@@ -213,6 +243,41 @@ export default function BorrowPage() {
 
       setIsListing(true);
       setTxMessage("Listing NFT For Loan ...");
+
+      // Simulate the transaction
+      try {
+        await client.simulateContract({
+          // address: NFT_LENDHUB_ADDRESS, // version 1
+          address: NFT_LENDHUB_ADDRESS_V2, // version 2
+          // abi: NFT_LENDHUB_ABI, // version 1
+          abi: NFT_LENDHUB_ABI_V2, // version 2
+          functionName: "listNFTForLoan",
+          args: [
+            nftAddress,
+            BigInt(nftId),
+            parseAmount(loanAmount),
+            BigInt(interestRate),
+            BigInt(Number.parseInt(loanDuration) * 86400),
+            WMON_ADDRESS,
+          ],
+          account: address,
+        });
+      } catch (error: any) {
+        console.log("❌ Simulation Error:", error);
+        toast({
+          title: "Listing Error",
+          description: error?.message || "This transaction will fail.",
+          variant: "destructive",
+        });
+        // ✅ Reset form
+        setNftId("");
+        setLoanAmount("");
+        setInterestRate("5");
+        setLoanDuration("7");
+        return;
+      }
+
+      // List the NFT for loan
       await listNft({
         // address: NFT_LENDHUB_ADDRESS, // version 1
         address: NFT_LENDHUB_ADDRESS_V2, // version 2

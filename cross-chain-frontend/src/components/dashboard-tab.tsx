@@ -26,6 +26,8 @@ import { NFTCard } from "@/components/nft-card";
 import { LoanDetailsModal } from "@/components/LoanDetailsModal";
 import { LoanStatus } from "./lib/LoanStatus";
 import { AuthWrapper } from "@/Components/privy/auth-wrapper";
+import { createPublicClient, http } from "viem";
+import { monadTestnet } from "viem/chains";
 
 export function DashboardTab() {
   const { authenticated, login, user } = usePrivy();
@@ -48,6 +50,14 @@ export function DashboardTab() {
   const { writeContractAsync: claimRepayment } = useWriteContract();
   const { writeContractAsync: claimNFT } = useWriteContract();
   const { writeContractAsync: cancelLoan } = useWriteContract();
+
+  const client = createPublicClient({
+    chain: monadTestnet,
+    transport: http(
+      process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC ||
+        "https://testnet-rpc.monad.xyz"
+    ),
+  });
 
   useEffect(() => {
     if (!authenticated || !address) {
@@ -95,6 +105,25 @@ export function DashboardTab() {
 
       switch (action) {
         case "cancelLoan":
+          // Simulate the transaction
+          try {
+            await client.simulateContract({
+              address: NFT_LENDHUB_ADDRESS_V2,
+              abi: NFT_LENDHUB_ABI_V2,
+              functionName: "cancelLoanAndWithdrawNFT",
+              args: [loan.loanId],
+              account: address,
+            });
+          } catch (error: any) {
+            toast({
+              title: "Loan Cancellation Error",
+              description: error?.message || "This transaction will fail.",
+              variant: "destructive",
+            });
+
+            return;
+          }
+
           await cancelLoan({
             address: NFT_LENDHUB_ADDRESS_V2,
             abi: NFT_LENDHUB_ABI_V2,
@@ -104,6 +133,25 @@ export function DashboardTab() {
           break;
 
         case "claimLoan":
+          // Simulate the transaction
+          try {
+            await client.simulateContract({
+              address: NFT_LENDHUB_ADDRESS_V2,
+              abi: NFT_LENDHUB_ABI_V2,
+              functionName: "claimLoan",
+              args: [loan.loanId],
+              account: address,
+            });
+          } catch (error: any) {
+            toast({
+              title: "Loan Claim Error",
+              description: error?.message || "This transaction will fail.",
+              variant: "destructive",
+            });
+
+            return;
+          }
+
           await claimLoan({
             address: NFT_LENDHUB_ADDRESS_V2,
             abi: NFT_LENDHUB_ABI_V2,
@@ -122,6 +170,26 @@ export function DashboardTab() {
             functionName: "approve",
             args: [NFT_LENDHUB_ADDRESS_V2, repaymentAmount],
           });
+
+          // Simulate the transaction
+          try {
+            await client.simulateContract({
+              address: NFT_LENDHUB_ADDRESS_V2,
+              abi: NFT_LENDHUB_ABI_V2,
+              functionName: "repayLoan",
+              args: [loan.loanId],
+              account: address,
+            });
+          } catch (error: any) {
+            toast({
+              title: "Repayment Error",
+              description: error?.message || "This transaction will fail.",
+              variant: "destructive",
+            });
+
+            return;
+          }
+
           await repayLoan({
             address: NFT_LENDHUB_ADDRESS_V2,
             abi: NFT_LENDHUB_ABI_V2,

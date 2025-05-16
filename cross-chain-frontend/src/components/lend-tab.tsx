@@ -151,6 +151,26 @@ export function LendTab() {
         description: "Token approval successful",
       });
 
+      // Simulate the transaction
+      try {
+        await client.simulateContract({
+          address: NFT_LENDHUB_ADDRESS_V2,
+          abi: NFT_LENDHUB_ABI_V2,
+          functionName: "fundLoan",
+          args: [loan.loanId],
+          account: address,
+        });
+      } catch (error: any) {
+        toast({
+          title: "Simulation Error",
+          description: error?.message || "This transaction will fail.",
+          variant: "destructive",
+        });
+        setIsFunding(false);
+        setSelectedLoanIndex(null);
+        return;
+      }
+
       await fundLoan({
         // address: NFT_LENDHUB_ADDRESS, // version 1
         address: NFT_LENDHUB_ADDRESS_V2, // version 2
