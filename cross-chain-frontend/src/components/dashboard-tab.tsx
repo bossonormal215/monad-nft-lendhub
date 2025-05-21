@@ -21,13 +21,15 @@ import {
 } from "./lib/constants";
 import { calculateRepaymentAmount } from "./lib/utils";
 import { getAllUserLoans, type LoanData } from "./lib/contract-utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bell } from "lucide-react";
 import { NFTCard } from "@/components/nft-card";
 import { LoanDetailsModal } from "@/components/LoanDetailsModal";
 import { LoanStatus } from "./lib/LoanStatus";
 import { AuthWrapper } from "@/Components/privy/auth-wrapper";
 import { createPublicClient, http } from "viem";
 import { monadTestnet } from "viem/chains";
+import { Dialog, DialogContent, DialogTitle } from "@/Components/privy/ui/dialog";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/Components/privy/ui/select";
 
 export function DashboardTab() {
   const { authenticated, login, user } = usePrivy();
@@ -43,6 +45,9 @@ export function DashboardTab() {
     null
   );
   const [modalLoan, setModalLoan] = useState<LoanData | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [dashboardFilter, setDashboardFilter] = useState<string>("all");
+  const [historySort, setHistorySort] = useState<"desc" | "asc">("desc");
 
   const { writeContractAsync: approveToken } = useWriteContract();
   const { writeContractAsync: repayLoan } = useWriteContract();
@@ -55,7 +60,7 @@ export function DashboardTab() {
     chain: monadTestnet,
     transport: http(
       process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC ||
-        "https://testnet-rpc.monad.xyz"
+      "https://testnet-rpc.monad.xyz"
     ),
   });
 
@@ -231,16 +236,45 @@ export function DashboardTab() {
     }
   };
 
+  // Helper to filter by dashboard status
+  function filterLoansByStatus(loans: LoanData[], status: string): LoanData[] {
+    if (status === "active") return loans.filter(l => l.active && !l.completed && !l.cancelled);
+    if (status === "completed") return loans.filter(l => l.completed);
+    if (status === "pending") return loans.filter(l => !l.active && !l.completed && !l.cancelled);
+    return loans;
+  }
+
   return (
     <AuthWrapper>
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center relative">
           <h1 className="text-3xl font-bold text-foreground">Loan Dashboard</h1>
           <p className="text-muted-foreground mt-2">
             Manage your borrowings and lendings
           </p>
+          {/* Notification Bell Icon */}
+          <button
+            className="absolute right-0 top-0 p-2 rounded-full hover:bg-muted transition-colors"
+            aria-label="View Transaction History"
+            onClick={() => setShowHistory(true)}
+          >
+            <Bell className="h-6 w-6 text-monad-500" />
+          </button>
         </div>
-
+        {/* Dashboard Filter Dropdown */}
+        <div className="mb-4 flex justify-end">
+          <Select value={dashboardFilter} onValueChange={setDashboardFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8 bg-card border border-monad-border">
             <TabsTrigger
@@ -262,7 +296,7 @@ export function DashboardTab() {
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
               </div>
-            ) : myBorrowings.length === 0 ? (
+            ) : filterLoansByStatus(myBorrowings, dashboardFilter).length === 0 ? (
               <Card className="text-center py-12 border-monad-border bg-card">
                 <CardContent>
                   <p className="text-foreground">
@@ -278,7 +312,7 @@ export function DashboardTab() {
               </Card>
             ) : (
               <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                {myBorrowings.map((loan, index) => {
+                {filterLoansByStatus(myBorrowings, dashboardFilter).map((loan, index) => {
                   const isNotFunded = !loan.active;
                   const isLoanClaimed = loan.loanClaimed;
                   const isRepaid = loan.repaid;
@@ -288,7 +322,7 @@ export function DashboardTab() {
                     loan.active && loan.milestones.startTime === BigInt(0);
                   loan.active &&
                     loan.loanAddDetails.lender !=
-                      "0x0000000000000000000000000000000000000000";
+                    "0x0000000000000000000000000000000000000000";
                   const isCancelled = loan.cancelled;
 
                   let actionText = "Cancel Loan";
@@ -381,7 +415,7 @@ export function DashboardTab() {
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-monad-500" />
               </div>
-            ) : myLendings.length === 0 ? (
+            ) : filterLoansByStatus(myLendings, dashboardFilter).length === 0 ? (
               <Card className="text-center py-12 border-monad-border bg-card">
                 <CardContent>
                   <p className="text-foreground">
@@ -397,7 +431,7 @@ export function DashboardTab() {
               </Card>
             ) : (
               <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                {myLendings.map((loan, index) => {
+                {filterLoansByStatus(myLendings, dashboardFilter).map((loan, index) => {
                   const now = Math.floor(Date.now() / 1000);
                   const loanEnd =
                     Number(loan.milestones.startTime) +
@@ -497,7 +531,85 @@ export function DashboardTab() {
             isBorrowing={isBorrowing}
           />
         )}
+
+        {/* Transaction History Modal */}
+        <Dialog open={showHistory} onOpenChange={setShowHistory}>
+          <DialogContent className="max-w-lg">
+            <DialogTitle>Transaction History</DialogTitle>
+            {/* History Sort Dropdown */}
+            <div className="mb-4 flex justify-end">
+              <Select value={historySort} onValueChange={v => setHistorySort(v as "desc" | "asc")}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Newest First</SelectItem>
+                  <SelectItem value="asc">Oldest First</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Tabs defaultValue="active" className="mt-4">
+              <TabsList className="grid grid-cols-3 mb-4">
+                <TabsTrigger value="active">Active</TabsTrigger>
+                <TabsTrigger value="completed">Completed</TabsTrigger>
+                <TabsTrigger value="pending">Pending</TabsTrigger>
+              </TabsList>
+              {['active', 'completed', 'pending'].map(tab => (
+                <TabsContent value={tab} key={tab}>
+                  {filteredLoans([...myBorrowings, ...myLendings], tab)
+                    .sort((a, b) => historySort === 'desc'
+                      ? Number(b.milestones.startTime) - Number(a.milestones.startTime)
+                      : Number(a.milestones.startTime) - Number(b.milestones.startTime))
+                    .length === 0 ? (
+                    <p className="text-muted-foreground text-center">No {tab} loans.</p>
+                  ) : (
+                    <>
+                      {filteredLoans([...myBorrowings, ...myLendings], tab)
+                        .sort((a, b) => historySort === 'desc'
+                          ? Number(b.milestones.startTime) - Number(a.milestones.startTime)
+                          : Number(a.milestones.startTime) - Number(b.milestones.startTime))
+                        .map((loan: LoanData) => (
+                          <LoanHistoryItem key={loan.loanId} loan={loan} address={address ?? ""} />
+                        ))}
+                    </>
+                  )}
+                </TabsContent>
+              ))}
+            </Tabs>
+          </DialogContent>
+        </Dialog>
       </div>
     </AuthWrapper>
+  );
+}
+
+// Helper to filter loans by status
+function filteredLoans(loans: LoanData[], status: string): LoanData[] {
+  if (status === "active") {
+    return loans.filter((l: LoanData) => l.active && !l.completed && !l.cancelled);
+  }
+  if (status === "completed") {
+    return loans.filter((l: LoanData) => l.completed);
+  }
+  if (status === "pending") {
+    return loans.filter((l: LoanData) => !l.active && !l.completed && !l.cancelled);
+  }
+  return loans;
+}
+
+// LoanHistoryItem component for rendering a single loan row
+function LoanHistoryItem({ loan, address }: { loan: LoanData; address: string }) {
+  return (
+    <div className="border-b border-muted py-2 flex flex-col gap-1">
+      <div className="flex justify-between items-center">
+        <span className="font-mono text-xs text-muted-foreground">#{loan.loanId.toString()}</span>
+        <span className="text-xs ">{loan.loanAddDetails.nftOwner === address ? "Borrowing" : "Lending"}</span>
+        <span className="text-xs capitalize">{loan.completed ? "Completed" : loan.repaid ? "Repaid" : loan.active ? "Active" : loan.cancelled ? "Cancelled" : "Pending"}</span>
+      </div>
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>Amount: {Number(loan.loanAmount) / 1e18}</span>
+        <span>{loan.milestones.startTime ? new Date(Number(loan.milestones.startTime) * 1000).toLocaleDateString() : "-"}</span>
+      </div>
+    </div>
   );
 }

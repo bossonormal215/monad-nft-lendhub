@@ -60,6 +60,20 @@ export function Header() {
           >
             Collections
           </Link>
+
+          <Link
+            href="/stats"
+            className="text-sm font-medium transition-colors hover:text-monad-500"
+          >
+            Stats
+          </Link>
+
+          <Link
+            href="/workedstats"
+            className="text-sm font-medium transition-colors hover:text-monad-500"
+          >
+            Worked Stats
+          </Link>
           {ready && authenticated && address ? (
             <Button
               variant="outline"

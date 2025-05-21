@@ -36,7 +36,6 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         uint256 interestRate;
         uint256 loanDuration;
         uint256 startTime;
-        // loanTimeStamps loanTime;
         bool loanClaimed;
         bool repaid;
         address loanToken;
@@ -150,7 +149,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
             "Invalid loan token"
         );
 
-        IERC721(_nftAddress).transferFrom(msg.sender, address(this), _nftId);
+        IERC721(_nftAddress).transferFrom(msg.sender, address(this), _nftId); 
 
         loanCounter++;
         uint256 loanId = loanCounter;
@@ -209,6 +208,7 @@ contract NFTLendHub4 is Ownable, ReentrancyGuard {
         );
 
         loan.lender = msg.sender;
+        loan.startTime = block.timestamp;
         // loan.loanTime.fundedAt = block.timestamp;
         loan.active = true;
 

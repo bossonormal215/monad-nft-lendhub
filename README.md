@@ -141,5 +141,6 @@ This project is licensed under the MIT License.
 ## 🙏 Acknowledgments
 
 - Monad Foundation
+- Pyth network
 - Wormhole Protocol
 - ThirdWeb Team

@@ -438,7 +438,8 @@ export default function Home() {
 
                   <div className="flex items-center gap-4 pt-4">
                     <Image
-                      src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
+                      // src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
+                      src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreib5h3hxslthviq4g4jryegukljqnhtvdzjr27tw5bmx5adpkejj4i"
                       alt="LendHub Logo"
                       width={40}
                       height={40}
@@ -528,7 +529,8 @@ export default function Home() {
               <div className="space-y-4 col-span-2 md:col-span-1">
                 <div className="flex items-center gap-2">
                   <Image
-                    src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
+                    // src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreid7sltmasp74vubafpketmw3b4kp7wpzy7idinapdqgktq6c3e5aq"
+                    src="https://amethyst-conscious-vole-978.mypinata.cloud/ipfs/bafkreib5h3hxslthviq4g4jryegukljqnhtvdzjr27tw5bmx5adpkejj4i"
                     alt="LendHub Logo"
                     width={40}
                     height={40}

@@ -54,6 +54,8 @@ import Web3Wrapper from "@/Components/privy/Web3Wrapper"; // this for privy
 import { Toaster } from "@/Components/privy/ui/toaster";
 import { WagmiConfig } from "@/providers/wagmi-provider";
 import { Header } from "@/components/header";
+import FeedbackModal from "@/components/feedback/feedback";
+import ThemeToggle from "@/components/ThemeToggle";
 
 import { Inter } from "next/font/google";
 
@@ -82,8 +84,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
-      <body className={inter.className}>
-        <main className="min-h-screen bg-gray-900">
+      {/* <body className={inter.className}> */}
+      <body className={inter.className + ' bg-white dark:bg-gray-900'}>
+        {/* <main className="min-h-screen bg-gray-900"> */}
+        <main className="min-h-screen bg-white dark:bg-gray-900">
+
           <Web3Wrapper>
             <WagmiConfig>
               <Header />
@@ -92,6 +97,12 @@ export default function RootLayout({
             </WagmiConfig>
           </Web3Wrapper>
         </main>
+        {/* Feedback Button Fixed Bottom-Right */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <FeedbackModal />
+        </div>
+        {/* Dark/Light Mode Toggle Fixed Bottom-Left */}
+        <ThemeToggle />
       </body>
     </html>
   );
