@@ -68,12 +68,12 @@ export function Header() {
             Stats
           </Link>
 
-          <Link
+          {/* <Link
             href="/workedstats"
             className="text-sm font-medium transition-colors hover:text-monad-500"
           >
             Worked Stats
-          </Link>
+          </Link> */}
           {ready && authenticated && address ? (
             <Button
               variant="outline"

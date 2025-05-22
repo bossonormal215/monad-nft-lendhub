@@ -1,0 +1,74 @@
+type Nftlendhub_LoanClaimed {
+  id: ID!
+  loanId: BigInt!
+  borrower: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_LoanFunded {
+  id: ID!
+  loanId: BigInt!
+  lender: String!
+  # <-- borrower: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_LoanRepaid {
+  id: ID!
+  loanId: BigInt!
+  borrower: String!
+  # <-- lender: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_NFTClaimedByLender {
+  id: ID!
+  loanId: BigInt!
+  lender: String!
+  borrower: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_NFTListed {
+  id: ID!
+  loanId: BigInt!
+  nftOwner: String!
+  nftAddress: String!
+  nftId: BigInt!
+  loanAmount: BigInt!
+  interestRate: BigInt!
+  duration: BigInt!
+  loanToken: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+
+}
+
+type Nftlendhub_NFTWithdrawn {
+  id: ID!
+  loanId: BigInt!
+  owner: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_OwnershipTransferred {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_RepaymentClaimed {
+  id: ID!
+  loanId: BigInt!
+  lender: String!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+

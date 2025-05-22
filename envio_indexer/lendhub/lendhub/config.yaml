@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: lendhub
+networks:
+- id: 10143
+  start_block: 15294605
+  
+  contracts:
+  - name: nftlendhub
+    address:
+    - 0x9578f8b8885eDB70A9905f57186f7A1585903b1a
+    handler: src/EventHandlers.ts
+    events:
+    - event: LoanClaimed(uint256 indexed loanId, address indexed borrower)
+    - event: LoanFunded(uint256 indexed loanId, address indexed lender) # <-- , address indexed borrower in new deploy contract
+    - event: LoanRepaid(uint256 indexed loanId, address indexed borrower) # <--, address indexed lender in new deploy contract
+    - event: NFTClaimedByLender(uint256 indexed loanId, address indexed lender, address indexed borrower)
+    - event: NFTListed(uint256 indexed loanId, address indexed nftOwner, address indexed nftAddress, uint256 nftId, uint256 loanAmount, uint256 interestRate, uint256 duration, address loanToken)
+    - event: NFTWithdrawn(uint256 indexed loanId, address indexed owner)
+    - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+    - event: RepaymentClaimed(uint256 indexed loanId, address indexed lender)
+unordered_multichain_mode: true

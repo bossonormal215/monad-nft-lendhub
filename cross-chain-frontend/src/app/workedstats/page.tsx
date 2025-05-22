@@ -44,7 +44,7 @@ export default function StatsPage() {
     // Helper to fetch NFT name
     async function fetchNFTName(nftAddress: string, tokenId: string) {
         try {
-            const res = await fetch(`/api/nftinfo?address=${nftAddress}&tokenId=${tokenId}`);
+            const res = await fetch(`/api/nftinfo2?address=${nftAddress}&tokenId=${tokenId}`);
             const data = await res.json();
             return data.name || `Token #${tokenId}`;
         } catch {

@@ -120,6 +120,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         address indexed borrower
     );
     event NFTWithdrawn(uint256 indexed loanId, address indexed owner);
+    event LoanCancelled(uint256 indexed loanId, address indexed owner);
 
     constructor(
         address _MON,
@@ -558,7 +559,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
-        emit NFTWithdrawn(loanId, loan.loanAddDetails.nftOwner);
+        emit LoanCancelled(loanId, loan.loanAddDetails.nftOwner);
     }
 
     /** --- View Functions --- */
