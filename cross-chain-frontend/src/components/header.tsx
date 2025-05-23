@@ -148,6 +148,13 @@ export function Header() {
                 >
                   Collections
                 </Link>
+
+                <Link
+                  href="/stats"
+                  className="text-sm font-medium transition-colors hover:text-monad-500"
+                >
+                  Stats
+                </Link>
                 <div className="mt-6">
                   {authenticated ? (
                     <Button
