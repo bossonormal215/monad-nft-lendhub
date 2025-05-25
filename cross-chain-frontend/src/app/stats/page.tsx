@@ -157,25 +157,25 @@ const getStatusBadge = (status: string) => {
 
 const GET_ACTIVITY = `
   query GetActivity {
-    Nftlendhub_NFTListed(limit: 30) {
+    Nftlendhub_NFTListed(limit: 100000) {
       id loanId nftOwner nftAddress nftId loanAmount interestRate duration loanToken _blockNumber _timestamp
     }
-    Nftlendhub_LoanFunded(limit: 30) {
+    Nftlendhub_LoanFunded(limit: 100000) {
       id loanId lender _blockNumber _timestamp
     }
-    Nftlendhub_LoanClaimed(limit: 30) {
+    Nftlendhub_LoanClaimed(limit: 1000000) {
       id loanId borrower _blockNumber _timestamp
     }
-    Nftlendhub_LoanRepaid(limit: 30) {
+    Nftlendhub_LoanRepaid(limit: 1000000) {
       id loanId borrower  _blockNumber _timestamp
     }
-    Nftlendhub_RepaymentClaimed(limit: 30) {
+    Nftlendhub_RepaymentClaimed(limit: 100000) {
       id loanId lender _blockNumber _timestamp
     }
-    Nftlendhub_NFTClaimedByLender(limit: 30) {
+    Nftlendhub_NFTClaimedByLender(limit: 100000) {
       id loanId lender borrower _blockNumber _timestamp
     }
-    Nftlendhub_NFTWithdrawn(limit: 30) {
+    Nftlendhub_NFTWithdrawn(limit: 100000) {
       id loanId owner _blockNumber _timestamp
     }
   }
@@ -264,7 +264,7 @@ export default function ActivityFeed() {
       try {
         const res = await fetch(
           process.env.NEXT_PUBLIC_INDEXER_URL ||
-            "http://localhost:8080/v1/graphql",
+          "http://localhost:8080/v1/graphql",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -377,7 +377,7 @@ export default function ActivityFeed() {
     try {
       const res = await fetch(
         process.env.NEXT_PUBLIC_INDEXER_URL ||
-          "http://localhost:8080/v1/graphql",
+        "http://localhost:8080/v1/graphql",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -609,11 +609,11 @@ export default function ActivityFeed() {
                               </div>
                               <span className="truncate">
                                 {event.nftAddress &&
-                                event.nftId &&
-                                nftNames[`${event.nftAddress}-${event.nftId}`]
+                                  event.nftId &&
+                                  nftNames[`${event.nftAddress}-${event.nftId}`]
                                   ? nftNames[
-                                      `${event.nftAddress}-${event.nftId}`
-                                    ]
+                                  `${event.nftAddress}-${event.nftId}`
+                                  ]
                                   : formatNFT(event.nftId)}
                               </span>
                             </div>
@@ -621,8 +621,8 @@ export default function ActivityFeed() {
                           <TooltipContent className="bg-gray-900 border-gray-700">
                             <p>
                               {event.nftAddress &&
-                              event.nftId &&
-                              nftNames[`${event.nftAddress}-${event.nftId}`]
+                                event.nftId &&
+                                nftNames[`${event.nftAddress}-${event.nftId}`]
                                 ? nftNames[`${event.nftAddress}-${event.nftId}`]
                                 : `Token #${event.nftId}`}
                             </p>
@@ -636,11 +636,11 @@ export default function ActivityFeed() {
                     <td className="py-3 px-4 text-gray-400">
                       {event._timestamp
                         ? formatDistanceToNow(
-                            new Date(event._timestamp * 1000),
-                            {
-                              addSuffix: true,
-                            }
-                          )
+                          new Date(event._timestamp * 1000),
+                          {
+                            addSuffix: true,
+                          }
+                        )
                         : "-"}
                     </td>
                     <td className="py-3 px-4">
@@ -685,8 +685,8 @@ export default function ActivityFeed() {
                       <div className="text-gray-400">NFT:</div>
                       <div className="text-right truncate">
                         {event.nftAddress &&
-                        event.nftId &&
-                        nftNames[`${event.nftAddress}-${event.nftId}`]
+                          event.nftId &&
+                          nftNames[`${event.nftAddress}-${event.nftId}`]
                           ? nftNames[`${event.nftAddress}-${event.nftId}`]
                           : formatNFT(event.nftId)}
                       </div>
@@ -700,11 +700,11 @@ export default function ActivityFeed() {
                       <div className="text-right text-gray-300">
                         {event._timestamp
                           ? formatDistanceToNow(
-                              new Date(event._timestamp * 1000),
-                              {
-                                addSuffix: true,
-                              }
-                            )
+                            new Date(event._timestamp * 1000),
+                            {
+                              addSuffix: true,
+                            }
+                          )
                           : "-"}
                       </div>
                     </div>
