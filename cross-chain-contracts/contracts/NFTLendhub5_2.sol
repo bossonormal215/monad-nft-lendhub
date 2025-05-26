@@ -189,7 +189,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
     modifier withinRepaymentPeriod(uint256 loanId) {
         require(
             block.timestamp <=
-                loans[loanId].milestones.startTime + loans[loanId].loanDuration,
+                loans[loanId].milestones.startTime +
+                    loans[loanId].loanDuration +
+                    GRACE_PERIOD,
             "Loan overdue"
         );
         _;
