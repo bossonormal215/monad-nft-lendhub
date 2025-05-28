@@ -104,16 +104,26 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
     );
     event LoanFunded(
         uint256 indexed loanId,
+        uint256 loanAmount,
         address indexed lender,
         address indexed borrower
     );
-    event LoanClaimed(uint256 indexed loanId, address indexed borrower);
+    event LoanClaimed(
+        uint256 indexed loanId,
+        address indexed borrower,
+        uint256 indexed loanAmount
+    );
     event LoanRepaid(
         uint256 indexed loanId,
         address indexed borrower,
-        address indexed lender
+        address indexed lender,
+        uint256 loanAmount
     );
-    event RepaymentClaimed(uint256 indexed loanId, address indexed lender);
+    event RepaymentClaimed(
+        uint256 indexed loanId,
+        address indexed lender,
+        uint256 indexed loanAmount
+    );
     event NFTClaimedByLender(
         uint256 indexed loanId,
         address indexed lender,
@@ -388,7 +398,12 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
-        emit LoanFunded(loanId, msg.sender, loan.loanAddDetails.nftOwner);
+        emit LoanFunded(
+            loanId,
+            loan.loanAmount,
+            msg.sender,
+            loan.loanAddDetails.nftOwner
+        );
     }
 
     // Helper function to update allLoans array
@@ -421,7 +436,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
-        emit LoanClaimed(loanId, msg.sender);
+        emit LoanClaimed(loanId, msg.sender, payout);
     }
 
     function repayLoan(
@@ -462,7 +477,12 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
-        emit LoanRepaid(loanId, msg.sender, loan.loanAddDetails.lender);
+        emit LoanRepaid(
+            loanId,
+            msg.sender,
+            loan.loanAddDetails.lender,
+            repayment
+        );
     }
 
     function claimRepayment(
@@ -472,14 +492,17 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         require(loan.repaid, "Loan not yet repaid");
         require(!loan.completed, "Already completed");
+        uint256 platformFee = (loan.loanAmount * PLATFORM_FEE) / 100;
 
         uint256 repaymentAmount = loan.loanAmount +
             (loan.loanAmount * loan.interestRate) /
             100;
 
+        uint256 fRepaymentAmount = repaymentAmount - platformFee; // final repayment amount after platform fee
+
         IERC20(loan.loanAddDetails.loanToken).transfer(
             msg.sender,
-            repaymentAmount
+            fRepaymentAmount
         );
 
         loan.completed = true;
@@ -489,7 +512,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
-        emit RepaymentClaimed(loanId, msg.sender);
+        emit RepaymentClaimed(loanId, msg.sender, fRepaymentAmount);
     }
 
     function claimNFT(
