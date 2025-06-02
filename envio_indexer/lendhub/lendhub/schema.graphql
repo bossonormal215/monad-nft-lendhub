@@ -2,6 +2,7 @@ type Nftlendhub_LoanClaimed {
   id: ID!
   loanId: BigInt!
   borrower: String!
+  loanAmount: BigInt!
   _blockNumber: BigInt!      # <-- added this
   _timestamp: BigInt!        # <-- added this
 }
@@ -10,7 +11,16 @@ type Nftlendhub_LoanFunded {
   id: ID!
   loanId: BigInt!
   lender: String!
-  # <-- borrower: String!
+  borrower: String!
+  loanAmount: BigInt!
+  _blockNumber: BigInt!      # <-- added this
+  _timestamp: BigInt!        # <-- added this
+}
+
+type Nftlendhub_LoanCancelled {
+  id: ID!
+  loanId: BigInt!
+  owner: String!
   _blockNumber: BigInt!      # <-- added this
   _timestamp: BigInt!        # <-- added this
 }
@@ -19,7 +29,8 @@ type Nftlendhub_LoanRepaid {
   id: ID!
   loanId: BigInt!
   borrower: String!
-  # <-- lender: String!
+  lender: String!
+  loanAmount: BigInt!
   _blockNumber: BigInt!      # <-- added this
   _timestamp: BigInt!        # <-- added this
 }
@@ -68,6 +79,7 @@ type Nftlendhub_RepaymentClaimed {
   id: ID!
   loanId: BigInt!
   lender: String!
+  loanAmount: BigInt!
   _blockNumber: BigInt!      # <-- added this
   _timestamp: BigInt!        # <-- added this
 }

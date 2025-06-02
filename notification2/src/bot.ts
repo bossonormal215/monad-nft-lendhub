@@ -73,9 +73,9 @@ export const initBot = () => {
 };
 
 // Notification functions
-export const notifyUser = async (chatId: string, message: string) => {
+export const notifyUser = async (chatId: string, message: string, options?: { parse_mode?: 'HTML' | 'Markdown' }) => {
   try {
-    await bot.sendMessage(chatId, message);
+    await bot.sendMessage(chatId, message, options);
   } catch (err) {
     console.error(`❌ Failed to send message to chat ${chatId}:`, err);
   }

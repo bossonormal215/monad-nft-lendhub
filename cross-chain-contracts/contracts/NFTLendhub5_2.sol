@@ -104,9 +104,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
     );
     event LoanFunded(
         uint256 indexed loanId,
-        uint256 loanAmount,
         address indexed lender,
-        address indexed borrower
+        address indexed borrower,
+        uint256 loanAmount
     );
     event LoanClaimed(
         uint256 indexed loanId,
@@ -400,9 +400,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         emit LoanFunded(
             loanId,
-            loan.loanAmount,
             msg.sender,
-            loan.loanAddDetails.nftOwner
+            loan.loanAddDetails.nftOwner,
+            loan.loanAmount
         );
     }
 
@@ -591,6 +591,33 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
     function getAllLoans() external view returns (Loan[] memory) {
         return allLoans;
+    }
+
+    function getActiveLoans() external view returns (Loan[] memory) {
+        uint256 count;
+        for (uint256 i = 0; i < allLoanIds.length; i++) {
+            if (
+                loans[allLoanIds[i]].loanAddDetails.lender != address(0) &&
+                loans[allLoanIds[i]].active == true &&
+                loans[allLoanIds[i]].completed == false &&
+                loans[allLoanIds[i]].cancelled == false
+            ) {
+                count++;
+            }
+        }
+        Loan[] memory result = new Loan[](count);
+        uint256 index;
+        for (uint256 i = 0; i < allLoanIds.length; i++) {
+            if (
+                loans[allLoanIds[i]].loanAddDetails.lender != address(0) &&
+                loans[allLoanIds[i]].active == true &&
+                loans[allLoanIds[i]].completed == false &&
+                loans[allLoanIds[i]].cancelled == false
+            ) {
+                result[index++] = loans[allLoanIds[i]];
+            }
+        }
+        return result;
     }
 
     function getUnfundedLoans() external view returns (Loan[] memory) {

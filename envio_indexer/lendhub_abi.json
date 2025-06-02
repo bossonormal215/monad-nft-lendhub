@@ -37,8 +37,33 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "LoanCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "loanId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "borrower",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "loanAmount",
+        "type": "uint256"
       }
     ],
     "name": "LoanClaimed",
@@ -51,6 +76,12 @@
         "indexed": true,
         "internalType": "uint256",
         "name": "loanId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanAmount",
         "type": "uint256"
       },
       {
@@ -89,6 +120,12 @@
         "internalType": "address",
         "name": "lender",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanAmount",
+        "type": "uint256"
       }
     ],
     "name": "LoanRepaid",
@@ -226,6 +263,12 @@
         "internalType": "address",
         "name": "lender",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "loanAmount",
+        "type": "uint256"
       }
     ],
     "name": "RepaymentClaimed",

@@ -1,6 +1,4 @@
-import { ethers } from 'ethers';
 import dotenv from 'dotenv';
-import { LENDHUB_ABI } from './lendhub';
 import { getUserByWallet } from './db/schema';
 import {
   notifyLoanFunded,
@@ -11,31 +9,17 @@ import {
   notifyNFTClaimed,
   notifyUser
 } from './bot';
+import {
+  fetchRecentEvents,
+  fetchLoanDetails,
+  getLatestBlock,
+  type EnvioResponse,
+  type LoanDetails
+} from './envio';
 
 dotenv.config();
 
-// Contract interface for fetching loan details
-interface Loan {
-  loanId: string;
-  nftOwner: string;
-  lender: string;
-  nftId: string;
-  loanAmount: string;
-  interestRate: string;
-  loanDuration: string;
-  active: boolean;
-  repaid: boolean;
-  completed: boolean;
-  milestones: {
-    startTime: string;
-    fundedAt: string;
-    repaidAt: string;
-    completedAt: string;
-  };
-}
-
-// Store last processed block and active loans
-let lastProcessedBlock = 0;
+// Store active loans and last processed blocks
 let activeLoans = new Map<string, {
   loanId: string;
   borrower: string;
@@ -45,8 +29,34 @@ let activeLoans = new Map<string, {
   lastNotified: number;
 }>();
 
+// Track last processed block for each event type
+let lastProcessedBlocks = {
+  Nftlendhub_NFTListed: 0,
+  Nftlendhub_LoanFunded: 0,
+  Nftlendhub_LoanClaimed: 0,
+  Nftlendhub_LoanRepaid: 0,
+  Nftlendhub_LoanCancelled: 0,
+  Nftlendhub_RepaymentClaimed: 0,
+  Nftlendhub_NFTClaimedByLender: 0,
+  Nftlendhub_NFTWithdrawn: 0
+};
+
+// Utility functions
+function formatEther(wei: string): string {
+  return (parseFloat(wei) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 4 }) + ' wMON';
+}
+
+function formatDuration(seconds: string): string {
+  return (parseFloat(seconds) / 86400).toFixed() + ' days';
+}
+
+function formatWalletLink(address: string): string {
+  const shortenedAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `<a href="https://www.lendhub.xyz/user/${address}">${shortenedAddress}</a>`;
+}
+
 // Check loan expiration status
-const checkLoanExpiration = async (contract: ethers.Contract) => {
+const checkLoanExpiration = async () => {
   const currentTime = Math.floor(Date.now() / 1000);
   const GRACE_PERIOD = 7 * 24 * 60 * 60; // 7 days in seconds
 
@@ -102,226 +112,176 @@ const checkLoanExpiration = async (contract: ethers.Contract) => {
 export const startListener = async () => {
   try {
     // Validate environment variables
-    if (!process.env.RPC_URL) {
-      throw new Error('RPC_URL is not set in environment variables');
-    }
-    if (!process.env.CONTRACT_ADDRESS) {
-      throw new Error('CONTRACT_ADDRESS is not set in environment variables');
+    if (!process.env.ENVIO_GRAPHQL_URL) {
+      throw new Error('ENVIO_GRAPHQL_URL is not set in environment variables');
     }
 
-    // Initialize provider
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-    
-    // Validate contract address
-    if (!ethers.isAddress(process.env.CONTRACT_ADDRESS)) {
-      throw new Error('Invalid contract address format');
-    }
+    console.log('🚀 Starting Envio event listener...');
+    console.log(`🌐 Envio GraphQL URL: ${process.env.ENVIO_GRAPHQL_URL}`);
 
-    const contract = new ethers.Contract(
-      process.env.CONTRACT_ADDRESS,
-      LENDHUB_ABI,
-      provider
-    );
+    // Get the latest block from Envio
+    const latestBlock = await getLatestBlock();
+    console.log(`📦 Latest block from Envio: ${latestBlock}`);
 
-    console.log('🚀 Starting event listener...');
-    console.log(`📝 Contract address: ${process.env.CONTRACT_ADDRESS}`);
-    console.log(`🌐 RPC URL: ${process.env.RPC_URL}`);
+    // Initialize last processed blocks
+    Object.keys(lastProcessedBlocks).forEach(key => {
+      lastProcessedBlocks[key as keyof typeof lastProcessedBlocks] = latestBlock;
+    });
 
-    // Get current block number
-    const currentBlock = await provider.getBlockNumber();
-    lastProcessedBlock = currentBlock - 1000; // Start from 1000 blocks ago
-    console.log(`📦 Starting from block ${lastProcessedBlock}`);
-
-    // Poll for new blocks
+    // Poll for new events
     const pollInterval = 15000; // 15 seconds
     setInterval(async () => {
       try {
-        const currentBlock = await provider.getBlockNumber();
-        if (currentBlock <= lastProcessedBlock) return;
+        // Get current latest block
+        const currentBlock = await getLatestBlock();
+        
+        // Fetch recent events from Envio
+        const events = await fetchRecentEvents(currentBlock - 100); // Look back 100 blocks to ensure we don't miss any events
 
-        const MAX_BLOCK_RANGE = 100;
-        let fromBlock = lastProcessedBlock + 1;
-        while (fromBlock <= currentBlock) {
-          const toBlock = Math.min(fromBlock + MAX_BLOCK_RANGE - 1, currentBlock);
-          console.log(`🔍 Checking blocks ${fromBlock} to ${toBlock}`);
-
-          // Get events for each type in this chunk
-          const events = await Promise.all([
-            contract.queryFilter('NFTListed', fromBlock, toBlock),
-            contract.queryFilter('LoanFunded', fromBlock, toBlock),
-            contract.queryFilter('LoanClaimed', fromBlock, toBlock),
-            contract.queryFilter('LoanRepaid', fromBlock, toBlock),
-            contract.queryFilter('RepaymentClaimed', fromBlock, toBlock),
-            contract.queryFilter('NFTClaimedByLender', fromBlock, toBlock),
-            contract.queryFilter('NFTWithdrawn', fromBlock, toBlock),
-            contract.queryFilter('LoanCancelled', fromBlock, toBlock)
-          ]);
-
-          // Process NFTListed events
-          for (const event of events[0]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            const loanAmount = typedEvent.args[4];
-            const nftOwner = typedEvent.args[1];
-            console.log(`📥 NFTListed event: Loan #${loanId} by ${nftOwner}`);
-            
-            const user = await getUserByWallet(nftOwner);
+        // Process NFTListed events
+        for (const event of events.Nftlendhub_NFTListed) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_NFTListed) {
+            const user = await getUserByWallet(event.nftOwner);
             if (user) {
-              await notifyUser(user.chat_id, `🎨 Your NFT has been listed for loan on lendhub for ${loanAmount} with Loan Id #${loanId}`);
+              await notifyUser(
+                user.chat_id,
+                `🔔 New NFT Listed!\n\nNFT ID: ${event.nftId}\nLoan Amount: ${formatEther(event.loanAmount)}\nInterest Rate: ${event.interestRate}%\nDuration: ${formatDuration(event.duration)}`
+              );
             }
+            lastProcessedBlocks.Nftlendhub_NFTListed = event._blockNumber;
           }
+        }
 
-          // Process LoanFunded events
-          for (const event of events[1]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            const lender = typedEvent.args[1];
-            const borrower = typedEvent.args[2];
-            
-            // Get loan details
-            const loan = await contract.loans(loanId);
-            
-            // Add to active loans tracking
-            activeLoans.set(loanId.toString(), {
-              loanId: loanId.toString(),
-              borrower,
-              lender,
-              startTime: Number(loan.milestones.startTime),
-              duration: Number(loan.loanDuration),
-              lastNotified: Math.floor(Date.now() / 1000)
-            });
-
-            console.log(`📥 LoanFunded event: Loan #${loanId} by ${lender} for ${borrower}`);
-            
-            // Notify borrower
-            const borrowerUser = await getUserByWallet(borrower);
-            if (borrowerUser) {
-              await notifyLoanFunded(borrowerUser.chat_id, loanId.toString());
-            }
-
-            // Notify lender
-            const lenderUser = await getUserByWallet(lender);
-            if (lenderUser) {
-              await notifyLenderFunded(lenderUser.chat_id, loanId.toString());
-            }
-          }
-
-          // Process LoanClaimed events
-          for (const event of events[2]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            const borrower = typedEvent.args[1];
-            console.log(`📥 LoanClaimed event: Loan #${loanId} by ${borrower}`);
-            
-            const user = await getUserByWallet(borrower);
+        // Process LoanCancelled events
+        for (const event of events.Nftlendhub_LoanCancelled) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_LoanCancelled) {
+            const user = await getUserByWallet(event.owner);
             if (user) {
-              await notifyLoanClaimed(user.chat_id, loanId.toString());
+              await notifyUser(
+                user.chat_id,
+                `🔔 Loan Cancelled!\n\nLoan ID: ${event.loanId}`
+              );
             }
+            lastProcessedBlocks.Nftlendhub_LoanCancelled = event._blockNumber;
           }
+        }
 
-          // Process LoanRepaid events
-          for (const event of events[3]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            
-            // Remove from active loans tracking
-            activeLoans.delete(loanId.toString());
-
-            const borrower = typedEvent.args[1];
-            const lender = typedEvent.args[2];
-            console.log(`📥 LoanRepaid event: Loan #${loanId} by ${borrower}`);
-
-            // Notify lender about repayment
-            const lenderUser = await getUserByWallet(lender);
-            if (lenderUser) {
-              await notifyRepaymentReady(lenderUser.chat_id, loanId.toString());
+        // Process LoanFunded events
+        for (const event of events.Nftlendhub_LoanFunded) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_LoanFunded) {
+            const borrower = await getUserByWallet(event.borrower);
+            const lender = await getUserByWallet(event.lender);
+            if (borrower) {
+              await notifyUser(
+                borrower.chat_id,
+                `💰 Loan Funded!\n\nLoan ID: ${event.loanId}\nAmount: ${formatEther(event.loanAmount)}\nLender: ${formatWalletLink(event.lender)}`,
+                { parse_mode: 'HTML' }
+              );
             }
-
-            // Notify borrower about successful repayment
-            const borrowerUser = await getUserByWallet(borrower);
-            if (borrowerUser) {
-              await notifyLoanRepaid(borrowerUser.chat_id, loanId.toString());
+            if (lender) {
+              await notifyUser(
+                lender.chat_id,
+                `💰 You Funded a Loan!\n\nLoan ID: ${event.loanId}\nAmount: ${formatEther(event.loanAmount)}\nBorrower: ${formatWalletLink(event.borrower)}`,
+                { parse_mode: 'HTML' }
+              );
             }
+            lastProcessedBlocks.Nftlendhub_LoanFunded = event._blockNumber;
           }
+        }
 
-          // Process RepaymentClaimed events
-          for (const event of events[4]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            const lender = typedEvent.args[1];
-            console.log(`📥 RepaymentClaimed event: Loan #${loanId} by ${lender}`);
-
-            const user = await getUserByWallet(lender);
+        // Process LoanClaimed events
+        for (const event of events.Nftlendhub_LoanClaimed) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_LoanClaimed) {
+            const user = await getUserByWallet(event.borrower);
             if (user) {
-              await notifyUser(user.chat_id, `💸 You have successfully claimed repayment for loan #${loanId} on lendhub`);
+              await notifyUser(
+                user.chat_id,
+                `✅ Loan Claimed!\n\nLoan ID: ${event.loanId}\nAmount: ${formatEther(event.loanAmount)}`
+              );
             }
+            lastProcessedBlocks.Nftlendhub_LoanClaimed = event._blockNumber;
           }
+        }
 
-          // Process NFTClaimedByLender events
-          for (const event of events[5]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            
-            // Remove from active loans tracking
-            activeLoans.delete(loanId.toString());
-
-            const lender = typedEvent.args[1];
-            const borrower = typedEvent.args[2];
-            console.log(`📥 NFTClaimedByLender event: Loan #${loanId} by ${lender}`);
-            
-            // Notify lender
-            const lenderUser = await getUserByWallet(lender);
-            if (lenderUser) {
-              const loan = await contract.loans(loanId);
-              await notifyNFTClaimed(lenderUser.chat_id, loanId.toString(), loan.nftId.toString());
+        // Process LoanRepaid events
+        for (const event of events.Nftlendhub_LoanRepaid) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_LoanRepaid) {
+            const borrower = await getUserByWallet(event.borrower);
+            const lender = await getUserByWallet(event.lender);
+            if (borrower) {
+              await notifyUser(
+                borrower.chat_id,
+                `💵 Loan Repaid!\n\nLoan ID: ${event.loanId}\nAmount: ${formatEther(event.loanAmount)}\nLender: ${formatWalletLink(event.lender)}`,
+                { parse_mode: 'HTML' }
+              );
             }
-
-            // Notify borrower
-            const borrowerUser = await getUserByWallet(borrower);
-            if (borrowerUser) {
-              await notifyUser(borrowerUser.chat_id, `⚠️ Your NFT from loan #${loanId} on lendhub has been claimed by the lender due to non-repayment`);
+            if (lender) {
+              await notifyUser(
+                lender.chat_id,
+                `💵 Your Funded Loan was Repaid!\n\nLoan ID: ${event.loanId}\nAmount: ${formatEther(event.loanAmount)}\nBorrower: ${formatWalletLink(event.borrower)}`,
+                { parse_mode: 'HTML' }
+              );
             }
+            lastProcessedBlocks.Nftlendhub_LoanRepaid = event._blockNumber;
           }
+        }
 
-          // Process NFTWithdrawn events
-          for (const event of events[6]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            const owner = typedEvent.args[1];
-            console.log(`📥 NFTWithdrawn event: Loan #${loanId} by ${owner}`);
-            
-            const user = await getUserByWallet(owner);
+        // Process RepaymentClaimed events
+        for (const event of events.Nftlendhub_RepaymentClaimed) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_RepaymentClaimed) {
+            const user = await getUserByWallet(event.lender);
             if (user) {
-              await notifyUser(user.chat_id, `🔄 You have successfully withdrawn your NFT from loan #${loanId}`);
+              await notifyUser(
+                user.chat_id,
+                `💸 Repayment Claimed!\n\nLoan ID: ${event.loanId}\nAmount: ${formatEther(event.loanAmount)}`
+              );
             }
+            lastProcessedBlocks.Nftlendhub_RepaymentClaimed = event._blockNumber;
           }
+        }
 
-          // Process LoanCancelled events
-          for (const event of events[7]) {
-            const typedEvent = event as ethers.EventLog;
-            const loanId = typedEvent.args[0];
-            
-            // Remove from active loans tracking
-            activeLoans.delete(loanId.toString());
-
-            const owner = typedEvent.args[1];
-            console.log(`📥 LoanCancelled event: Loan #${loanId} by ${owner}`);
-            
-            const user = await getUserByWallet(owner);
+        // Process NFTClaimedByLender events
+        for (const event of events.Nftlendhub_NFTClaimedByLender) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_NFTClaimedByLender) {
+            const user = await getUserByWallet(event.borrower);
             if (user) {
-              await notifyUser(user.chat_id, `❌ You have cancelled loan #${loanId}`);
+              await notifyUser(
+                user.chat_id,
+                `⚠️ NFT Claimed by Lender!\n\nLoan ID: ${event.loanId}\nLender: ${formatWalletLink(event.lender)}`,
+                { parse_mode: 'HTML' }
+              );
             }
+            const lender = await getUserByWallet(event.lender);
+            if (lender) {
+              await notifyUser(
+                lender.chat_id,
+                `💰 Your NFT was Claimed!\n\nLoan ID: ${event.loanId}\nBorrower: ${formatWalletLink(event.borrower)}`,
+                { parse_mode: 'HTML' }
+              );
+            }
+            lastProcessedBlocks.Nftlendhub_NFTClaimedByLender = event._blockNumber;
           }
+        }
 
-          fromBlock = toBlock + 1;
-          lastProcessedBlock = toBlock;
+        // Process NFTWithdrawn events
+        for (const event of events.Nftlendhub_NFTWithdrawn) {
+          if (event._blockNumber > lastProcessedBlocks.Nftlendhub_NFTWithdrawn) {
+            const user = await getUserByWallet(event.owner);
+            if (user) {
+              await notifyUser(
+                user.chat_id,
+                `📤 NFT Withdrawn!\n\nLoan ID: ${event.loanId}`
+              );
+            }
+            lastProcessedBlocks.Nftlendhub_NFTWithdrawn = event._blockNumber;
+          }
         }
 
         // Check loan expiration status
-        await checkLoanExpiration(contract);
+        await checkLoanExpiration();
 
       } catch (error) {
-        console.error('❌ Error processing blocks:', error);
+        console.error('❌ Error processing events:', error);
       }
     }, pollInterval);
 

@@ -18,6 +18,7 @@ export type NftListed = {
     loanId: string;
     lender: string;
     borrower: string;
+    loanAmount: string;
     _blockNumber: number;
     _timestamp: number;
   };
@@ -26,6 +27,7 @@ export type NftListed = {
     id: string;
     loanId: string;
     borrower: string;
+    loanAmount: string;
     _blockNumber: number;
     _timestamp: number;
   };
@@ -35,6 +37,7 @@ export type NftListed = {
     loanId: string;
     borrower: string;
     lender: string;
+    loanAmount: string;
     _blockNumber: number;
     _timestamp: number;
   };
@@ -43,6 +46,7 @@ export type NftListed = {
     id: string;
     loanId: string;
     lender: string;
+    loanAmount: string;
     _blockNumber: number;
     _timestamp: number;
   };
@@ -68,6 +72,14 @@ export type NftListed = {
     id: string;
     loanId: string;
     borrower: string;
+    _blockNumber: number;
+    _timestamp: number;
+  };
+
+  export type LoanCancelled = {
+    id: string;
+    loanId: string;
+    owner: string;
     _blockNumber: number;
     _timestamp: number;
   };

@@ -23,6 +23,7 @@ import type {
   RepaymentClaimed,
   NFTClaimedByLender,
   NFTWithdrawn,
+  LoanCancelled,
 } from "@/components/types/envio";
 import { Badge } from "@/Components/privy/ui/badge";
 import { Button } from "@/Components/privy/ui/button";
@@ -70,6 +71,7 @@ const formatNFT = (nftId: string) => {
 const getStatus = (type: string) => {
   if (type === "NFTListed") return "Pending";
   if (["LoanFunded", "LoanClaimed"].includes(type)) return "Active";
+  if (type === "LoanCancelled") return "Cancelled";
   if (
     [
       "LoanRepaid",
@@ -87,10 +89,11 @@ const getAction = (type: string) => {
   if (type === "NFTListed") return "ListedNftForLoan"; // ListedNftForLoan
   if (type === "LoanFunded") return "FundedLoan"; //
   if (type === "LoanClaimed") return "ClaimedLoan"; // ClaimedLoan
+  if (type === "LoanCancelled") return "CancelledLoan"; // CancelledLoan
   if (type === "LoanRepaid") return "RepaidLoan"; //
   if (type === "RepaymentClaimed") return "ClaimedRepayment"; // ClaimedRepayment
   if (type === "NFTClaimedByLender") return "ClaimedNft"; // ClaimedNft
-  if (type === "NFTWithdrawn") return "WithdrawnNft"; // WithdrawnNft
+  if (type === "NFTWithdrawn") return "CancelledLoan"; // WithdrawnNft
   return type;
 };
 
@@ -103,6 +106,8 @@ const getActionIcon = (type: string) => {
       return <ArrowDownLeft className="h-4 w-4 text-green-400" />;
     case "LoanClaimed":
       return <Wallet className="h-4 w-4 text-blue-400" />;
+    case "LoanCancelled":
+      return <CheckCircle className="h-4 w-4 text-red-400" />;
     case "LoanRepaid":
       return <ArrowUpRight className="h-4 w-4 text-amber-400" />;
     case "RepaymentClaimed":
@@ -161,16 +166,19 @@ const GET_ACTIVITY = `
       id loanId nftOwner nftAddress nftId loanAmount interestRate duration loanToken _blockNumber _timestamp
     }
     Nftlendhub_LoanFunded(limit: 100000) {
-      id loanId lender _blockNumber _timestamp
+      id loanId loanAmount lender borrower _blockNumber _timestamp
     }
     Nftlendhub_LoanClaimed(limit: 1000000) {
-      id loanId borrower _blockNumber _timestamp
+      id loanId loanAmount borrower _blockNumber _timestamp
+    }
+    Nftlendhub_LoanCancelled(limit: 1000000) {
+      id loanId owner _blockNumber _timestamp
     }
     Nftlendhub_LoanRepaid(limit: 1000000) {
-      id loanId borrower  _blockNumber _timestamp
+      id loanId borrower  lender loanAmount _blockNumber _timestamp
     }
     Nftlendhub_RepaymentClaimed(limit: 100000) {
-      id loanId lender _blockNumber _timestamp
+      id loanId lender loanAmount _blockNumber _timestamp
     }
     Nftlendhub_NFTClaimedByLender(limit: 100000) {
       id loanId lender borrower _blockNumber _timestamp
@@ -291,6 +299,11 @@ export default function ActivityFeed() {
             type: "LoanClaimed",
             address: e.borrower,
           })),
+          ...data.Nftlendhub_LoanCancelled.map((e: LoanCancelled) => ({
+            ...e,
+            type: "LoanCancelled",
+            address: e.owner,
+          })),
           ...data.Nftlendhub_LoanRepaid.map((e: LoanRepaid) => ({
             ...e,
             type: "LoanRepaid",
@@ -329,7 +342,7 @@ export default function ActivityFeed() {
     fetchData();
 
     // Optional: Poll every 10 seconds for live updates
-    const interval = setInterval(fetchData, 60000);
+    const interval = setInterval(fetchData, 10000);
     return () => {
       clearInterval(interval);
       controller.abort();
@@ -402,6 +415,11 @@ export default function ActivityFeed() {
           ...e,
           type: "LoanClaimed",
           address: e.borrower,
+        })),
+        ...data.Nftlendhub_LoanCancelled.map((e: LoanCancelled) => ({
+          ...e,
+          type: "LoanCancelled",
+          address: e.owner,
         })),
         ...data.Nftlendhub_LoanRepaid.map((e: LoanRepaid) => ({
           ...e,

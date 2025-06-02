@@ -23,7 +23,7 @@ import {
   Nftlendhub_NFTWithdrawn,
   Nftlendhub_OwnershipTransferred,
   Nftlendhub_RepaymentClaimed,
-  // Nftlendhub__LoanCancelled,
+  Nftlendhub_LoanCancelled,
 } from 'generated';
 
 Nftlendhub.LoanClaimed.handler(async ({ event, context }) => {
@@ -31,6 +31,7 @@ Nftlendhub.LoanClaimed.handler(async ({ event, context }) => {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
     loanId: event.params.loanId,
     borrower: event.params.borrower,
+    loanAmount: event.params.loanAmount,
     _blockNumber: BigInt(event.block.number),
     _timestamp: BigInt(event.block.timestamp),
   };
@@ -43,7 +44,8 @@ Nftlendhub.LoanFunded.handler(async ({ event, context }) => {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
     loanId: event.params.loanId,
     lender: event.params.lender,
-    // borrower: event.params.borrower,
+    borrower: event.params.borrower,
+    loanAmount: event.params.loanAmount,
     _blockNumber: BigInt(event.block.number),
     _timestamp: BigInt(event.block.timestamp),
   };
@@ -56,7 +58,8 @@ Nftlendhub.LoanRepaid.handler(async ({ event, context }) => {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
     loanId: event.params.loanId,
     borrower: event.params.borrower,
-    // lender: event.params.lender,
+    lender: event.params.lender,
+    loanAmount: event.params.loanAmount,
     _blockNumber: BigInt(event.block.number),
     _timestamp: BigInt(event.block.timestamp),
   };
@@ -95,6 +98,8 @@ Nftlendhub.NFTListed.handler(async ({ event, context }) => {
   context.Nftlendhub_NFTListed.set(entity);
 });
 
+
+
 Nftlendhub.NFTWithdrawn.handler(async ({ event, context }) => {
   const entity: Nftlendhub_NFTWithdrawn = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
@@ -124,6 +129,7 @@ Nftlendhub.RepaymentClaimed.handler(async ({ event, context }) => {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
     loanId: event.params.loanId,
     lender: event.params.lender,
+    loanAmount: event.params.loanAmount,
     _blockNumber: BigInt(event.block.number),
     _timestamp: BigInt(event.block.timestamp),
   };
@@ -131,14 +137,14 @@ Nftlendhub.RepaymentClaimed.handler(async ({ event, context }) => {
   context.Nftlendhub_RepaymentClaimed.set(entity);
 });
 
-/* Nftlendhub.LoanCancelled.handler(async ({ event, context }) => {
-  const entity: Nftlendhub__LoanCancelled = {
+ Nftlendhub.LoanCancelled.handler(async ({ event, context }) => {
+  const entity: Nftlendhub_LoanCancelled = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
     loanId: event.params.loanId,
-    borrower: event.params.borrower,
+    owner: event.params.owner,
     _blockNumber: BigInt(event.block.number),      
     _timestamp: BigInt(event.block.timestamp), 
   };
 
-  context.Nftlendhub__LoanCancelled.set(entity);
-}); */
+  context.Nftlendhub_LoanCancelled.set(entity);
+}); 
