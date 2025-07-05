@@ -341,8 +341,8 @@ export default function ActivityFeed() {
 
     fetchData();
 
-    // Optional: Poll every 10 seconds for live updates
-    const interval = setInterval(fetchData, 10000);
+    // Optional: Poll every 60 seconds for live updates
+    const interval = setInterval(fetchData, 60000);
     return () => {
       clearInterval(interval);
       controller.abort();

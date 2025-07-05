@@ -7,10 +7,28 @@ import { Button } from "@/Components/privy/ui/button";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/Components/privy/ui/sheet";
 import { useAccount } from "wagmi";
+import { useEffect } from "react";
 
 export function Header() {
   const { login, authenticated, ready, user, logout } = usePrivy();
-  const { isConnected, address } = useAccount();
+  const { address } = useAccount();
+
+  // Debug logging
+  // console.log("🔍 Header Debug:", {
+  //   ready,
+  //   authenticated,
+  //   address: address ? `${address.slice(0, 4)}...${address.slice(-4)}` : "none",
+  //   shouldShowAddress: ready && authenticated && address
+  // });
+
+  // Force re-render when connection state changes
+  useEffect(() => {
+    // console.log("🔄 Header useEffect - Connection state changed:", {
+    //   ready,
+    //   authenticated,
+    //   address: address ? `${address.slice(0, 4)}...${address.slice(-4)}` : "none"
+    // });
+  }, [ready, authenticated, address]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-monad-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -80,12 +98,6 @@ export function Header() {
               onClick={() => logout()}
               className="border-monad-border hover:bg-monad-500/10 hover:text-monad-500 h-8 text-xs sm:text-sm"
             >
-              {/* {user?.wallet?.address
-                ? `${user.wallet.address.slice(
-                    0,
-                    4
-                  )}...${user.wallet.address.slice(-4)}`
-                : "Disconnect"} */}
               {address
                 ? `${address.slice(0, 4)}...${address.slice(-4)}`
                 : "Disconnect"}
@@ -156,18 +168,12 @@ export function Header() {
                   Stats
                 </Link>
                 <div className="mt-6">
-                  {authenticated ? (
+                  {ready && authenticated && address ? (
                     <Button
                       variant="outline"
                       onClick={() => logout()}
                       className="w-full border-monad-border hover:bg-monad-500/10 hover:text-monad-500 h-10 text-sm"
                     >
-                      {/* {user?.wallet?.address
-                        ? `${user.wallet.address.slice(
-                            0,
-                            4
-                          )}...${user.wallet.address.slice(-4)}`
-                        : "Disconnect"} */}
                       {address
                         ? `${address.slice(0, 4)}...${address.slice(-4)}`
                         : "Disconnect"}

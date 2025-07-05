@@ -36,7 +36,20 @@ interface ILockable is IERC165 {
     function unlockAndTransfer(address to, uint256 tokenId) external;
 }
 
-contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
+// Add interface for point system
+interface ILendHubPointSystem {
+    function awardPointsForListing(address user) external;
+
+    function awardPointsForFunding(address user) external;
+
+    function awardPointsForRepayment(address user) external;
+
+    function awardPointsForCompletion(address user) external;
+
+    function deductPointsForCancellation(address user) external;
+}
+
+contract LendHub_v2 is Ownable, ReentrancyGuard {
     uint256 public constant PLATFORM_FEE = 2; // 2%
     uint256 public constant GRACE_PERIOD = 7 days;
 
@@ -44,6 +57,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
     address public immutable USDT;
     address public immutable ETH;
     address public platformWallet;
+    address public pointSystem; // Add point system contract address
 
     uint256 public loanCounter;
     uint256[] public allLoanIds;
@@ -136,12 +150,14 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         address _MON,
         address _USDT,
         address _ETH,
-        address _platformWallet
+        address _platformWallet,
+        address _pointSystem
     ) {
         MON = _MON;
         USDT = _USDT;
         ETH = _ETH;
         platformWallet = _platformWallet;
+        pointSystem = _pointSystem;
     }
 
     /** --- Modifiers --- */
@@ -296,6 +312,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         isNFTListed[_nftAddress][_nftId] = true;
 
+        // Award points for listing
+        ILendHubPointSystem(pointSystem).awardPointsForListing(msg.sender);
+
         emit NFTListed(
             loanId,
             msg.sender,
@@ -403,6 +422,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
+        // Award points for funding
+        ILendHubPointSystem(pointSystem).awardPointsForFunding(msg.sender);
+
         emit LoanFunded(
             loanId,
             msg.sender,
@@ -440,6 +462,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         loan.milestones.claimedAt = block.timestamp;
         // Update allLoans array
         _updateAllLoans(loanId, loan);
+
+        // Award points for claiming loan
+        ILendHubPointSystem(pointSystem).awardPointsForRepayment(msg.sender);
 
         emit LoanClaimed(loanId, msg.sender, payout);
     }
@@ -480,6 +505,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         // Update allLoans array
         _updateAllLoans(loanId, loan);
 
+        // Award points for repayment
+        ILendHubPointSystem(pointSystem).awardPointsForRepayment(msg.sender);
+
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
         emit LoanRepaid(
@@ -516,6 +544,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         completedLoanIds.push(loanId);
         // Update allLoans array
         _updateAllLoans(loanId, loan);
+
+        // Award points for completion
+        ILendHubPointSystem(pointSystem).awardPointsForCompletion(msg.sender);
 
         emit RepaymentClaimed(loanId, msg.sender, fRepaymentAmount);
     }
@@ -559,6 +590,9 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         _updateAllLoans(loanId, loan);
         isNFTListed[loan.loanAddDetails.nftAddress][loan.nftId] = false;
 
+        // Award points for completion
+        ILendHubPointSystem(pointSystem).awardPointsForCompletion(msg.sender);
+
         emit NFTClaimedByLender(
             loanId,
             msg.sender,
@@ -588,6 +622,11 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
 
         // Update allLoans array
         _updateAllLoans(loanId, loan);
+
+        // Deduct points for cancellation
+        ILendHubPointSystem(pointSystem).deductPointsForCancellation(
+            msg.sender
+        );
 
         emit LoanCancelled(loanId, loan.loanAddDetails.nftOwner);
     }

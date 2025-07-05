@@ -53,7 +53,7 @@ export function LendTab() {
     chain: monadTestnet,
     transport: http(
       process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC ||
-        "https://testnet-rpc.monad.xyz"
+      "https://testnet-rpc.monad.xyz"
     ),
   });
 
@@ -130,7 +130,20 @@ export function LendTab() {
         const neededFormatted = Number(formatEther(loan.loanAmount)).toFixed(2);
         toast({
           title: "Insufficient Balance",
-          description: `You have ${balanceFormatted} wMON but need ${neededFormatted} wMON`,
+          description: (
+            <>
+              You have {balanceFormatted} wMON but need {neededFormatted} wMON, consider wrapping more wMON on{" "}
+              <a
+                // href="https://www.kuru.io/swap?from=0x0000000000000000000000000000000000000000&to=0x760afe86e5de5fa0ee542fc7b7b713e1c5425701"
+                href="/swap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 underline"
+              >
+                Lendhub exchange
+              </a>
+            </>
+          ),
           variant: "destructive",
         });
         return;

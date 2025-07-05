@@ -56,7 +56,6 @@ import { WagmiConfig } from "@/providers/wagmi-provider";
 import { Header } from "@/components/header";
 import FeedbackModal from "@/components/feedback/feedback";
 import ThemeToggle from "@/components/ThemeToggle";
-
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -73,7 +72,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LendHub",
-  description: "Peer-2-Peer NFT Lending on Monad",
+  description: "Decentralized Peer-2-Peer NFT Lending on Monad",
 };
 
 export default function RootLayout({

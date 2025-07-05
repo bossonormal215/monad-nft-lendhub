@@ -18,12 +18,20 @@ const config: HardhatUserConfig = {
     monadTestnet: {
       // url: process.env.MONAD_RPC_URL,
       url: process.env.PUBLIC_MONAD_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY as string],
+      accounts: [
+        process.env.PRIVATE_KEY as string,
+        process.env.PRIVATE_KEY_2 as string,
+        process.env.PRIVATE_KEY_3 as string,
+      ].filter(Boolean), // Remove any undefined values
     },
     sepolia: {
       // url: process.env.SEPOLIA_RPC_URL,
       url: process.env.PUBLIC_MONAD_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY as string],
+      accounts: [
+        process.env.PRIVATE_KEY as string,
+        process.env.PRIVATE_KEY_2 as string,
+        process.env.PRIVATE_KEY_3 as string,
+      ].filter(Boolean), // Remove any undefined values
     },
   },
 
