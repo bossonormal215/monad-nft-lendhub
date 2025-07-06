@@ -23,7 +23,9 @@
     "snapshot-5-completed": "npx hardhat run scripts/snapshot/5completed.ts --network monadTestnet",
     "compile": "npx hardhat compile",
     "deploy-newMission5NFT": "npx hardhat run scripts/newMission5/deploy.ts --network monadTestnet",
+    "deploy-newMission5NFT-somnia": "npx hardhat run scripts/newMission5/deploy.ts --network somnia",
     "mint-newMission5NFT": "npx hardhat run scripts/newMission5/mintNft.ts --network monadTestnet",
+    "mint-newMission5NFT-somnia": "npx hardhat run scripts/newMission5/mintNft.ts --network somnia",
     "view-uri": "yarn ts-node scripts/newMission5/decode-nft-uri.ts"
   },
   "devDependencies": {

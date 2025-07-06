@@ -33,6 +33,14 @@ const config: HardhatUserConfig = {
         process.env.PRIVATE_KEY_3 as string,
       ].filter(Boolean), // Remove any undefined values
     },
+    somnia: {
+      url: process.env.PUBLIC_SOMNIA_RPC_URL,
+      accounts: [
+        process.env.PRIVATE_KEY as string,
+        process.env.PRIVATE_KEY_2 as string,
+        process.env.PRIVATE_KEY_3 as string,
+      ].filter(Boolean), // Remove any undefined values
+    },
   },
 
   sourcify: {

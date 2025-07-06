@@ -10,7 +10,8 @@ async function main() {
   //   const MISSION5NFT_ADDRESS = '0x935e97913145856443D96BD2EC8Bb77Fe9Fa2057'; // 5
   // const MISSION5NFT_ADDRESS = '0x943A1995F8b39D785f10582A09Ac7922E8BC3FC4'; // 6
   // const MISSION5NFT_ADDRESS = '0x6D6E12949b12CdB95f9BACC1DfFE048CCa87EEd6'; // 7
-  const MISSION5NFT_ADDRESS = '0x47d62aa2ca121e2E651C9591cfB1Bb9BF3172e33'; // 8
+  // const MISSION5NFT_ADDRESS = '0x47d62aa2ca121e2E651C9591cfB1Bb9BF3172e33'; // 8
+  const MISSION5NFT_ADDRESS = '0xA6A088d68dcc7492D3C19Dcbfa5A4089b4f8979E'; // 1 somnia
 
   // Get contract instance with correct type
 
@@ -47,7 +48,7 @@ async function main() {
   console.log('Unlocked tokenURI:\n', uri);
 
   // Lock the NFT (owner is lockManager)
-  const duration = 60 * 60 * 24; // 1 day
+  /*const duration = 60 * 60 * 24; // 1 day
   const lockTx = await mission5NFT
     .connect(owner)
     .lock(tokenId, owner.address, duration);
@@ -57,6 +58,7 @@ async function main() {
   // Show URI when locked
   uri = await mission5NFT.tokenURI(tokenId);
   console.log('Locked tokenURI:\n', uri);
+  */
 }
 
 main()
