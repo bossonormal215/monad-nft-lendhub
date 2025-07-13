@@ -36,11 +36,11 @@ interface ILockable is IERC165 {
     function unlockAndTransfer(address to, uint256 tokenId) external;
 }
 
-contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
-    uint256 public constant PLATFORM_FEE = 2; // 2% changes to 0.1%
+contract Lendhub_somnia is Ownable, ReentrancyGuard {
+    uint256 public constant PLATFORM_FEE = 2; // 2%
     uint256 public constant GRACE_PERIOD = 7 days;
 
-    address public immutable MON;
+    address public immutable STT;
     address public immutable USDT;
     address public immutable ETH;
     address public platformWallet;
@@ -133,12 +133,12 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
     event LoanCancelled(uint256 indexed loanId, address indexed owner);
 
     constructor(
-        address _MON,
+        address _STT,
         address _USDT,
         address _ETH,
         address _platformWallet
     ) {
-        MON = _MON;
+        STT = _STT;
         USDT = _USDT;
         ETH = _ETH;
         platformWallet = _platformWallet;
@@ -229,7 +229,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
         address _loanToken
     ) external {
         require(
-            _loanToken == MON || _loanToken == USDT || _loanToken == ETH,
+            _loanToken == STT || _loanToken == USDT || _loanToken == ETH,
             "Invalid token"
         );
 
@@ -363,7 +363,7 @@ contract NFTLendHub5_v2 is Ownable, ReentrancyGuard {
             "Insufficient balance"
         );
         require(
-            loan.loanAddDetails.loanToken == MON ||
+            loan.loanAddDetails.loanToken == STT ||
                 loan.loanAddDetails.loanToken == USDT ||
                 loan.loanAddDetails.loanToken == ETH,
             "Invalid token"

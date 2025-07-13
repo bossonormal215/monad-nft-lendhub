@@ -49,7 +49,20 @@ const config: HardhatUserConfig = {
     browserUrl: 'https://testnet.monadexplorer.com',
   },
   etherscan: {
-    enabled: false,
+    enabled: true,
+    apiKey: {
+      "somnia-testnet": "dummy" // Somnia doesn't require an API key
+    },
+    customChains: [
+      {
+        network: "somnia-testnet",
+        chainId: 50312,
+        urls: {
+          apiURL: "https://somnia.w3us.site/api",
+          browserURL: "https://somnia.w3us.site"
+        }
+      }
+    ]
   },
 };
 
