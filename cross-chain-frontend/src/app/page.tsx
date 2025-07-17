@@ -640,7 +640,7 @@ export default function Home() {
               </p>
               <div className="flex gap-4">
                 <Link
-                  href="#"
+                  href="https://x.com/lendhub"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <svg
