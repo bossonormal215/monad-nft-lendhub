@@ -55,7 +55,7 @@ import { Toaster } from "@/Components/privy/ui/toaster";
 import { WagmiConfig } from "@/providers/wagmi-provider";
 import { Header } from "@/components/header";
 import FeedbackModal from "@/components/feedback/feedback";
-import ThemeToggle from "@/components/ThemeToggle";
+// import ThemeToggle from "@/components/ThemeToggle";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -84,10 +84,9 @@ export default function RootLayout({
     <html lang="en">
       {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
       {/* <body className={inter.className}> */}
-      <body className={inter.className + ' bg-white dark:bg-gray-900'}>
+      <body className={inter.className + " dark:bg-gray-900"}>
         {/* <main className="min-h-screen bg-gray-900"> */}
-        <main className="min-h-screen bg-white dark:bg-gray-900">
-
+        <main className="min-h-screen dark:bg-gray-900">
           <Web3Wrapper>
             <WagmiConfig>
               <Header />
@@ -101,7 +100,7 @@ export default function RootLayout({
           <FeedbackModal />
         </div>
         {/* Dark/Light Mode Toggle Fixed Bottom-Left */}
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
       </body>
     </html>
   );
